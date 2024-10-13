@@ -1,0 +1,45 @@
+{
+  "name": "gps",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve Front-end/src/main.ts",
+    "build": "vue-cli-service build ",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "@geoman-io/leaflet-geoman-free": "^2.17.0",
+    "@types/googlemaps": "^3.43.3",
+    "bootstrap": "^5.3.3",
+    "chart.js": "^4.4.4",
+    "chartkick": "^5.0.1",
+    "core-js": "^3.8.3",
+    "jquery": "^3.7.1",
+    "leaflet": "^1.9.4",
+    "leaflet-draw": "^1.0.4",
+    "leaflet-editable": "^1.3.0",
+    "mapkick": "^0.2.6",
+    "vue": "^3.2.13",
+    "vue-chartjs": "^5.3.1",
+    "vue-leaflet": "^0.1.0",
+    "vue-router": "^4.0.3",
+    "vue2-google-maps": "^0.10.7",
+    "vuex": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/leaflet": "^1.9.12",
+    "@types/leaflet-draw": "^1.0.11",
+    "@typescript-eslint/eslint-plugin": "^5.4.0",
+    "@typescript-eslint/parser": "^5.4.0",
+    "@vue/cli-plugin-babel": "~5.0.0",
+    "@vue/cli-plugin-eslint": "~5.0.0",
+    "@vue/cli-plugin-router": "~5.0.0",
+    "@vue/cli-plugin-typescript": "~5.0.0",
+    "@vue/cli-plugin-vuex": "~5.0.0",
+    "@vue/cli-service": "~5.0.0",
+    "@vue/eslint-config-typescript": "^9.1.0",
+    "eslint": "^7.32.0",
+    "eslint-plugin-vue": "^8.0.3",
+    "typescript": "~4.5.5"
+  }
+}

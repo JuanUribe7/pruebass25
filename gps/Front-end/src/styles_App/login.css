@@ -1,0 +1,76 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap');
+*{
+    box-sizing: border-box;
+    padding: 0%;
+    margin: 0%;
+}
+
+.cont{
+    display: flex;
+    align-items: center;
+}
+
+.contenedor1{
+    background-color: rgb(213, 213, 213);
+    height: 100vh;
+    width: 45%;
+}
+
+.contenedor1 .logo{
+    display: flex;
+    align-items: center;
+    margin: 6em 6em;
+}
+
+.contenedor1 .logo img{
+    margin-right: 15px;
+    height: 60px;
+    width: 60px;
+}
+
+.contenedor1 .formu{
+    margin: 6em 6em;
+}
+
+.contenedor1 .formu form{
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.typed-text {
+    font-family: 'Courier', monospace; /* Simula el efecto de máquina de escribir */
+    font-size: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+.contenedor1 .formu form input{
+    padding: 20px;
+    border-radius: 10px;
+    border: none;
+
+}
+
+.contenedor1 .formu form ::placeholder{
+    color: rgb(70, 70, 70);
+}
+
+.contenedor1 .formu form input:focus{
+    outline: none;
+}
+
+.btn1{
+    background-color: rgb(31, 166, 207);
+}
+
+.cont .contenedor2{
+    background-image: url('../assets/fondoL1.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: 100%; 
+    width: 55%;
+    height: 100vh;
+}
+
+
