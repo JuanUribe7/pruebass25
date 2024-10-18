@@ -3,20 +3,35 @@
     <div class="overlay"></div>
     <div class="navar">
       <div class="text">
-        <h1 class="titulo">Navify</h1>
+        <h1 class="titulo">{{ displayedText }}</h1>
       </div>
 
       <div class="actions">
-        <!-- Menú desplegable de configuración -->
+        <!-- Icono de notificación con indicador -->
+        <button class="notification-btn">
+          <i class='bx bx-bell'></i>
+          <span class="notification-indicator"></span>
+        </button>
+        
+        <!-- Menú desplegable de configuración mejorado -->
         <div class="dropdown">
           <button class="dropbtn" @click="toggleDropdown">
-            <i class='bx bx-cog confi'></i> Settings
+            <i class='bx bx-cog confi'></i> Configuración
+            <i class='bx bx-chevron-down'></i>
           </button>
           <div class="dropdown-content" :class="{ 'show': dropdownOpen }">
-            <a href="#"><i class='bx bx-user-circle iconsub'></i> Perfil</a>
-            <a href="#"><i class='bx bx-lock-alt iconsub'></i> Contraseña</a>
-            <a href="#"><i class='bx bx-bell iconsub'></i> Notificaciones</a>
-            <a href="#"><i class='bx bx-user-x iconsub'></i> Privacidad</a>
+            <a href="#" class="dropdown-item">
+              <i class='bx bx-user-circle'></i>
+              <span>Perfil</span>
+            </a>
+            <a href="#" class="dropdown-item">
+              <i class='bx bx-lock-alt'></i>
+              <span>Contraseña</span>
+            </a>
+            <a href="#" class="dropdown-item">
+              <i class='bx bx-user-x'></i>
+              <span>Privacidad</span>
+            </a>
           </div>
         </div>
       </div>
@@ -54,7 +69,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import * as L from 'leaflet';
 import Swal from 'sweetalert2';
 import 'leaflet/dist/leaflet.css';
@@ -75,16 +90,42 @@ const selectedDevice = ref(null);
 const deviceShapes = ref({});
 const dropdownOpen = ref(false);
 
+const fullText = "Navify";
+const displayedText = ref("");
+let currentIndex = 0;
+let isDeleting = false;
+let typingInterval;
+
+const typeEffect = () => {
+  const current = currentIndex;
+  
+  if (!isDeleting && current < fullText.length) {
+    displayedText.value = fullText.slice(0, current + 1);
+    currentIndex++;
+    if (currentIndex === fullText.length) {
+      // Esperar 5 segundos antes de comenzar a borrar
+      typingInterval = setTimeout(() => {
+        isDeleting = true;
+        typeEffect();
+      }, 5000);
+      return;
+    }
+  } else if (isDeleting && current > 0) {
+    displayedText.value = fullText.slice(0, current - 1);
+    currentIndex--;
+  } else {
+    isDeleting = false;
+    currentIndex = 0;
+  }
+
+  const typingSpeed = isDeleting ? 100 : 200;
+  typingInterval = setTimeout(typeEffect, typingSpeed);
+};
+
 // Función para alternar la visibilidad del dropdown
 function toggleDropdown() {
   dropdownOpen.value = !dropdownOpen.value;
 }
-
-onMounted(() => {
-  filteredResults.value = devices.value; // Inicializa la lista filtrada
-  initMap(); // Inicializa el mapa
-});
-
 const initMap = () => {
   map.value = L.map('map').setView([10.96854, -74.78132], 12);
 
@@ -239,6 +280,17 @@ const filterResults = () => {
     item.name.toLowerCase().includes(query)
   );
 };
+
+onMounted(() => {
+  filteredResults.value = devices.value; // Inicializa la lista filtrada
+  initMap(); // Inicializa el mapa
+  typeEffect();
+});
+
+onUnmounted(() => {
+  clearTimeout(typingInterval);
+});
+
 </script>
 
 
@@ -274,17 +326,120 @@ const filterResults = () => {
   border-bottom: 3px solid var(--body-color);
 }
 
-.home .navar,
-.home .titulo,
-.home .subtitulo {
+.home .text {
   position: relative;
   z-index: 2;
-
 }
 
-.home .navar {
+.home .actions {
+  display: flex;
+  align-items: center;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+}
+
+.notification-btn {
+  background: none;
+  border: none;
+  color: var(--text-colar);
+  font-size: 1.7rem;
+  cursor: pointer;
+  margin-right: 15px;
+  margin-top: 10px;
+  position: relative;
+}
+
+.notification-indicator {
+  position: absolute;
+  right: -1px;
+  width: 15px;
+  height: 15px;
+  background-color: var(--text-colar);
+  border-radius: 50%;
+}
+
+.titulo {
+  display: inline-block;
+  min-width: 100px; /* Ajusta según sea necesario */
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropbtn {
   background-color: var(--sidebar-color);
-  border-bottom: 3px solid var(--body-color);
+  color: var(--text-colar);
+  padding: 10px 15px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 5px;
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.dropbtn:hover {
+  background-color: var(--body-color);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  margin-right: 30px;
+  background-color: var(--sidebar-color);
+  min-width: 200px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  z-index: 3;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.dropdown-content.show {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.dropdown-item {
+  color: var(--text-colar);
+  padding: 12px 16px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.dropdown-item:hover {
+  background-color: var(--body-color);
+  transform: translateX(5px);
+  color: var(--text-colar);
+}
+
+.dropdown-item i {
+  margin-right: 12px;
+  font-size: 1.2em;
+  width: 20px;
+  text-align: center;
+}
+
+.dropdown-item span {
+  font-weight: 500;
+}
+
+/* Separador entre elementos */
+.dropdown-item:not(:last-child) {
+  border-bottom: 1px solid rgba(var(--text-colar-rgb), 0.1);
 }
 
 .iframe-container {

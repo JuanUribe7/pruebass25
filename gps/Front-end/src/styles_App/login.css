@@ -1,76 +1,133 @@
-@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap');
-*{
-    box-sizing: border-box;
-    padding: 0%;
-    margin: 0%;
-}
-
-.cont{
+.login-container {
     display: flex;
+    justify-content: center;
     align-items: center;
-}
-
-.contenedor1{
-    background-color: rgb(213, 213, 213);
     height: 100vh;
-    width: 45%;
-}
-
-.contenedor1 .logo{
-    display: flex;
-    align-items: center;
-    margin: 6em 6em;
-}
-
-.contenedor1 .logo img{
-    margin-right: 15px;
-    height: 60px;
-    width: 60px;
-}
-
-.contenedor1 .formu{
-    margin: 6em 6em;
-}
-
-.contenedor1 .formu form{
+    background: url('../assets/world-map.jpg') no-repeat center center fixed;
+    background-size: cover;
+    position: relative;
+  }
+  
+  .map-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 1;
+  }
+  
+  .login-box {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 3rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    z-index: 2;
+    width: 400px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  }
+  
+  .logo {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  
+  .satellite-logo {
+    width: 80px;
+    height: 80px;
+    animation: orbit 10s linear infinite;
+  }
+  
+  @keyframes orbit {
+    from { transform: rotate(0deg) translateX(30px) rotate(0deg); }
+    to { transform: rotate(360deg) translateX(30px) rotate(-360deg); }
+  }
+  
+  .logo h1 {
+    color: #ffffff;
+    font-size: 2.5rem;
+    margin-top: 1rem;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  }
+  
+  .login-form {
     display: flex;
     flex-direction: column;
-    gap: 30px;
-}
-
-.typed-text {
-    font-family: 'Courier', monospace; /* Simula el efecto de máquina de escribir */
-    font-size: 20px;
-    white-space: nowrap;
-    overflow: hidden;
   }
-
-.contenedor1 .formu form input{
-    padding: 20px;
-    border-radius: 10px;
+  
+  .input-group {
+    position: relative;
+    margin-bottom: 2rem;
+  }
+  
+  .input-group input {
+    width: 100%;
+    padding: 10px 0;
+    font-size: 1rem;
+    color: #fff;
     border: none;
-
-}
-
-.contenedor1 .formu form ::placeholder{
-    color: rgb(70, 70, 70);
-}
-
-.contenedor1 .formu form input:focus{
+    border-bottom: 2px solid #fff;
     outline: none;
-}
-
-.btn1{
-    background-color: rgb(31, 166, 207);
-}
-
-.cont .contenedor2{
-    background-image: url('../assets/fondoL1.jpg');
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: 100%; 
-    width: 55%;
-    height: 100vh;
-}
-
-
+    background: transparent;
+    transition: 0.5s;
+  }
+  
+  .input-group label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 10px 0;
+    font-size: 1rem;
+    color: #fff;
+    pointer-events: none;
+    transition: 0.5s;
+  }
+  
+  .input-group input:focus ~ label,
+  .input-group input:valid ~ label {
+    top: -20px;
+    left: 0;
+    color: #03e9f4;
+    font-size: 0.8rem;
+  }
+  
+  .input-group i {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #fff;
+    transition: 0.5s;
+  }
+  
+  .input-group input:focus ~ i,
+  .input-group input:valid ~ i {
+    color: #03e9f4;
+  }
+  
+  .login-btn {
+    background-color: transparent;
+    color: #03e9f4;
+    border: 2px solid #03e9f4;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.5s;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .login-btn:hover {
+    background-color: #03e9f4;
+    color: #fff;
+  }
+  
+  .typed-text {
+    color: #fff;
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    height: 1.5rem;
+    text-align: center;
+  }

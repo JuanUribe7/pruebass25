@@ -1,21 +1,29 @@
 <template>
-  <div class="cont">
-    <div class="contenedor1">
+  <div class="login-container">
+    <div class="login-box">
       <div class="logo">
-        <img :src="require('../assets/earth1.gif')" alt="earth logo">
-        <h1>Los Populares</h1>
+        <img :src="require('../assets/satellite.png')" alt="Satellite logo" class="satellite-logo">
+        <h1>Inicia Sesión</h1>
       </div>
 
-      <div class="formu">
-        <form class="box" @submit.prevent="login">
-          <h1 ref="typedText" class="typed-text">{{ displayText }}</h1>
-          <input type="text" v-model="email" placeholder="Email" required>
-          <input type="password" v-model="password" placeholder="Password" required>
-          <input type="submit" value="Iniciar Sesión" class="btn1">
-        </form>
-      </div>
+      <form @submit.prevent="login" class="login-form">
+        <h2 ref="typedText" class="typed-text">{{ displayText }}</h2>
+        <div class="input-group">
+          <input type="text" v-model="email" required>
+          <label>Correo electrónico</label>
+          <i class="fas fa-envelope"></i>
+        </div>
+        <div class="input-group">
+          <input type="password" v-model="password" required>
+          <label>Contraseña</label>
+          <i class="fas fa-lock"></i>
+        </div>
+        <button type="submit" class="login-btn">
+          Iniciar Sesión <i class="fas fa-arrow-right"></i>
+        </button>
+      </form>
     </div>
-    <div class="contenedor2"></div>
+    <div class="map-overlay"></div>
   </div>
 </template>
 
@@ -24,11 +32,12 @@ import { ref, defineEmits, onMounted } from 'vue';
 import Swal from 'sweetalert2';
 import '../styles_App/login.css';
 
+
 const emit = defineEmits(['loginSuccess']);
 const email = ref('');
 const password = ref('');
 const displayText = ref('');
-const text = "Iniciar sesión en Navify GPS"; 
+const text = "Descubre con Navify GPS"; 
 let index = 0;
 
 const login = async () => {
@@ -83,3 +92,4 @@ onMounted(() => {
   typeWriter();
 });
 </script>
+

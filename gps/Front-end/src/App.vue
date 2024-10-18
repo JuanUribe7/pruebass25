@@ -11,6 +11,7 @@ import LoginM from './components/LoginM.vue';
 const isAuthenticated = ref(false);
 
 onMounted(() => {
+  document.title = 'Navify';
   // Verifica si el usuario ya está autenticado en sessionStorage
   if (sessionStorage.getItem('isAuthenticated') === 'true') {
     isAuthenticated.value = true;

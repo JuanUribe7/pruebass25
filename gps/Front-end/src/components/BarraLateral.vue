@@ -34,6 +34,15 @@
             </router-link>
           </li>
 
+
+          <li class="nav-link">
+            <router-link to="/dispositivo">
+              <i class='bx bx-car icon'></i>
+              <span class="text nav-text">Dispositivo</span>
+            </router-link>
+          </li>
+
+
           <li class="nav-link">
             <router-link to="/tiempo_real">
               <i class='bx bx-navigation icon'></i>
@@ -52,13 +61,6 @@
             <router-link to="/historial">
               <i class='bx bx-history icon'></i>
               <span class="text nav-text">Historial</span>
-            </router-link>
-          </li>
-
-          <li class="nav-link">
-            <router-link to="/dispositivo">
-              <i class='bx bx-car icon'></i>
-              <span class="text nav-text">Dispositivo</span>
             </router-link>
           </li>
 
