@@ -8,12 +8,11 @@ import { ref, onMounted } from 'vue';
 import BarraLateral from './components/BarraLateral.vue';
 import LoginM from './components/LoginM.vue';
 
-const isAuthenticated = ref(false);
+const isAuthenticated = ref(false); 
 
 onMounted(() => {
   document.title = 'Navify';
-  // Verifica si el usuario ya está autenticado en sessionStorage
-  if (sessionStorage.getItem('isAuthenticated') === 'true') {
+  if (localStorage.getItem('isAuthenticated') === 'true') {
     isAuthenticated.value = true;
   }
 });

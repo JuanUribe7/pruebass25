@@ -39,20 +39,19 @@
 
     <div class="tituloo">
       <div class="hone">
-        <h1>Lista de Dispositivo</h1>
+        <h1>Lista de Dispositivos</h1>
         <div class="group">
           <svg class="icon" aria-hidden="true" viewBox="0 0 24 24">
             <g>
-              <path
-                d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z">
+              <path d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z">
               </path>
             </g>
           </svg>
-          <input placeholder="Search" type="search" class="input" v-model="searchQuery" @input="filterResults">
+          <input placeholder="Buscar" type="search" class="input" v-model="searchQuery" @input="filterResults">
         </div>
         <ul class="device-list">
           <router-link to="#" style="text-decoration: none;">
-            <li @click="showAlert(item)" v-for="item in filteredResults" :key="item.id">{{ item.name }}
+            <li @click="showAlert(item)" v-for="item in filteredResults" :key="item._id">{{ item.deviceName }}
               <i class='bx bxs-car icon'></i>
             </li>
           </router-link>
@@ -71,8 +70,21 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import Swal from 'sweetalert2';
-import L from 'leaflet'; 
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
+import iconUrl from 'leaflet/dist/images/marker-icon.png';
+import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
 
+// Configuración de Leaflet
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl,
+  iconUrl,
+  shadowUrl
+});
+
+// Variables reactivas
 let map;
 const fullText = "Navify";
 const displayedText = ref("");
@@ -80,6 +92,12 @@ let currentIndex = 0;
 let isDeleting = false;
 let typingInterval;
 
+const dropdownOpen = ref(false);
+const searchQuery = ref('');
+const devices = ref([]);
+const filteredResults = ref([]);
+
+// Funciones
 const typeEffect = () => {
   const current = currentIndex;
   
@@ -87,7 +105,6 @@ const typeEffect = () => {
     displayedText.value = fullText.slice(0, current + 1);
     currentIndex++;
     if (currentIndex === fullText.length) {
-      // Esperar 5 segundos antes de comenzar a borrar
       typingInterval = setTimeout(() => {
         isDeleting = true;
         typeEffect();
@@ -106,8 +123,6 @@ const typeEffect = () => {
   typingInterval = setTimeout(typeEffect, typingSpeed);
 };
 
-
-// Función para inicializar el mapa con Leaflet
 function initMap() {
   var colombia = { lat: 10.9685, lng: -74.7813 };
   const mapOptions = {
@@ -126,38 +141,67 @@ function initMap() {
 
 }
 
-// Función para alternar la visibilidad del dropdown
 function toggleDropdown() {
   dropdownOpen.value = !dropdownOpen.value;
 }
 
-// Función para filtrar resultados según la consulta de búsqueda
 function filterResults() {
   const query = searchQuery.value.toLowerCase();
   filteredResults.value = devices.value.filter(item =>
-    item.name.toLowerCase().includes(query)
+    item.deviceName.toLowerCase().includes(query)
   );
 }
 
-// Función para mostrar la ubicación del dispositivo seleccionado en el mapa
 function showDeviceOnMap(device) {
-  map.setView([device.lat, device.lng],18);
+  console.log('Mostrando dispositivo:', device);
+  
+  if (!map) {
+    console.error('El mapa no está inicializado');
+    return;
+  }
 
-  L.marker([device.lat, device.lng]).addTo(map)
-    .bindPopup(`<b>${device.name}</b><br>Latitud: ${device.lat}<br>Longitud: ${device.lng}<br>Velocidad: ${device.speed} km/h<br>Kilometraje: ${device.km} km`)
-    .openPopup();
+  // Limpiar marcadores existentes
+  map.eachLayer((layer) => {
+    if (layer instanceof L.Marker) {
+      map.removeLayer(layer);
+    }
+  });
+
+  // Centrar el mapa en la ubicación del dispositivo
+  map.setView([device.lat, device.lng], 18);
+
+  // Añadir un nuevo marcador para el dispositivo
+  const marker = L.marker([device.lat, device.lng]).addTo(map);
+
+  // Mostrar información del dispositivo en un popup
+  marker.bindPopup(`
+    <b>${device.deviceName}</b><br>
+    Latitud: ${device.lat}<br>
+    Longitud: ${device.lng}<br>
+    Velocidad: ${device.speed} km/h<br>
+    Kilometraje: ${device.km} km
+  `).openPopup();
+
+  // Forzar una actualización del mapa
+  map.invalidateSize();
+
+  // Asegurar que el mapa se centre después de un breve retraso
+  setTimeout(() => {
+    map.setView([device.lat, device.lng], 18);
+    map.invalidateSize();
+  }, 100);
+
+  console.log('Marcador añadido y mapa centrado');
 }
 
-// Mostrar alerta con detalles del dispositivo seleccionado y centrar en el mapa
 const showAlert = (item) => {
   Swal.fire({
     title: 'Detalles del Dispositivo',
     html: `
-      <p><strong>Nombre:</strong> ${item.name}</p>
-      <p><strong>Latitud:</strong> ${item.lat}</p>
-      <p><strong>Longitud:</strong> ${item.lng}</p>
-      <p><strong>Velocidad:</strong> ${item.speed} km/h</p>
-      <p><strong>Kilometraje:</strong> ${item.km} km</p>
+      <p><strong>Nombre:</strong> ${item.deviceName}</p>
+      <p><strong>Responsable:</strong> ${item.responsible}</p>
+      <p><strong>IMEI:</strong> ${item.imei}</p>
+      <p><strong>Estado:</strong> ${item.status}</p>
     `,
     confirmButtonText: 'Mostrar en Mapa',
     showCancelButton: true,
@@ -169,43 +213,55 @@ const showAlert = (item) => {
   });
 };
 
-// Variables reactivas para manejar el estado del dropdown y la búsqueda
-const dropdownOpen = ref(false);
-const searchQuery = ref('');
-const devices = ref([
-  { id: 1, name: 'Jesus Alvarez', lat: 10.9878, lng: -74.7889, speed: 60, km: 1200 },
-  { id: 2, name: 'RTY687', lat: 10.9870, lng: -74.7850, speed: 50, km: 850 },
-  { id: 3, name: 'SJS981', lat: 10.9880, lng: -74.7860, speed: 70, km: 900 },
-  { id: 4, name: 'HDS432', lat: 10.9890, lng: -74.7870, speed: 55, km: 1100 },
-  // Agrega más dispositivos según sea necesario
-]);
-const filteredResults = ref([]);
+const cargarDispositivos = async () => {
+  try {
+    const response = await fetch('http://localhost:3001/devices');
+    if (!response.ok) {
+      throw new Error('Error en la respuesta de la API');
+    }
+    const data = await response.json();
+    // Agregar latitud y longitud manualmente a cada dispositivo
+    devices.value = data.map(device => ({
+      ...device,
+      lat: 10.9685 + Math.random() * 0.1, 
+      lng: -74.7813 + Math.random() * 0.1, 
+      speed: Math.floor(Math.random() * 100), 
+      km: Math.floor(Math.random() * 10000) 
+    }));
+    filteredResults.value = devices.value;
+  } catch (error) {
+    console.error('Error al cargar dispositivos:', error);
+  }
+};
 
-// Inicializar los resultados filtrados y el mapa al montar el componente
+// Lifecycle hooks
 onUnmounted(() => {
   clearTimeout(typingInterval);
 });
+
 onMounted(() => {
-  filteredResults.value = devices.value;
   initMap();
   typeEffect();
+  cargarDispositivos();
 });
 </script>
 
-
 <style scoped>
+/* Estilos del mapa */
 .map-container {
   height: calc(100vh - 60px);
   width: 100%; 
   z-index: 0; 
 }
 
+/* Estilos generales */
 .home {
   height: 100vh; 
   overflow: hidden; 
   position: relative;
 }
 
+/* Estilos de la barra de navegación */
 .home .navar {
   background-color: var(--sidebar-color);
   border-bottom: 3px solid var(--body-color);
@@ -338,7 +394,7 @@ onMounted(() => {
   z-index: 2; 
   border-radius: 10px;
   padding: 10px;
-  overflow-y: auto; 
+  overflow-y: hidden; 
   border: 1px solid;
 }
 
@@ -410,6 +466,9 @@ onMounted(() => {
   list-style: none;
   padding: 0;
   margin: 20px;
+  max-height: 180px; /* Ajusta este valor según tus necesidades */
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .device-list li {
@@ -418,8 +477,28 @@ onMounted(() => {
   font-size: 15px;
   font-weight: 500;
   display: flex;
+  align-items: center;
   margin-left: 20px;
- 
+}
+
+.device-list li i {
+  margin-right: 10px; /* Espacio entre el icono y el nombre del dispositivo */
+  font-size: 21px;
+}
+
+/* Estilos para la barra de desplazamiento */
+.device-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.device-list::-webkit-scrollbar-track {
+  background: var(--sidebar-color);
+}
+
+.device-list::-webkit-scrollbar-thumb {
+  background-color: var(--body-color);
+  border-radius: 3px;
 }
 </style>
+
 

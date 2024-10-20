@@ -11,7 +11,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Conexión a MongoDB
-mongoose.connect('mongodb://localhost:27017/Navify_gps', {
+mongoose.connect('mongodb+srv://lospopulare:gps1234@gps.zgbl7.mongodb.net/proyecto?retryWrites=true&w=majority&appName=gps', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 })
@@ -20,7 +20,7 @@ mongoose.connect('mongodb://localhost:27017/Navify_gps', {
 
 // Definición del esquema de usuario (para login)
 const userSchema = new mongoose.Schema({
-    email: { type: String, required: true, unique: true }, // Asegúrate de que el email sea único
+    email: { type: String, required: true, unique: true }, // Asegúrate de que el email sea único 
     password: { type: String, required: true },
 });
 

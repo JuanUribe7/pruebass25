@@ -110,26 +110,33 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import Swal from 'sweetalert2';
 
-// Estado para el dropdown y la búsqueda
+// Variables reactivas
 const dropdownOpen = ref(false);
 const searchTerm = ref('');
-const dispositivos = ref([]); // Cambiado a un array vacío
-
-const fullText = "Navify";
+const dispositivos = ref([]);
 const displayedText = ref("");
+
+// Variables para el efecto de texto
+const fullText = "Navify";
 let currentIndex = 0;
 let isDeleting = false;
 let typingInterval;
 
-// Efecto de tipo de texto
-const typeEffect = () => { 
+// Computed properties
+const filteredDispositivos = computed(() => {
+  return dispositivos.value.filter(dispositivo =>
+    dispositivo.deviceName.toLowerCase().includes(searchTerm.value.toLowerCase())
+  );
+});
+
+// Funciones auxiliares
+const typeEffect = () => {
   const current = currentIndex;
   
   if (!isDeleting && current < fullText.length) {
     displayedText.value = fullText.slice(0, current + 1);
     currentIndex++;
     if (currentIndex === fullText.length) {
-      // Esperar 5 segundos antes de comenzar a borrar
       typingInterval = setTimeout(() => {
         isDeleting = true;
         typeEffect();
@@ -148,106 +155,21 @@ const typeEffect = () => {
   typingInterval = setTimeout(typeEffect, typingSpeed);
 };
 
-onUnmounted(() => {
-  clearTimeout(typingInterval);
-});
-
-onMounted(() => {
-  typeEffect();
-});
-
-// Cargar dispositivos desde la base de datos
-onMounted(async () => {
+// Funciones principales
+const cargarDispositivos = async () => {
   try {
     const response = await fetch('http://localhost:3001/devices');
     if (!response.ok) {
       throw new Error('Error en la respuesta de la API');
     }
     const data = await response.json();
-    console.log('Respuesta de la API:', data); // Añadir este log
-    dispositivos.value = data; // Asegúrate de que data es un array de dispositivos
+    console.log('Respuesta de la API:', data);
+    dispositivos.value = data;
   } catch (error) {
     console.error('Error al cargar dispositivos:', error);
   }
-});
-
-// Computed property para filtrar los dispositivos
-const filteredDispositivos = computed(() => {
-  return dispositivos.value.filter(dispositivo =>
-    dispositivo.deviceName.toLowerCase().includes(searchTerm.value.toLowerCase())
-  );
-});
-
-// Alternar visibilidad del dropdown
-const toggleDropdown = () => {
-  dropdownOpen.value = !dropdownOpen.value;
 };
 
-// Insertar un nuevo dispositivo
-const insertarDispositivo = async () => {
-  const { value: imei } = await Swal.fire({
-    title: 'Agregar Dispositivo',
-    html: ` 
-      <input id="nombre" class="swal2-input" placeholder="Nombre del dispositivo">
-      <input id="responsable" class="swal2-input" placeholder="Responsable">
-      <input id="imei" class="swal2-input" placeholder="IMEI">
-      <input id="estatus" class="swal2-input" placeholder="Estatus">
-    `,
-    focusConfirm: false,
-    showCancelButton: true,
-    confirmButtonText: 'Agregar',
-    cancelButtonText: 'Cancelar',
-    preConfirm: () => {
-      const nombre = document.getElementById('nombre').value;
-      const responsable = document.getElementById('responsable').value;
-      const imei = document.getElementById('imei').value;
-      const estatus = document.getElementById('estatus').value;
-
-      // Validar que todos los campos estén completos
-      if (!nombre || !responsable || !imei || !estatus) {
-        Swal.showValidationMessage('Por favor, complete todos los campos.');
-        return false; // Evita que se continúe si hay un error
-      }
-
-      // Comprobar si el IMEI ya existe
-      const existingDevice = dispositivos.value.find(device => device.imei === imei);
-      if (existingDevice) {
-        Swal.showValidationMessage('El IMEI ya está en uso.');
-        return false; // Evita que se continúe si el IMEI ya existe
-      }
-
-      return { deviceName: nombre, responsible: responsable, imei, status: estatus };
-    }
-  });
-
-  // Si se confirma, agregar el dispositivo
-  if (imei) {
-    fetch('http://localhost:3001/devices', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(imei) // Usar el objeto devuelto
-    })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Error al agregar dispositivo');
-      }
-      return response.json();
-    })
-    .then(data => {
-      dispositivos.value.push(data); 
-      Swal.fire('¡Dispositivo agregado!', '', 'success');
-    })
-    .catch((error) => {
-      console.error('Error al agregar dispositivo:', error);
-      Swal.fire('Error', 'No se pudo agregar el dispositivo', 'error');
-    });
-  }
-};
-
-
-// Editar un dispositivo
 const editarDispositivo = (index) => {
   const dispositivo = dispositivos.value[index];
 
@@ -269,10 +191,9 @@ const editarDispositivo = (index) => {
       const imei = document.getElementById('imei').value;
       const estatus = document.getElementById('estatus').value;
 
-      // Validar que todos los campos estén completos
       if (!nombre || !responsable || !imei || !estatus) {
         Swal.showValidationMessage('Por favor, complete todos los campos.');
-        return false; // Evita que se continúe si hay un error
+        return false;
       }
 
       console.log('Datos a editar:', { deviceName: nombre, responsible: responsable, imei, status: estatus });
@@ -295,9 +216,8 @@ const editarDispositivo = (index) => {
         return response.json();
       })
       .then(data => {
-        // Actualizar el dispositivo en la lista
         dispositivos.value.splice(index, 1, data); 
-        console.log('Dispositivo editado:', data); // Verificar el dispositivo editado
+        console.log('Dispositivo editado:', data);
         Swal.fire('¡Dispositivo editado!', '', 'success');
       })
       .catch((error) => {
@@ -308,7 +228,6 @@ const editarDispositivo = (index) => {
   });
 };
 
-// Eliminar un dispositivo
 const eliminarDispositivo = (index) => {
   const dispositivo = dispositivos.value[index];
 
@@ -332,7 +251,7 @@ const eliminarDispositivo = (index) => {
       })
       .then(() => {
         dispositivos.value.splice(index, 1); 
-        console.log('Dispositivo eliminado:', dispositivo); // Verificar el dispositivo eliminado
+        console.log('Dispositivo eliminado:', dispositivo);
         Swal.fire('¡Dispositivo eliminado!', '', 'success');
       })
       .catch((error) => {
@@ -342,12 +261,172 @@ const eliminarDispositivo = (index) => {
     }
   });
 };
+
+const insertarDispositivo = async () => {
+  const { value: imei } = await Swal.fire({
+    title: 'Agregar Dispositivo',
+    html: ` 
+      <input id="nombre" class="swal2-input" placeholder="Nombre del dispositivo">
+      <input id="responsable" class="swal2-input" placeholder="Responsable">
+      <input id="imei" class="swal2-input" placeholder="IMEI">
+      <input id="estatus" class="swal2-input" placeholder="Estatus">
+    `,
+    focusConfirm: false,
+    showCancelButton: true,
+    confirmButtonText: 'Agregar',
+    cancelButtonText: 'Cancelar',
+    preConfirm: () => {
+      const nombre = document.getElementById('nombre').value;
+      const responsable = document.getElementById('responsable').value;
+      const imei = document.getElementById('imei').value;
+      const estatus = document.getElementById('estatus').value;
+
+      if (!nombre || !responsable || !imei || !estatus) {
+        Swal.showValidationMessage('Por favor, complete todos los campos.');
+        return false;
+      }
+
+      const existingDevice = dispositivos.value.find(device => device.imei === imei);
+      if (existingDevice) {
+        Swal.showValidationMessage('El IMEI ya está en uso.');
+        return false;
+      }
+
+      return { deviceName: nombre, responsible: responsable, imei, status: estatus };
+    }
+  });
+
+  if (imei) {
+    fetch('http://localhost:3001/devices', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(imei)
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Error al agregar dispositivo');
+      }
+      return response.json();
+    })
+    .then(data => {
+      dispositivos.value.push(data); 
+      Swal.fire('¡Dispositivo agregado!', '', 'success');
+    })
+    .catch((error) => {
+      console.error('Error al agregar dispositivo:', error);
+      Swal.fire('Error', 'No se pudo agregar el dispositivo', 'error');
+    });
+  }
+};
+
+const toggleDropdown = () => {
+  dropdownOpen.value = !dropdownOpen.value;
+};
+
+// Hooks del ciclo de vida
+onMounted(() => {
+  typeEffect();
+  cargarDispositivos();
+});
+
+onUnmounted(() => {
+  clearTimeout(typingInterval);
+});
 </script>
 
 <style scoped>
+/* Estilos generales */
 .home {
   height: 100vh;
   overflow: hidden;
+}
+
+/* Estilos de la barra de navegación */
+.actions {
+  display: flex;
+  align-items: center;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  background-color: var(--sidebar-color);
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  display: none;
+  margin-right: 30px;
+  min-width: 200px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  z-index: 3;
+}
+
+.dropdown-content.show {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.dropdown-item {
+  align-items: center;
+  color: var(--text-colar);
+  display: flex;
+  padding: 12px 16px;
+  text-decoration: none;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.dropdown-item:hover {
+  background-color: var(--body-color);
+  color: var(--text-colar);
+  transform: translateX(5px);
+}
+
+.dropdown-item i {
+  font-size: 1.2em;
+  margin-right: 12px;
+  text-align: center;
+  width: 20px;
+}
+
+.dropdown-item span {
+  font-weight: 500;
+}
+
+.dropdown-item:not(:last-child) {
+  border-bottom: 1px solid rgba(var(--text-colar-rgb), 0.1);
+}
+
+.dropbtn {
+  align-items: center;
+  background-color: var(--sidebar-color);
+  border: none;
+  border-radius: 5px;
+  color: var(--text-colar);
+  cursor: pointer;
+  display: flex;
+  font-size: 16px;
+  gap: 5px;
+  padding: 10px 15px;
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.dropbtn:hover {
+  background-color: var(--body-color);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.home .actions {
+  display: flex;
+  align-items: center;
 }
 
 .home .navar {
@@ -360,144 +439,147 @@ const eliminarDispositivo = (index) => {
   z-index: 2;
 }
 
-.home .actions {
-  display: flex;
-  align-items: center;
-}
-
-.actions {
-  display: flex;
-  align-items: center;
-}
-
 .notification-btn {
   background: none;
   border: none;
   color: var(--text-colar);
-  font-size: 1.7rem;
   cursor: pointer;
+  font-size: 1.7rem;
   margin-right: 15px;
   margin-top: 10px;
   position: relative;
 }
 
 .notification-indicator {
+  background-color: var(--text-colar);
+  border-radius: 50%;
+  height: 15px;
   position: absolute;
   right: -1px;
   width: 15px;
-  height: 15px;
-  background-color: var(--text-colar);
-  border-radius: 50%;
 }
 
 .titulo {
   display: inline-block;
-  min-width: 100px; /* Ajusta según sea necesario */
+  min-width: 100px;
 }
 
-.dropdown {
-  position: relative;
-  display: inline-block;
-}
-
-.dropbtn {
-  background-color: var(--sidebar-color);
-  color: var(--text-colar);
-  padding: 10px 15px;
-  font-size: 16px;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  border-radius: 5px;
-  transition: background-color 0.3s, box-shadow 0.3s;
-}
-
-.dropbtn:hover {
-  background-color: var(--body-color);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-.dropdown-content {
-  display: none;
-  position: absolute;
-  margin-right: 30px;
-  background-color: var(--sidebar-color);
-  min-width: 200px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-  z-index: 3;
-  border-radius: 8px;
-  overflow: hidden;
-  transition: all 0.3s ease;
-  opacity: 0;
-  transform: translateY(-10px);
-}
-
-.dropdown-content.show {
-  display: block;
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.dropdown-item {
-  color: var(--text-colar);
-  padding: 12px 16px;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  transition: background-color 0.2s, transform 0.2s;
-}
-
-.dropdown-item:hover {
-  background-color: var(--body-color);
-  transform: translateX(5px);
-  color: var(--text-colar);
-}
-
-.dropdown-item i {
-  margin-right: 12px;
-  font-size: 1.2em;
-  width: 20px;
-  text-align: center;
-}
-
-.dropdown-item span {
-  font-weight: 500;
-}
-
-/* Separador entre elementos */
-.dropdown-item:not(:last-child) {
-  border-bottom: 1px solid rgba(var(--text-colar-rgb), 0.1);
-}
-
+/* Estilos de la sección CRUD */
 .crud {
   display: flex;
   flex-direction: column;
 }
 
-.titu {
-  margin-left: 50px;
-  margin-top: 40px;
-  display: flex;
+.cruds {
+  background-color: var(--sidebar-color);
+  border-radius: 10px;
+  height: 500px;
+  margin: 20px 20px;
+  padding: 15px;
 }
 
-.listad {
-  margin-left: 50px;
-  margin-top: 10px;
-  font-size: 12px;
-  display: flex;
+.cruds .arriba {
   align-items: center;
+  display: flex;
   justify-content: space-between;
 }
 
-.listad h1 {
-  font-weight: 400;
+.cruds .tabla {
+  background-color: var(--sidebar-color);
+  margin: 20px 10px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 10px 10px;
+}
+
+.cssbuttons-io-button button {
+  align-items: center;
+  background: var(--body-color);
+  border: 1px solid;
+  border-radius: 20em;
   color: var(--text-colar);
+  cursor: pointer;
+  display: flex;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 0.5em 1.4em;
+  transition: box-shadow 0.3s ease;
+}
+
+.cssbuttons-io-button button:active {
+  box-shadow: 0 0.3em 1em -0.5em #14a73e98;
+}
+
+.cssbuttons-io-button button:hover {
+  box-shadow: 0 0.5em 1.5em -0.5em #d5010198;
+}
+
+.cssbuttons-io-button button svg {
+  margin-right: 6px;
+}
+
+.group {
+  align-items: center;
+  display: flex;
+  line-height: 28px;
+  max-width: 190px;
+  position: relative;
+}
+
+.icon {
+  fill: var(--text-colar);
+  height: 1rem;
+  left: 1rem;
+  position: absolute;
+  width: 1rem;
+}
+
+.iconD {
+  color: var(--text-colar);
+  font-size: 30px;
+}
+
+.input {
+  background-color: var(--sidebar-color);
+  border: 2px solid;
+  border-radius: 8px;
+  color: var(--text-colar);
+  height: 40px;
+  line-height: 28px;
+  outline: none;
+  padding: 0 1rem;
+  padding-left: 2.5rem;
+  transition: .3s ease;
+  width: 100%;
+}
+
+.input::placeholder {
+  color: var(--text-colar);
+}
+
+.listad {
+  align-items: center;
+  display: flex;
+  font-size: 12px;
+  justify-content: space-between;
+  margin-left: 50px;
+  margin-top: 10px;
 }
 
 .listad .boton {
   margin-right: 50px;
+}
+
+.listad h1 {
+  color: var(--text-colar);
+  font-weight: 400;
+}
+
+.titu {
+  display: flex;
+  margin-left: 50px;
+  margin-top: 40px;
 }
 
 .titu h1 {
@@ -508,107 +590,17 @@ const eliminarDispositivo = (index) => {
   margin-right: 10px;
 }
 
-.cssbuttons-io-button button {
-  display: flex;
-  align-items: center;
-  font-family: inherit;
-  font-weight: 500;
-  font-size: 16px;
-  padding: 0.5em 1.4em;
-  color: var(--text-colar);
-  background: var(--body-color);
-  border: 1px solid;
-  border-radius: 20em;
-  cursor: pointer;
-  transition: box-shadow 0.3s ease;
-}
-
-.cssbuttons-io-button button svg {
-  margin-right: 6px;
-}
-
-.cssbuttons-io-button button:hover {
-  box-shadow: 0 0.5em 1.5em -0.5em #d5010198;
-}
-
-.cssbuttons-io-button button:active {
-  box-shadow: 0 0.3em 1em -0.5em #14a73e98;
-}
-
-.cruds {
-  margin: 20px 20px;
-  border-radius: 10px;
-  background-color: var(--sidebar-color);
-  height: 500px;
-  padding: 15px;
-
-}
-
-.cruds .arriba {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.group {
-  display: flex;
-  line-height: 28px;
-  align-items: center;
-  position: relative;
-  max-width: 190px;
-}
-
-.input {
-  width: 100%;
-  height: 40px;
-  line-height: 28px;
-  padding: 0 1rem;
-  padding-left: 2.5rem;
-  border: 2px solid;
-  border-radius: 8px;
-  outline: none;
-  background-color: var(--sidebar-color);
-  color: var(--text-colar);
-  transition: .3s ease;
-}
-
-.input::placeholder {
-  color: var(--text-colar);
-}
-
-.icon {
-  position: absolute;
-  left: 1rem;
-  fill: var(--text-colar);
-  width: 1rem;
-  height: 1rem;
-}
-
-.iconD {
-  font-size: 30px;
-  color: var(--text-colar);
-}
-
-.cruds .tabla {
-  margin: 20px 10px;
-  background-color: var(--body-color);
-  max-height: 400px;
-  padding: 10px 10px;
-  background-color: var(--sidebar-color);
-  overflow-y: auto; 
-}
-
+/* Estilos de la tabla */
 table {
-  width: 100%;
-  height: 100%;
   border-collapse: collapse;
+  height: 100%;
+  width: 100%;
 }
 
-th,
-td {
-  text-align: center;
-  padding: 15px;
+td, th {
   color: var(--text-colar);
-
+  padding: 15px;
+  text-align: center;
 }
 </style>
+

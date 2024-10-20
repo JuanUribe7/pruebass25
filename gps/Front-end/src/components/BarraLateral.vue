@@ -114,9 +114,6 @@ const isDarkMode = ref(false);
 let modeText = ref("Dark mode");
 
 
-// Función para alternar el estado del menú desplegable
-
-
 // Función para alternar el estado de la barra lateral
 function toggleSidebar() {
   isSidebarClosed.value = !isSidebarClosed.value;
@@ -142,8 +139,9 @@ function closeSidebarOnClickOutside(event) {
 document.addEventListener("click", closeSidebarOnClickOutside);
 
 const logout = () => {
-  // Elimina el estado de autenticación de sessionStorage y recarga la página
-  sessionStorage.removeItem('isAuthenticated');
-  window.location.reload(); // Recarga la página para mostrar el formulario de login
+  // Cambia sessionStorage por localStorage
+  localStorage.removeItem('isAuthenticated');
+  window.location.reload();
 };
 </script>
+

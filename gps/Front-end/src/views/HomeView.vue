@@ -86,7 +86,7 @@
 </template>
 
 <script setup>
-import { ref, onUnmounted, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 
 const dropdownOpen = ref(false);
 

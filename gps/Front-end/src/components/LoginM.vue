@@ -53,9 +53,8 @@ const login = async () => {
         const data = await response.json();
 
         if (response.ok) {
-            // Maneja el inicio de sesión exitoso
-            sessionStorage.setItem('isAuthenticated', 'true');
-            emit('loginSuccess');
+            localStorage.setItem('isAuthenticated', 'true');
+            emit('loginSuccess'); 
         } else {
             Swal.fire({
                 icon: 'error',

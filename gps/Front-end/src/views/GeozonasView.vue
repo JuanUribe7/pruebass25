@@ -7,13 +7,11 @@
       </div>
 
       <div class="actions">
-        <!-- Icono de notificación con indicador -->
         <button class="notification-btn">
           <i class='bx bx-bell'></i>
           <span class="notification-indicator"></span>
         </button>
-        
-        <!-- Menú desplegable de configuración mejorado -->
+
         <div class="dropdown">
           <button class="dropbtn" @click="toggleDropdown">
             <i class='bx bx-cog confi'></i> Configuración
@@ -63,7 +61,7 @@
         </button>
       </div>
 
-      <div id="map"  class="map-container"></div>
+      <div id="map" class="map-container"></div>
     </div>
   </section>
 </template>
@@ -74,8 +72,9 @@ import * as L from 'leaflet';
 import Swal from 'sweetalert2';
 import 'leaflet/dist/leaflet.css';
 import '@geoman-io/leaflet-geoman-free';
-import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css'; // Estilos de Geoman
+import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
 
+// Variables reactivas
 const map = ref(null);
 const drawnItems = ref(new L.FeatureGroup());
 const searchQuery = ref('');
@@ -96,14 +95,14 @@ let currentIndex = 0;
 let isDeleting = false;
 let typingInterval;
 
+// Funciones
 const typeEffect = () => {
   const current = currentIndex;
-  
+
   if (!isDeleting && current < fullText.length) {
     displayedText.value = fullText.slice(0, current + 1);
     currentIndex++;
     if (currentIndex === fullText.length) {
-      // Esperar 5 segundos antes de comenzar a borrar
       typingInterval = setTimeout(() => {
         isDeleting = true;
         typeEffect();
@@ -122,10 +121,10 @@ const typeEffect = () => {
   typingInterval = setTimeout(typeEffect, typingSpeed);
 };
 
-// Función para alternar la visibilidad del dropdown
-function toggleDropdown() {
+const toggleDropdown = () => {
   dropdownOpen.value = !dropdownOpen.value;
-}
+};
+
 const initMap = () => {
   map.value = L.map('map').setView([10.96854, -74.78132], 12);
 
@@ -133,10 +132,8 @@ const initMap = () => {
     maxZoom: 19
   }).addTo(map.value);
 
-  // Añadir el grupo de elementos dibujados al mapa
   drawnItems.value.addTo(map.value);
 
-  // Activar Geoman
   map.value.pm.addControls({
     position: 'topleft',
     drawPolygon: true,
@@ -148,9 +145,8 @@ const initMap = () => {
     deleteMode: true,
   });
 
-  // Evento cuando se crea una nueva geometría
   map.value.on('pm:create', (e) => {
-    const layer = e.layer; // La capa dibujada
+    const layer = e.layer;
 
     if (!selectedDevice.value) {
       Swal.fire({
@@ -160,12 +156,10 @@ const initMap = () => {
         confirmButtonText: 'Cerrar'
       });
 
-      // Elimina la capa dibujada si no hay dispositivo seleccionado
       map.value.removeLayer(layer);
       return;
     }
 
-    // Pregunta si el usuario quiere crear la geozona
     Swal.fire({
       title: 'Confirmar Creación de Geozona',
       text: `¿Desea crear una geozona para el dispositivo ${selectedDevice.value.name}?`,
@@ -176,7 +170,7 @@ const initMap = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         drawnItems.value.addLayer(layer);
-        storeShape(layer); // Almacena la forma dibujada
+        storeShape(layer);
 
         Swal.fire({
           title: 'Geozona Creada',
@@ -184,7 +178,6 @@ const initMap = () => {
           confirmButtonText: 'Cerrar',
         });
       } else {
-        // Elimina la capa dibujada si el usuario cancela
         map.value.removeLayer(layer);
         Swal.fire({
           title: 'Cancelado',
@@ -196,7 +189,6 @@ const initMap = () => {
     });
   });
 
-  // Evento al eliminar una geometría
   map.value.on('pm:remove', (e) => {
     console.log('Forma eliminada:', e.layer);
   });
@@ -205,23 +197,18 @@ const initMap = () => {
 const storeShape = (layer) => {
   if (!selectedDevice.value) return;
 
-  // Inicializa el array si no existe para el dispositivo seleccionado
   if (!deviceShapes.value[selectedDevice.value.id]) {
     deviceShapes.value[selectedDevice.value.id] = [];
   }
-  
-  // Almacena la capa en el dispositivo correspondiente
+
   deviceShapes.value[selectedDevice.value.id].push(layer);
 };
 
 const selectDevice = (device) => {
-  // Limpiar las geozonas dibujadas anteriores
   drawnItems.value.clearLayers();
 
-  // Establecer el dispositivo seleccionado
   selectedDevice.value = device;
 
-  // Agregar las geozonas del dispositivo seleccionado al mapa
   if (deviceShapes.value[device.id]) {
     deviceShapes.value[device.id].forEach(layer => {
       drawnItems.value.addLayer(layer);
@@ -236,7 +223,6 @@ const selectDevice = (device) => {
     cancelButtonText: 'Cancelar'
   }).then((result) => {
     if (result.isDismissed) {
-      // Si se presiona cancelar, mostrar aviso de no selección de dispositivo
       selectedDevice.value = null;
     }
   });
@@ -273,7 +259,6 @@ const deleteLastShape = () => {
   }
 };
 
-
 const filterResults = () => {
   const query = searchQuery.value.toLowerCase();
   filteredResults.value = devices.value.filter(item =>
@@ -281,9 +266,10 @@ const filterResults = () => {
   );
 };
 
+// Hooks del ciclo de vida
 onMounted(() => {
-  filteredResults.value = devices.value; // Inicializa la lista filtrada
-  initMap(); // Inicializa el mapa
+  filteredResults.value = devices.value;
+  initMap();
   typeEffect();
 });
 
@@ -293,32 +279,97 @@ onUnmounted(() => {
 
 </script>
 
-
-
 <style scoped>
-#map {
-  height: calc(100vh - 60px);
-  width: 100%; 
-  z-index: 0; 
-}
-
-.coordinates-table {
-  border-collapse: collapse;
-  width: 100%;
-}
-
-.coordinates-table,
-.coordinates-table th,
-.coordinates-table td {
-  border: 1px solid black;
-  padding: 8px;
-  text-align: center;
-  font-size: 10px;
-}
-
+/* Estilos generales */
 .home {
   height: 100vh;
   overflow: hidden;
+}
+
+/* Estilos de la barra de navegación */
+.actions {
+  align-items: center;
+  display: flex;
+}
+
+.dropdown {
+  display: inline-block;
+  position: relative;
+}
+
+.dropdown-content {
+  background-color: var(--sidebar-color);
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  display: none;
+  margin-right: 30px;
+  min-width: 200px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  z-index: 3;
+}
+
+.dropdown-content.show {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.dropdown-item {
+  align-items: center;
+  color: var(--text-colar);
+  display: flex;
+  padding: 12px 16px;
+  text-decoration: none;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.dropdown-item:hover {
+  background-color: var(--body-color);
+  color: var(--text-colar);
+  transform: translateX(5px);
+}
+
+.dropdown-item i {
+  font-size: 1.2em;
+  margin-right: 12px;
+  text-align: center;
+  width: 20px;
+}
+
+.dropdown-item span {
+  font-weight: 500;
+}
+
+.dropdown-item:not(:last-child) {
+  border-bottom: 1px solid rgba(var(--text-colar-rgb), 0.1);
+}
+
+.dropbtn {
+  align-items: center;
+  background-color: var(--sidebar-color);
+  border: none;
+  border-radius: 5px;
+  color: var(--text-colar);
+  cursor: pointer;
+  display: flex;
+  font-size: 16px;
+  gap: 5px;
+  padding: 10px 15px;
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.dropbtn:hover {
+  background-color: var(--body-color);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.home .actions {
+  align-items: center;
+  display: flex;
 }
 
 .home .navar {
@@ -331,124 +382,59 @@ onUnmounted(() => {
   z-index: 2;
 }
 
-.home .actions {
-  display: flex;
-  align-items: center;
-}
-
-.actions {
-  display: flex;
-  align-items: center;
-}
-
 .notification-btn {
   background: none;
   border: none;
   color: var(--text-colar);
-  font-size: 1.7rem;
   cursor: pointer;
+  font-size: 1.7rem;
   margin-right: 15px;
   margin-top: 10px;
   position: relative;
 }
 
 .notification-indicator {
+  background-color: var(--text-colar);
+  border-radius: 50%;
+  height: 15px;
   position: absolute;
   right: -1px;
   width: 15px;
-  height: 15px;
-  background-color: var(--text-colar);
-  border-radius: 50%;
 }
 
 .titulo {
   display: inline-block;
-  min-width: 100px; /* Ajusta según sea necesario */
+  min-width: 100px;
 }
 
-.dropdown {
-  position: relative;
-  display: inline-block;
+/* Estilos del mapa y contenedor */
+#map {
+  height: calc(100vh - 60px);
+  width: 100%;
+  z-index: 0;
 }
 
-.dropbtn {
-  background-color: var(--sidebar-color);
-  color: var(--text-colar);
-  padding: 10px 15px;
-  font-size: 16px;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  border-radius: 5px;
-  transition: background-color 0.3s, box-shadow 0.3s;
+.coordinates-table {
+  border-collapse: collapse;
+  width: 100%;
 }
 
-.dropbtn:hover {
-  background-color: var(--body-color);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-.dropdown-content {
-  display: none;
-  position: absolute;
-  margin-right: 30px;
-  background-color: var(--sidebar-color);
-  min-width: 200px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-  z-index: 3;
-  border-radius: 8px;
-  overflow: hidden;
-  transition: all 0.3s ease;
-  opacity: 0;
-  transform: translateY(-10px);
-}
-
-.dropdown-content.show {
-  display: block;
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.dropdown-item {
-  color: var(--text-colar);
-  padding: 12px 16px;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  transition: background-color 0.2s, transform 0.2s;
-}
-
-.dropdown-item:hover {
-  background-color: var(--body-color);
-  transform: translateX(5px);
-  color: var(--text-colar);
-}
-
-.dropdown-item i {
-  margin-right: 12px;
-  font-size: 1.2em;
-  width: 20px;
+.coordinates-table,
+.coordinates-table th,
+.coordinates-table td {
+  border: 1px solid black;
+  font-size: 10px;
+  padding: 8px;
   text-align: center;
 }
 
-.dropdown-item span {
-  font-weight: 500;
-}
-
-/* Separador entre elementos */
-.dropdown-item:not(:last-child) {
-  border-bottom: 1px solid rgba(var(--text-colar-rgb), 0.1);
-}
-
 .iframe-container {
+  align-items: center;
+  display: flex;
+  height: 650px;
+  justify-content: center;
   position: relative;
   width: 100%;
-  height: 650px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 .iframe-container iframe {
@@ -457,59 +443,60 @@ onUnmounted(() => {
 }
 
 .tituloo {
-  position: relative;
-  z-index: 1;
   display: flex;
   justify-content: flex-end;
+  position: relative;
+  z-index: 1;
 }
 
+/* Estilos del panel lateral */
 .hone {
-  margin-right: 20px;
-  width: 17%;
   background-color: var(--sidebar-color);
+  border: 1px solid;
+  border-radius: 10px;
   height: 340px;
+  margin-right: 20px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 10px;
   position: absolute;
   top: 25%;
+  width: 17%;
   z-index: 10;
-  border-radius: 10px;
-  padding: 10px;
-  overflow-y: auto;
-  border: 1px solid;
-  overflow-x: hidden;
 }
 
 .hone h1 {
-  text-align: left;
-  margin-top: 10px;
-  margin-left: 20px;
-  font-size: 15px;
-  position: relative;
-  z-index: 1;
   color: var(--text-color);
+  font-size: 15px;
+  margin-left: 20px;
+  margin-top: 10px;
+  position: relative;
+  text-align: left;
+  z-index: 1;
 }
 
 .group {
-  display: flex;
-  line-height: 28px;
   align-items: center;
+  display: flex;
   justify-content: center;
-  position: relative;
-  max-width: 250px;
+  line-height: 28px;
   margin-top: 10px;
+  max-width: 250px;
+  position: relative;
 }
 
 .input {
-  width: 100%;
-  height: 40px;
-  line-height: 28px;
-  padding: 0 1rem;
-  padding-left: 2.5rem;
+  background-color: var(--body-color);
   border: 2px solid;
   border-radius: 8px;
-  outline: none;
-  background-color: var(--body-color);
   color: var(--text-color);
+  height: 40px;
+  line-height: 28px;
+  outline: none;
+  padding: 0 1rem;
+  padding-left: 2.5rem;
   transition: .3s ease;
+  width: 100%;
 }
 
 .input::placeholder {
@@ -517,27 +504,27 @@ onUnmounted(() => {
 }
 
 .icon {
-  position: absolute;
-  left: 1rem;
   fill: #9e9ea7;
-  width: 1rem;
-  height: 1rem;
   font-size: 21px;
+  height: 1rem;
+  left: 1rem;
+  position: absolute;
+  width: 1rem;
 }
 
 .device-list {
   list-style: none;
-  padding: 0;
   margin: 20px;
+  padding: 0;
 }
 
 .device-list li {
   color: var(--text-color);
-  padding: 5px 0;
+  display: flex;
   font-size: 15px;
   font-weight: 500;
-  display: flex;
   margin-left: 20px;
+  padding: 5px 0;
 }
 
 .button {
@@ -546,17 +533,17 @@ onUnmounted(() => {
   --bg-color-sub: #dedede;
   --bg-color: #eee;
   --main-color: #323232;
-  position: relative;
-  width: 190px;
-  height: 40px;
+  align-items: center;
+  background-color: var(--body-color);
+  border: 1px solid;
+  border-radius: 10px;
+  box-shadow: 4px 4px var(--body-color);
   cursor: pointer;
   display: flex;
-  align-items: center;
-  border: 1px solid;
-  box-shadow: 4px 4px var(--body-color);
-  background-color: var(--body-color);
-  border-radius: 10px;
+  height: 40px;
   overflow: hidden;
+  position: relative;
+  width: 190px;
 }
 
 .button,
@@ -565,15 +552,13 @@ onUnmounted(() => {
 }
 
 .button .button__text {
-  transform: translateX(33px);
   color: var(--text-color);
   font-weight: 600;
+  transform: translateX(33px);
 }
-
 
 .button:hover {
   background: var(--body-color);
-
 }
 
 .button:hover .button__text {
@@ -581,7 +566,7 @@ onUnmounted(() => {
 }
 
 .button:active {
-  transform: translate(3px, 3px);
   box-shadow: 0px 0px var(--main-color);
+  transform: translate(3px, 3px);
 }
 </style>

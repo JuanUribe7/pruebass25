@@ -80,6 +80,7 @@ import Swal from 'sweetalert2';
 import L from 'leaflet';
 import gpsIcon from '../assets/gps.png';
 
+// Variables reactivas
 let map;
 let polyline;
 let marker;
@@ -92,7 +93,17 @@ let currentIndex = 0;
 let isDeleting = false;
 let typingInterval;
 
+const dropdownOpen = ref(false);
+const searchQuery = ref('');
+const devices = ref([
+  { id: 1, name: 'Jesus Alvarez' },
+  { id: 2, name: 'RTY687' },
+  { id: 3, name: 'SJS981' },
+  { id: 4, name: 'HDS432' }
+]);
+const filteredResults = ref([]);
 
+// Funciones
 const typeEffect = () => {
   const current = currentIndex;
   
@@ -100,7 +111,6 @@ const typeEffect = () => {
     displayedText.value = fullText.slice(0, current + 1);
     currentIndex++;
     if (currentIndex === fullText.length) {
-      // Esperar 5 segundos antes de comenzar a borrar
       typingInterval = setTimeout(() => {
         isDeleting = true;
         typeEffect();
@@ -119,7 +129,6 @@ const typeEffect = () => {
   typingInterval = setTimeout(typeEffect, typingSpeed);
 };
 
-// Inicializa el mapa
 function initMap() {
   const colombia = [4.5709, -74.2973]; // Latitud y longitud de Colombia
   map = L.map('map').setView(colombia, 6);
@@ -131,7 +140,6 @@ function initMap() {
   }).addTo(map);
 }
 
-// Función para mostrar alertas personalizadas
 const showAlert = (name) => {
   if (name === 'Jesus Alvarez') {
     // Alerta con formulario para seleccionar rango de fechas y horas
@@ -171,7 +179,6 @@ const showAlert = (name) => {
   }
 };
 
-// Función para mostrar historial de coordenadas en el mapa
 const showHistory = () => {
   const coordenadas = [
     [10.9878, -74.7889], // Punto 1 (Barranquilla)
@@ -204,9 +211,16 @@ const showHistory = () => {
   window.recordingCoords = coordenadas;
 };
 
-// Función para iniciar la reproducción del recorrido
 const playRecording = () => {
-  if (!window.recordingCoords) return;
+  if (!window.recordingCoords) {
+    Swal.fire({
+      title: 'Error',
+      text: 'Por favor, seleccione un dispositivo antes de reproducir el historial.',
+      icon: 'warning',
+      confirmButtonText: 'Entendido'
+    });
+    return;
+  }
 
   let index = 0;
 
@@ -228,22 +242,10 @@ const playRecording = () => {
   }, playbackSpeed);
 };
 
-const dropdownOpen = ref(false);
-const searchQuery = ref('');
-const devices = ref([
-  { id: 1, name: 'Jesus Alvarez' },
-  { id: 2, name: 'RTY687' },
-  { id: 3, name: 'SJS981' },
-  { id: 4, name: 'HDS432' }
-]);
-const filteredResults = ref([]);
-
-// Función para alternar la visibilidad del dropdown
 function toggleDropdown() {
   dropdownOpen.value = !dropdownOpen.value;
 }
 
-// Función para filtrar resultados según la consulta de búsqueda
 function filterResults() {
   const query = searchQuery.value.toLowerCase();
   filteredResults.value = devices.value.filter(item =>
@@ -251,10 +253,11 @@ function filterResults() {
   );
 }
 
-// Inicializar resultados filtrados al montar el componente
+// Lifecycle hooks
 onUnmounted(() => {
   clearTimeout(typingInterval);
 });
+
 onMounted(() => {
   filteredResults.value = devices.value;
   typeEffect();
@@ -264,13 +267,14 @@ onMounted(() => {
 
 
 <style scoped>
+/* Estilos del mapa */
 .map-container {
   height: calc(100vh - 60px);
   width: 100%; 
   z-index: 0; 
 }
 
-
+/* Estilos del botón de reproducción */
 .play-button {
   width: 17%;
   position: absolute;
@@ -289,11 +293,13 @@ onMounted(() => {
   transition: background-color 0.3s ease;
 }
 
+/* Estilos generales */
 .home {
   height: 100vh;
   overflow: hidden;
 }
 
+/* Estilos de la barra de navegación */
 .home .navar {
   background-color: var(--sidebar-color);
   border-bottom: 3px solid var(--body-color);
@@ -521,3 +527,4 @@ onMounted(() => {
   margin-left: 20px;
 }
 </style>
+
