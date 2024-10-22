@@ -115,6 +115,30 @@ app.delete('/devices/:id', async (req, res) => {
     }
 });
 
+app.post('/sms', (req, res) => {
+    const messageBody = req.body.Body; // El contenido del SMS
+    const fromNumber = req.body.From;  // El número de teléfono que envió el mensaje
+
+    console.log(`Mensaje recibido de ${fromNumber}: ${messageBody}`);
+
+// Guardar el mensaje en la variable global
+    mensajesRecibidos.push({ from: fromNumber, body: messageBody });
+
+    // Aquí puedes procesar el mensaje como quieras
+    // Puedes guardar en tu base de datos o hacer alguna lógica adicional
+
+    // Twilio espera una respuesta, puedes enviar un mensaje de vuelta opcionalmente
+    res.send(`
+        <Response>
+            <Message>Gracias por tu mensaje, lo hemos recibido.</Message>
+        </Response>
+    `);
+});
+
+app.get('/mensajes', (req, res) => {
+    res.json(mensajesRecibidos);
+});
+
 // Iniciar el servidor
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
