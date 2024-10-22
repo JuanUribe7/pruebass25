@@ -1,5 +1,14 @@
-
-[{
-    "email": "Juanchi01",
-    "password": "123456"
-}]
+[
+    {
+        "deviceName": "Juanchi01",
+        "responsible": "Juanchi01",
+        "imei": "123456",
+        "Estado": "activo",
+        "coordenadas": {
+            "latitud": -34.6037,
+            "longitud": -58.3816
+        },
+        "kilometraje": 15000,
+        "velocidad": 60
+    }
+]

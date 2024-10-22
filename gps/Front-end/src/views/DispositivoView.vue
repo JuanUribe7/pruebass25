@@ -12,7 +12,7 @@
           <i class='bx bx-bell'></i>
           <span class="notification-indicator"></span>
         </button>
-        
+
         <!-- Menú desplegable de configuración mejorado -->
         <div class="dropdown">
           <button class="dropbtn" @click="toggleDropdown">
@@ -59,13 +59,13 @@
       </div>
 
       <div>
-  <h2>Mensajes Recibidos:</h2>
-  <ul>
-    <li v-for="(mensaje, index) in mensajes" :key="index">
-      {{ mensaje.body }} <!-- Cambié 'mensaje.texto' a 'mensaje.body' -->
-    </li>
-  </ul>
-</div>
+        <h2>Mensajes Recibidos:</h2>
+        <ul>
+          <li v-for="(mensaje, index) in mensajes" :key="index">
+            {{ mensaje.body }} <!-- Cambié 'mensaje.texto' a 'mensaje.body' -->
+          </li>
+        </ul>
+      </div>
 
       <div class="cruds">
         <div class="arriba">
@@ -75,7 +75,8 @@
           <div class="group">
             <svg class="icon" aria-hidden="true" viewBox="0 0 24 24">
               <g>
-                <path d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z">
+                <path
+                  d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z">
                 </path>
               </g>
             </svg>
@@ -91,7 +92,7 @@
                 <th>Dispositivo</th>
                 <th>Responsable</th>
                 <th>IMEI</th>
-                <th>Status</th>
+                <th>Estado</th>
                 <th>Acción</th>
               </tr>
             </thead>
@@ -135,14 +136,14 @@ const mensajes = ref([]);
 
 // Función para obtener los mensajes desde el servidor
 const fetchMensajes = async () => {
-            try {
-                const response = await fetch('http://localhost:3001/mensajes');
-                if (!response.ok) throw new Error('Error al obtener mensajes');
-                mensajes.value = await response.json();
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        };
+  try {
+    const response = await fetch('http://localhost:3001/mensajes');
+    if (!response.ok) throw new Error('Error al obtener mensajes');
+    mensajes.value = await response.json();
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
 
 // Computed properties
 const filteredDispositivos = computed(() => {
@@ -154,7 +155,7 @@ const filteredDispositivos = computed(() => {
 // Funciones auxiliares
 const typeEffect = () => {
   const current = currentIndex;
-  
+
   if (!isDeleting && current < fullText.length) {
     displayedText.value = fullText.slice(0, current + 1);
     currentIndex++;
@@ -220,7 +221,7 @@ const editarDispositivo = (index) => {
 
       console.log('Datos a editar:', { deviceName: nombre, responsible: responsable, imei, status: estatus });
 
-      return { deviceName: nombre, responsible: responsable, imei, status: estatus }; 
+      return { deviceName: nombre, responsible: responsable, imei, status: estatus };
     }
   }).then((result) => {
     if (result.isConfirmed) {
@@ -231,21 +232,21 @@ const editarDispositivo = (index) => {
         },
         body: JSON.stringify(result.value)
       })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Error al editar dispositivo');
-        }
-        return response.json();
-      })
-      .then(data => {
-        dispositivos.value.splice(index, 1, data); 
-        console.log('Dispositivo editado:', data);
-        Swal.fire('¡Dispositivo editado!', '', 'success');
-      })
-      .catch((error) => {
-        console.error('Error al editar dispositivo:', error);
-        Swal.fire('Error', 'No se pudo editar el dispositivo', 'error');
-      });
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Error al editar dispositivo');
+          }
+          return response.json();
+        })
+        .then(data => {
+          dispositivos.value.splice(index, 1, data);
+          console.log('Dispositivo editado:', data);
+          Swal.fire('¡Dispositivo editado!', '', 'success');
+        })
+        .catch((error) => {
+          console.error('Error al editar dispositivo:', error);
+          Swal.fire('Error', 'No se pudo editar el dispositivo', 'error');
+        });
     }
   });
 };
@@ -265,21 +266,21 @@ const eliminarDispositivo = (index) => {
       fetch(`http://localhost:3001/devices/${dispositivo._id}`, {
         method: 'DELETE'
       })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Error al eliminar dispositivo');
-        }
-        return response.json();
-      })
-      .then(() => {
-        dispositivos.value.splice(index, 1); 
-        console.log('Dispositivo eliminado:', dispositivo);
-        Swal.fire('¡Dispositivo eliminado!', '', 'success');
-      })
-      .catch((error) => {
-        console.error('Error al eliminar dispositivo:', error);
-        Swal.fire('Error', 'No se pudo eliminar el dispositivo', 'error');
-      });
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Error al eliminar dispositivo');
+          }
+          return response.json();
+        })
+        .then(() => {
+          dispositivos.value.splice(index, 1);
+          console.log('Dispositivo eliminado:', dispositivo);
+          Swal.fire('¡Dispositivo eliminado!', '', 'success');
+        })
+        .catch((error) => {
+          console.error('Error al eliminar dispositivo:', error);
+          Swal.fire('Error', 'No se pudo eliminar el dispositivo', 'error');
+        });
     }
   });
 };
@@ -326,20 +327,20 @@ const insertarDispositivo = async () => {
       },
       body: JSON.stringify(imei)
     })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Error al agregar dispositivo');
-      }
-      return response.json();
-    })
-    .then(data => {
-      dispositivos.value.push(data); 
-      Swal.fire('¡Dispositivo agregado!', '', 'success');
-    })
-    .catch((error) => {
-      console.error('Error al agregar dispositivo:', error);
-      Swal.fire('Error', 'No se pudo agregar el dispositivo', 'error');
-    });
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Error al agregar dispositivo');
+        }
+        return response.json();
+      })
+      .then(data => {
+        dispositivos.value.push(data);
+        Swal.fire('¡Dispositivo agregado!', '', 'success');
+      })
+      .catch((error) => {
+        console.error('Error al agregar dispositivo:', error);
+        Swal.fire('Error', 'No se pudo agregar el dispositivo', 'error');
+      });
   }
 };
 
@@ -380,7 +381,7 @@ onUnmounted(() => {
 .dropdown-content {
   background-color: var(--sidebar-color);
   border-radius: 8px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   display: none;
   margin-right: 30px;
   min-width: 200px;
@@ -444,7 +445,7 @@ onUnmounted(() => {
 
 .dropbtn:hover {
   background-color: var(--body-color);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .home .actions {
@@ -620,10 +621,10 @@ table {
   width: 100%;
 }
 
-td, th {
+td,
+th {
   color: var(--text-colar);
   padding: 15px;
   text-align: center;
 }
 </style>
-

@@ -7,13 +7,11 @@
       </div>
 
       <div class="actions">
-        <!-- Icono de notificación con indicador -->
         <button class="notification-btn">
           <i class='bx bx-bell'></i>
           <span class="notification-indicator"></span>
         </button>
         
-        <!-- Menú desplegable de configuración mejorado -->
         <div class="dropdown">
           <button class="dropbtn" @click="toggleDropdown">
             <i class='bx bx-cog confi'></i> Configuración
@@ -44,48 +42,57 @@
       <div id="play-content">
         <button @click="playRecording" class="play-button">Reproducir Historial</button>
       </div>
-
     </div>
 
     <div class="tituloo">
       <div class="hone">
-        <h1>Historial de Dispositivo</h1>
+        <h1>Lista de Dispositivos</h1>
         <div class="group">
           <svg class="icon" aria-hidden="true" viewBox="0 0 24 24">
             <g>
-              <path
-                d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z">
+              <path d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z">
               </path>
             </g>
           </svg>
-          <input placeholder="Search" type="search" class="input" v-model="searchQuery" @input="filterResults">
+          <input placeholder="Buscar" type="search" class="input" v-model="searchQuery" @input="filterResults">
         </div>
-        <ul class="device-list">
-          <router-link to="#" style="text-decoration: none;">
-            <li @click="showAlert(item.name)" v-for="item in filteredResults" :key="item.id">{{ item.name }}
-              <i class='bx bxs-car icon'></i>
+        <div class="device-list-container">
+          <ul class="device-list">
+            <li @click="showAlert(item)" v-for="item in filteredResults" :key="item._id">
+              <i class='bx bxs-car'></i>
+              {{ item.deviceName }}
             </li>
-          </router-link>
-        </ul>
+          </ul>
+        </div>
       </div>
       <div id="map" class="map-container"></div>
     </div>
   </section>
 </template>
 
-
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import Swal from 'sweetalert2';
 import L from 'leaflet';
-import gpsIcon from '../assets/gps.png';
+import 'leaflet/dist/leaflet.css';
+import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
+import iconUrl from 'leaflet/dist/images/marker-icon.png';
+import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
+
+// Configuración de Leaflet
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl,
+  iconUrl,
+  shadowUrl
+});
 
 // Variables reactivas
 let map;
 let polyline;
 let marker;
 let playbackInterval;
-const playbackSpeed = 1000; // Velocidad de reproducción en milisegundos
+const playbackSpeed = 1000;
 
 const fullText = "Navify";
 const displayedText = ref("");
@@ -95,12 +102,7 @@ let typingInterval;
 
 const dropdownOpen = ref(false);
 const searchQuery = ref('');
-const devices = ref([
-  { id: 1, name: 'Jesus Alvarez' },
-  { id: 2, name: 'RTY687' },
-  { id: 3, name: 'SJS981' },
-  { id: 4, name: 'HDS432' }
-]);
+const devices = ref([]);
 const filteredResults = ref([]);
 
 // Funciones
@@ -130,84 +132,83 @@ const typeEffect = () => {
 };
 
 function initMap() {
-  const colombia = [4.5709, -74.2973]; // Latitud y longitud de Colombia
-  map = L.map('map').setView(colombia, 6);
+  var colombia = { lat: 10.9685, lng: -74.7813 };
+  const mapOptions = {
+    center: colombia,
+    zoom: 12.4
+  };
+  
+  map = L.map('map').setView([colombia.lat, colombia.lng], mapOptions.zoom);
 
-  // Cargar capa de mapa base
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '© OpenStreetMap'
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   }).addTo(map);
 }
 
-const showAlert = (name) => {
-  if (name === 'Jesus Alvarez') {
-    // Alerta con formulario para seleccionar rango de fechas y horas
-    Swal.fire({
-      title: 'Seleccionar rango de fechas y horas',
-      html:
-        '<label for="start-date">Fecha inicial:</label>' +
-        '<input type="date" id="start-date" class="swal2-input">' +
-        '<label for="end-date">Fecha fin:</label>' +
-        '<input type="date" id="end-date" class="swal2-input">',
-      width: '60%',
-      confirmButtonText: 'Ver Historial',
-      showCancelButton: true,
-      cancelButtonText: 'Cancelar',
-      preConfirm: () => {
-        const startDate = document.getElementById('start-date').value;
-        const endDate = document.getElementById('end-date').value;
+function toggleDropdown() {
+  dropdownOpen.value = !dropdownOpen.value;
+}
 
-        if (!startDate || !endDate) {
-          Swal.showValidationMessage('Por favor ingrese todas las fechas');
-        }
-        return { startDate, endDate, };
+function filterResults() {
+  const query = searchQuery.value.toLowerCase();
+  filteredResults.value = devices.value.filter(item =>
+    item.deviceName.toLowerCase().includes(query)
+  );
+}
+
+const showAlert = (item) => {
+  Swal.fire({
+    title: 'Seleccionar rango de fechas y horas',
+    html:
+      '<label for="start-date">Fecha inicial:</label>' +
+      '<input type="date" id="start-date" class="swal2-input">' +
+      '<label for="end-date">Fecha fin:</label>' +
+      '<input type="date" id="end-date" class="swal2-input">',
+    width: '60%',
+    confirmButtonText: 'Ver Historial',
+    showCancelButton: true,
+    cancelButtonText: 'Cancelar',
+    preConfirm: () => {
+      const startDate = document.getElementById('start-date').value;
+      const endDate = document.getElementById('end-date').value;
+
+      if (!startDate || !endDate) {
+        Swal.showValidationMessage('Por favor ingrese todas las fechas');
       }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        showHistory(result.value.startDate, result.value.endDate);
-      }
-    });
-  } else {
-    // Alerta simple para buscar dispositivo
-    Swal.fire({
-      title: name,
-      confirmButtonText: 'Buscar Dispositivo',
-      showCancelButton: true,
-      cancelButtonText: 'Cancelar'
-    });
-  }
+      return { startDate, endDate };
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      showHistory(item, result.value.startDate, result.value.endDate);
+    }
+  });
 };
 
-const showHistory = () => {
+const showHistory = (device, startDate, endDate) => {
+  // Aquí deberías hacer una llamada a la API para obtener el historial del dispositivo
+  // Por ahora, usaremos datos de ejemplo
   const coordenadas = [
-    [10.9878, -74.7889], // Punto 1 (Barranquilla)
-    [10.9885, -74.7895], // Punto 2
-    [10.9900, -74.7900], // Punto 3
-    [10.9920, -74.7910], // Punto 4
-    [10.9930, -74.7920]  // Punto 5
+    [device.lat, device.lng],
+    [device.lat + 0.001, device.lng + 0.001],
+    [device.lat + 0.002, device.lng + 0.002],
+    [device.lat + 0.003, device.lng + 0.003],
+    [device.lat + 0.004, device.lng + 0.004]
   ];
 
-  // Limpiar cualquier polyline existente
   if (polyline) {
     map.removeLayer(polyline);
   }
 
-  // Dibujar polyline con las coordenadas
   polyline = L.polyline(coordenadas, { color: 'red' }).addTo(map);
 
-  // Agregar marcador inicial con el icono de GPS
-  const gpsMarker = L.icon({
-    iconUrl: gpsIcon,
-    iconSize: [40, 40]
-  });
+  if (marker) {
+    map.removeLayer(marker);
+  }
 
-  marker = L.marker(coordenadas[0], { icon: gpsMarker }).addTo(map).bindPopup('Inicio');
+  marker = L.marker(coordenadas[0]).addTo(map).bindPopup('Inicio');
 
-  // Ajustar el mapa para mostrar el polyline completo
   map.fitBounds(polyline.getBounds());
 
-  // Guardar las coordenadas para la reproducción
   window.recordingCoords = coordenadas;
 };
 
@@ -224,34 +225,35 @@ const playRecording = () => {
 
   let index = 0;
 
-  // Limpiar cualquier intervalo de reproducción existente
   if (playbackInterval) {
     clearInterval(playbackInterval);
   }
 
-  // Reproducción de recorrido
   playbackInterval = setInterval(() => {
     if (index < window.recordingCoords.length) {
       const coord = window.recordingCoords[index];
       marker.setLatLng(coord);
-      map.setView(coord, map.getZoom()); // Opcional: Ajusta el zoom si es necesario
+      map.setView(coord, map.getZoom());
       index++;
     } else {
-      clearInterval(playbackInterval); // Detener cuando termine
+      clearInterval(playbackInterval);
     }
   }, playbackSpeed);
 };
 
-function toggleDropdown() {
-  dropdownOpen.value = !dropdownOpen.value;
-}
-
-function filterResults() {
-  const query = searchQuery.value.toLowerCase();
-  filteredResults.value = devices.value.filter(item =>
-    item.name.toLowerCase().includes(query)
-  );
-}
+const cargarDispositivos = async () => {
+  try {
+    const response = await fetch('http://localhost:3001/devices');
+    if (!response.ok) {
+      throw new Error('Error en la respuesta de la API');
+    }
+    const data = await response.json();
+    devices.value = data;
+    filteredResults.value = devices.value;
+  } catch (error) {
+    console.error('Error al cargar dispositivos:', error);
+  }
+};
 
 // Lifecycle hooks
 onUnmounted(() => {
@@ -259,12 +261,11 @@ onUnmounted(() => {
 });
 
 onMounted(() => {
-  filteredResults.value = devices.value;
-  typeEffect();
   initMap();
+  typeEffect();
+  cargarDispositivos();
 });
 </script>
-
 
 <style scoped>
 /* Estilos del mapa */
@@ -437,8 +438,10 @@ onMounted(() => {
   z-index: 2;
   border-radius: 10px;
   padding: 10px;
-  overflow-y: auto;
   border: 1px solid;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .hone h1 {
@@ -449,6 +452,7 @@ onMounted(() => {
   position: relative;
   z-index: 1;
   color: var(--text-color);
+  flex-shrink: 0;
 }
 
 .hone2 {
@@ -481,8 +485,8 @@ onMounted(() => {
   justify-content: center;
   position: relative;
   max-width: 250px;
-
   margin-top: 10px;
+  flex-shrink: 0;
 }
 
 .input {
@@ -512,19 +516,51 @@ onMounted(() => {
   font-size: 21px;
 }
 
+.device-list-container {
+  flex-grow: 1;
+  overflow-y: auto;
+  margin-top: 10px;
+}
+
 .device-list {
   list-style: none;
   padding: 0;
-  margin: 20px;
+  margin: 0;
 }
 
 .device-list li {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
   color: var(--text-color);
-  padding: 5px 0;
   font-size: 15px;
   font-weight: 500;
-  display: flex;
-  margin-left: 20px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.device-list li:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.device-list li i {
+  margin-right: 10px;
+  font-size: 21px;
+  flex-shrink: 0;
+}
+
+/* Estilos para la barra de desplazamiento */
+.device-list-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.device-list-container::-webkit-scrollbar-track {
+  background: var(--sidebar-color);
+}
+
+.device-list-container::-webkit-scrollbar-thumb {
+  background-color: var(--body-color);
+  border-radius: 3px;
 }
 </style>
 

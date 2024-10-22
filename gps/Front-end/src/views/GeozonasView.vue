@@ -46,19 +46,16 @@
               </path>
             </g>
           </svg>
-          <input placeholder="Search" type="search" class="input" v-model="searchQuery" @input="filterResults">
+          <input placeholder="Buscar" type="search" class="input" v-model="searchQuery" @input="filterResults">
         </div>
-        <ul class="device-list">
-          <router-link to="#" style="text-decoration: none;">
-            <li @click="selectDevice(item)" v-for="item in filteredResults" :key="item.id">{{ item.name }}
-              <i class='bx bxs-car icon'></i>
+        <div class="device-list-container">
+          <ul class="device-list">
+            <li @click="selectDevice(item)" v-for="item in filteredResults" :key="item._id">
+              <i class='bx bxs-car'></i>
+              {{ item.deviceName }}
             </li>
-          </router-link>
-        </ul>
-
-        <button type="button" class="button" @click="deleteLastShape">
-          <span class="button__text">Eliminar Geozona</span>
-        </button>
+          </ul>
+        </div>
       </div>
 
       <div id="map" class="map-container"></div>
@@ -78,12 +75,7 @@ import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
 const map = ref(null);
 const drawnItems = ref(new L.FeatureGroup());
 const searchQuery = ref('');
-const devices = ref([
-  { id: 1, name: 'Jesus Alvarez' },
-  { id: 2, name: 'RTY687' },
-  { id: 3, name: 'SJS981' },
-  { id: 4, name: 'HDS432' }
-]);
+const devices = ref([]);
 const filteredResults = ref([]);
 const selectedDevice = ref(null);
 const deviceShapes = ref({});
@@ -262,13 +254,27 @@ const deleteLastShape = () => {
 const filterResults = () => {
   const query = searchQuery.value.toLowerCase();
   filteredResults.value = devices.value.filter(item =>
-    item.name.toLowerCase().includes(query)
+    item.deviceName.toLowerCase().includes(query)
   );
+};
+
+const cargarDispositivos = async () => {
+  try {
+    const response = await fetch('http://localhost:3001/devices');
+    if (!response.ok) {
+      throw new Error('Error en la respuesta de la API');
+    }
+    const data = await response.json();
+    devices.value = data;
+    filteredResults.value = devices.value;
+  } catch (error) {
+    console.error('Error al cargar dispositivos:', error);
+  }
 };
 
 // Hooks del ciclo de vida
 onMounted(() => {
-  filteredResults.value = devices.value;
+  cargarDispositivos();
   initMap();
   typeEffect();
 });
@@ -447,31 +453,32 @@ onUnmounted(() => {
   justify-content: flex-end;
   position: relative;
   z-index: 1;
+ 
 }
 
 /* Estilos del panel lateral */
 .hone {
+  width: 17%;
   background-color: var(--sidebar-color);
-  border: 1px solid;
-  border-radius: 10px;
-  height: 340px;
-  margin-right: 20px;
-  overflow-x: hidden;
-  overflow-y: auto;
-  padding: 10px;
+  height: 280px;
   position: absolute;
   top: 25%;
-  width: 17%;
   z-index: 10;
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid;
+  overflow: hidden;
+  margin-right: 30px;
 }
 
 .hone h1 {
-  color: var(--text-color);
-  font-size: 15px;
-  margin-left: 20px;
+  text-align: center;
   margin-top: 10px;
+  font-size: 15px;
+  color: var(--text-color);
   position: relative;
-  text-align: left;
   z-index: 1;
 }
 
@@ -497,6 +504,7 @@ onUnmounted(() => {
   padding-left: 2.5rem;
   transition: .3s ease;
   width: 100%;
+  
 }
 
 .input::placeholder {
@@ -512,61 +520,63 @@ onUnmounted(() => {
   width: 1rem;
 }
 
+.icoon {
+  fill: #9e9ea7;
+  font-size: 21px;
+  height: 1rem;
+  right: 4rem;
+  position: relative;
+  width: 1rem;
+  font-size: 21px;
+}
+
+.device-list-container {
+  flex-grow: 1;
+  overflow-y: auto;
+  margin-top: 10px;
+}
+
 .device-list {
   list-style: none;
-  margin: 20px;
   padding: 0;
+  margin: 0;
 }
 
 .device-list li {
-  color: var(--text-color);
   display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  color: var(--text-color);
   font-size: 15px;
   font-weight: 500;
-  margin-left: 20px;
-  padding: 5px 0;
-}
-
-.button {
-  --main-focus: #2d8cf0;
-  --font-color: #323232;
-  --bg-color-sub: #dedede;
-  --bg-color: #eee;
-  --main-color: #323232;
-  align-items: center;
-  background-color: var(--body-color);
-  border: 1px solid;
-  border-radius: 10px;
-  box-shadow: 4px 4px var(--body-color);
   cursor: pointer;
-  display: flex;
-  height: 40px;
-  overflow: hidden;
-  position: relative;
-  width: 190px;
+  transition: background-color 0.2s;
 }
 
-.button,
-.button__text {
-  transition: all 0.3s;
+.device-list li:hover {
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
-.button .button__text {
-  color: var(--text-color);
-  font-weight: 600;
-  transform: translateX(33px);
+.device-list li i {
+  margin-right: 10px;
+  font-size: 21px;
+  flex-shrink: 0;
 }
 
-.button:hover {
-  background: var(--body-color);
+/* Estilos para la barra de desplazamiento */
+.device-list-container::-webkit-scrollbar {
+  width: 6px;
 }
 
-.button:hover .button__text {
-  color: var(--text-color);
+.device-list-container::-webkit-scrollbar-track {
+  background: var(--sidebar-color);
 }
 
-.button:active {
-  box-shadow: 0px 0px var(--main-color);
-  transform: translate(3px, 3px);
+.device-list-container::-webkit-scrollbar-thumb {
+  background-color: var(--body-color);
+  border-radius: 3px;
 }
 </style>
+
+
+

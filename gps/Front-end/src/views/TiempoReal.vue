@@ -49,13 +49,14 @@
           </svg>
           <input placeholder="Buscar" type="search" class="input" v-model="searchQuery" @input="filterResults">
         </div>
-        <ul class="device-list">
-          <router-link to="#" style="text-decoration: none;">
-            <li @click="showAlert(item)" v-for="item in filteredResults" :key="item._id">{{ item.deviceName }}
-              <i class='bx bxs-car icon'></i>
+        <div class="device-list-container">
+          <ul class="device-list">
+            <li v-for="item in filteredResults" :key="item._id" @click="showAlert(item)">
+              <i class='bx bxs-car'></i>
+              {{ item.deviceName }}
             </li>
-          </router-link>
-        </ul>
+          </ul>
+        </div>
       </div>
 
       <div class="hone2">
@@ -223,8 +224,8 @@ const cargarDispositivos = async () => {
     // Agregar latitud y longitud manualmente a cada dispositivo
     devices.value = data.map(device => ({
       ...device,
-      lat: 10.9685 + Math.random() * 0.1, 
-      lng: -74.7813 + Math.random() * 0.1, 
+      lat: 10.9685 + (Math.random() * 0.05 - 0.025),
+      lng: -74.7813 + (Math.random() * 0.05 - 0.025),
       speed: Math.floor(Math.random() * 100), 
       km: Math.floor(Math.random() * 10000) 
     }));
@@ -394,7 +395,8 @@ onMounted(() => {
   z-index: 2; 
   border-radius: 10px;
   padding: 10px;
-  overflow-y: hidden; 
+  display: flex;
+  flex-direction: column;
   border: 1px solid;
 }
 
@@ -460,45 +462,60 @@ onMounted(() => {
   width: 1rem;
   height: 1rem;
   font-size: 21px;
+  
+}
+
+.device-list-container {
+  flex-grow: 1;
+  overflow-y: auto;
+  margin-top: 10px;
 }
 
 .device-list {
   list-style: none;
   padding: 0;
-  margin: 20px;
-  max-height: 180px; /* Ajusta este valor según tus necesidades */
-  overflow-y: auto;
-  overflow-x: hidden;
+  margin: 0;
 }
 
 .device-list li {
-  color: var(--text-color);
-  padding: 5px 0;
-  font-size: 15px;
-  font-weight: 500;
   display: flex;
   align-items: center;
-  margin-left: 20px;
+  padding: 8px 10px;
+  color: var(--text-color);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.device-list li:hover {
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 .device-list li i {
-  margin-right: 10px; /* Espacio entre el icono y el nombre del dispositivo */
+  margin-right: 10px;
   font-size: 21px;
+  flex-shrink: 0;
 }
 
 /* Estilos para la barra de desplazamiento */
-.device-list::-webkit-scrollbar {
+.device-list-container::-webkit-scrollbar {
   width: 6px;
 }
 
-.device-list::-webkit-scrollbar-track {
+.device-list-container::-webkit-scrollbar-track {
   background: var(--sidebar-color);
 }
 
-.device-list::-webkit-scrollbar-thumb {
+.device-list-container::-webkit-scrollbar-thumb {
   background-color: var(--body-color);
   border-radius: 3px;
 }
 </style>
+
+
+
+
+
 
 
