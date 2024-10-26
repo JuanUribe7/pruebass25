@@ -169,18 +169,17 @@ function showDeviceOnMap(device) {
   });
 
   // Centrar el mapa en la ubicación del dispositivo
-  map.setView([device.lat, device.lng], 18);
+  map.setView([device.coordenadas.latitud, device.coordenadas.longitud], 18);
 
   // Añadir un nuevo marcador para el dispositivo
-  const marker = L.marker([device.lat, device.lng]).addTo(map);
+  const marker = L.marker([device.coordenadas.latitud, device.coordenadas.longitud]).addTo(map);
 
   // Mostrar información del dispositivo en un popup
   marker.bindPopup(`
     <b>${device.deviceName}</b><br>
-    Latitud: ${device.lat}<br>
-    Longitud: ${device.lng}<br>
-    Velocidad: ${device.speed} km/h<br>
-    Kilometraje: ${device.km} km
+    Latitud: ${device.coordenadas.latitud}<br>
+    Longitud: ${device.coordenadas.longitud}<br>
+
   `).openPopup();
 
   // Forzar una actualización del mapa
@@ -188,7 +187,7 @@ function showDeviceOnMap(device) {
 
   // Asegurar que el mapa se centre después de un breve retraso
   setTimeout(() => {
-    map.setView([device.lat, device.lng], 18);
+    map.setView([device.coordenadas.latitud, device.coordenadas.longitud], 18);
     map.invalidateSize();
   }, 100);
 
@@ -196,6 +195,7 @@ function showDeviceOnMap(device) {
 }
 
 const showAlert = (item) => {
+  console.log(JSON.stringify(item, null, 2));
   Swal.fire({
     title: 'Detalles del Dispositivo',
     html: `
@@ -221,14 +221,9 @@ const cargarDispositivos = async () => {
       throw new Error('Error en la respuesta de la API');
     }
     const data = await response.json();
+    console.log(data);
     // Agregar latitud y longitud manualmente a cada dispositivo
-    devices.value = data.map(device => ({
-      ...device,
-      lat: 10.9685 + (Math.random() * 0.05 - 0.025),
-      lng: -74.7813 + (Math.random() * 0.05 - 0.025),
-      speed: Math.floor(Math.random() * 100), 
-      km: Math.floor(Math.random() * 10000) 
-    }));
+    devices.value = data
     filteredResults.value = devices.value;
   } catch (error) {
     console.error('Error al cargar dispositivos:', error);

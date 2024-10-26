@@ -58,14 +58,7 @@
         </div>
       </div>
 
-      <div>
-        <h2>Mensajes Recibidos:</h2>
-        <ul>
-          <li v-for="(mensaje, index) in mensajes" :key="index">
-            {{ mensaje.body }} <!-- Cambié 'mensaje.texto' a 'mensaje.body' -->
-          </li>
-        </ul>
-      </div>
+ 
 
       <div class="cruds">
         <div class="arriba">
@@ -303,6 +296,7 @@ const insertarDispositivo = async () => {
       const responsable = document.getElementById('responsable').value;
       const imei = document.getElementById('imei').value;
       const estatus = document.getElementById('estatus').value;
+      
 
       if (!nombre || !responsable || !imei || !estatus) {
         Swal.showValidationMessage('Por favor, complete todos los campos.');

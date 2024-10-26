@@ -42,7 +42,7 @@ let index = 0;
 
 const login = async () => {
     try {
-        const response = await fetch('http://localhost:3001/login', {
+        const response = await fetch('http://localhost:3001/auth/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
