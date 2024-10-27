@@ -5,7 +5,7 @@ const Device = require('../models/Device');
 // Listar todos los dispositivos
 router.get('/', async (req, res) => {
     try {
-        const devices = await Device.find({}, 'deviceName responsible status imei');
+        const devices = await Device.find({}, 'deviceName responsible status imei coordenadas ');
         res.json(devices);
     } catch (error) {
         res.status(500).json({ message: error.message });

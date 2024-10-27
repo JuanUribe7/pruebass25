@@ -6,8 +6,8 @@ const deviceSchema = new mongoose.Schema({
     imei: { type: String, required: true, unique: true },
     status: { type: String, required: true },
     coordenadas: {
-        latitud: { type: Number, default: null },
-        longitud: { type: Number, default: null }
+        latitud: { type: Number},
+        longitud: { type: Number }
     },
     kilometraje: { type: Number, default: null },
     velocidad: { type: Number, default: null }

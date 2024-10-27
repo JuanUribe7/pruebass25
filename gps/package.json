@@ -10,6 +10,7 @@
   "dependencies": {
     "@geoman-io/leaflet-geoman-free": "^2.17.0",
     "@types/googlemaps": "^3.43.3",
+    "ajv-keywords": "^5.1.0",
     "axios": "^1.7.7",
     "bootstrap": "^5.3.3",
     "chart.js": "^4.4.4",
