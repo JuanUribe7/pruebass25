@@ -99,6 +99,8 @@ const devices = ref([]);
 const filteredResults = ref([]);
 
 // Funciones
+
+// Crea el efecto de escritura para el título
 const typeEffect = () => {
   const current = currentIndex;
   
@@ -124,6 +126,7 @@ const typeEffect = () => {
   typingInterval = setTimeout(typeEffect, typingSpeed);
 };
 
+// Inicializa el mapa de Leaflet
 function initMap() {
   var colombia = { lat: 10.9685, lng: -74.7813 };
   const mapOptions = {
@@ -142,10 +145,12 @@ function initMap() {
 
 }
 
+// Alterna la visibilidad del menú desplegable
 function toggleDropdown() {
   dropdownOpen.value = !dropdownOpen.value;
 }
 
+// Filtra los dispositivos basados en la búsqueda del usuario
 function filterResults() {
   const query = searchQuery.value.toLowerCase();
   filteredResults.value = devices.value.filter(item =>
@@ -153,6 +158,7 @@ function filterResults() {
   );
 }
 
+// Muestra un dispositivo seleccionado en el mapa
 function showDeviceOnMap(device) {
   console.log('Mostrando dispositivo:', device);
   
@@ -195,6 +201,7 @@ function showDeviceOnMap(device) {
   console.log('Marcador añadido y mapa centrado');
 }
 
+// Muestra una alerta con los detalles del dispositivo
 const showAlert = (item) => {
   Swal.fire({
     title: 'Detalles del Dispositivo',
@@ -214,6 +221,7 @@ const showAlert = (item) => {
   });
 };
 
+// Carga los dispositivos desde la API
 const cargarDispositivos = async () => {
   try {
     const response = await fetch('http://localhost:3001/devices');
@@ -401,11 +409,11 @@ onMounted(() => {
 }
 
 .hone h1 {
-  text-align: left;
   margin-top: 10px;
-  margin-left: 20px;
-  font-size: 15px;
+  font-size: 16px;
+  text-align: center;
   color: var(--text-color);
+
 }
 
 .hone2 {
@@ -512,6 +520,7 @@ onMounted(() => {
   border-radius: 3px;
 }
 </style>
+
 
 
 

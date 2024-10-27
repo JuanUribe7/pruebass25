@@ -14,11 +14,10 @@ let mensajesRecibidos = [];
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
 // Conexión a MongoDB
-mongoose.connect('mongodb+srv://lospopulare:gps1234@gps.zgbl7.mongodb.net/proyecto?retryWrites=true&w=majority&appName=gps', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
+mongoose.connect('mongodb://localhost:27017/Navify_gps', {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
 })
 .then(() => console.log('Conectado a MongoDB'))
 .catch(err => console.error('Error de conexión a MongoDB:', err));

@@ -7,13 +7,11 @@
       </div>
 
       <div class="actions">
-        <!-- Icono de notificación con indicador -->
         <button class="notification-btn">
           <i class='bx bx-bell'></i>
           <span class="notification-indicator"></span>
         </button>
         
-        <!-- Menú desplegable de configuración mejorado -->
         <div class="dropdown">
           <button class="dropbtn" @click="toggleDropdown">
             <i class='bx bx-cog confi'></i> Configuración
@@ -85,20 +83,16 @@
       </div>
     </div>
 
-
     <div class="container-graph">
-      <!-- Gráfica de barras -->
       <div class="containerG" v-if="showGraph">
         <Bar :data="chartData" :options="chartOptions" />
       </div>
 
-      <!-- Gráfica de pastel -->
       <div class="containerPie" v-if="showPieChart">
         <Pie :data="pieChartData" :options="pieChartOptions" />
       </div>
     </div>
   </section>
-
 </template>
 
 <script setup>
@@ -107,30 +101,102 @@ import { Bar, Pie } from 'vue-chartjs';
 import Swal from 'sweetalert2';
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.css";
-
 import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, ArcElement } from 'chart.js';
 
-// Registrar componentes de Chart.js
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, ArcElement);
 
+// Variables reactivas
+const chartData = ref({
+  labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo'],
+  datasets: [
+    {
+      label: 'Ventas',
+      backgroundColor: '#42A5F5',
+      data: [40, 20, 30, 60, 90],
+    },
+  ],
+});
+
+const chartOptions = ref({
+  responsive: true,
+  maintainAspectRatio: false,
+  scales: {
+    x: {
+      ticks: { color: 'var(--text-colar)' },
+      grid: { color: 'rgba(var(--text-colar-rgb), 0.1)' },
+    },
+    y: {
+      beginAtZero: true,
+      ticks: { color: 'var(--text-colar)' },
+      grid: { color: 'var(--text-colar)' },
+    },
+  },
+  plugins: {
+    legend: { labels: { color: 'var(--text-colar)' } },
+    title: {
+      display: true,
+      text: 'Gráfica de Barras',
+      color: 'var(--text-colar)',
+    },
+  },
+});
+
+const devices = ref([]);
+const deviceDropdownOpen = ref(false);
+const displayedText = ref("");
+const dropdownOpen = ref(false);
+const endDatePicker = ref(null);
+const fullText = "Navify";
+const pieChartData = ref({
+  labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple'],
+  datasets: [
+    {
+      label: 'Distribución',
+      backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
+      data: [12, 19, 3, 5, 2],
+    },
+  ],
+});
+
+const pieChartOptions = ref({
+  responsive: true,
+  plugins: {
+    legend: {
+      position: 'top',
+      labels: { color: 'var(--text-colar)' },
+    },
+    title: { color: 'var(--text-colar)' },
+    tooltip: {
+      callbacks: {
+        label: function (context) {
+          let label = context.label || '';
+          if (context.parsed !== null) {
+            label += `: ${context.parsed}`;
+          }
+          return label;
+        },
+      },
+      backgroundColor: 'var(--sidebar-color)',
+      titleColor: 'var(--text-colar)',
+      bodyColor: 'var(--text-colar)',
+    },
+  },
+});
+
+const selectedDevice = ref(null);
 const showGraph = ref(false);
 const showPieChart = ref(false);
 const startDatePicker = ref(null);
-const endDatePicker = ref(null);  
-// Datos reactivos para el menú desplegable
-const dropdownOpen = ref(false);
-const deviceDropdownOpen = ref(false);
-const selectedDevice = ref(null);
-const devices = ref(['RTY687', 'SJS981', 'HDS432']);
 
-const fullText = "Navify";
-const displayedText = ref("");
 let currentIndex = 0;
 let isDeleting = false;
 let typingInterval;
 
-function generarG() {
+// Funciones
 
+// Genera el reporte y muestra las gráficas
+const generarG = () => {
+  // Genera el reporte y muestra las gráficas
   const startDate = document.getElementById('start-date').value;
   const endDate = document.getElementById('end-date').value;
 
@@ -154,122 +220,33 @@ function generarG() {
 
   showGraph.value = true;
   showPieChart.value = true;
-}
-
-// Datos reactivos para la gráfica
-const chartData = ref({
-  labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo'],
-  datasets: [
-    {
-      label: 'Ventas',
-      backgroundColor: '#42A5F5',
-      data: [40, 20, 30, 60, 90],
-    },
-  ],
-});
-
-// Modificar las opciones de la gráfica de barras
-const chartOptions = ref({
-  responsive: true,
-  maintainAspectRatio: false,
-  scales: {
-    x: {
-      ticks: {
-        color: 'var(--text-colar)',
-      },
-      grid: {
-        color: 'rgba(var(--text-colar-rgb), 0.1)',
-      },
-    },
-    y: {
-      beginAtZero: true,
-      ticks: {
-        color: 'var(--text-colar)',
-      },
-      grid: {
-        color: 'var(--text-colar)',
-      },
-    },
-  },
-  plugins: {
-    legend: {
-      labels: {
-        color: 'var(--text-colar)',
-      },
-    },
-    title: {
-      display: true,
-      text: 'Gráfica de Barras',
-      color: 'var(--text-colar)',
-    },
-  },
-});
-
-// Datos reactivos para la gráfica de pastel
-const pieChartData = ref({
-  labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple'],
-  datasets: [
-    {
-      label: 'Distribución',
-      backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
-      data: [12, 19, 3, 5, 2],
-    },
-  ],
-});
-
-// Modificar las opciones de la gráfica de pastel
-const pieChartOptions = ref({
-  responsive: true,
-  plugins: {
-    legend: {
-      position: 'top',
-      labels: {
-        color: 'var(--text-colar)',
-      },
-    },
-    title: {
-      color: 'var(--text-colar)',
-    },
-    tooltip: {
-      callbacks: {
-        label: function (context) {
-          let label = context.label || '';
-          if (context.parsed !== null) {
-            label += `: ${context.parsed}`;
-          }
-          return label;
-        },
-      },
-      backgroundColor: 'var(--sidebar-color)',
-      titleColor: 'var(--text-colar)',
-      bodyColor: 'var(--text-colar)',
-    },
-  },
-});
-
-// Métodos
-const toggleDropdown = () => {
-  dropdownOpen.value = !dropdownOpen.value;
 };
 
-const toggleDeviceDropdown = () => {
-  deviceDropdownOpen.value = !deviceDropdownOpen.value;
-};
-
+// Selecciona un dispositivo del menú desplegable
 const selectDevice = (device) => {
   selectedDevice.value = device;
   deviceDropdownOpen.value = false;
 };
 
+// Alterna la visibilidad del menú desplegable de dispositivos
+const toggleDeviceDropdown = () => {
+  deviceDropdownOpen.value = !deviceDropdownOpen.value;
+};
 
+// Alterna la visibilidad del menú desplegable principal
+const toggleDropdown = () => {
+  dropdownOpen.value = !dropdownOpen.value;
+};
+
+// Crea un efecto de escritura para el texto del título
 const typeEffect = () => {
+  // Crea un efecto de escritura para el texto del título
   const current = currentIndex;
   
   if (!isDeleting && current < fullText.length) {
     displayedText.value = fullText.slice(0, current + 1);
     currentIndex++;
     if (currentIndex === fullText.length) {
-      // Esperar 5 segundos antes de comenzar a borrar
       typingInterval = setTimeout(() => {
         isDeleting = true;
         typeEffect();
@@ -288,11 +265,21 @@ const typeEffect = () => {
   typingInterval = setTimeout(typeEffect, typingSpeed);
 };
 
+// Función para cargar los dispositivos desde la base de datos
+const cargarDispositivos = async () => {
+  try {
+    const response = await fetch('http://localhost:3001/devices');
+    if (!response.ok) {
+      throw new Error('Error en la respuesta de la API');
+    }
+    const data = await response.json();
+    devices.value = data.map(device => device.deviceName);
+  } catch (error) {
+    console.error('Error al cargar dispositivos:', error);
+  }
+};
 
-onUnmounted(() => {
-  clearTimeout(typingInterval);
-});
-
+// Hooks del ciclo de vida
 onMounted(() => {
   flatpickr(startDatePicker.value, {
     dateFormat: "Y-m-d",
@@ -301,8 +288,12 @@ onMounted(() => {
     dateFormat: "Y-m-d",
   });
   typeEffect();
+  cargarDispositivos();
 });
 
+onUnmounted(() => {
+  clearTimeout(typingInterval);
+});
 </script>
 
 <style scoped>
@@ -661,4 +652,7 @@ onMounted(() => {
 
 
 </style>
+
+
+
 

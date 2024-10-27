@@ -87,7 +87,9 @@ let currentIndex = 0;
 let isDeleting = false;
 let typingInterval;
 
-// Funciones
+// Funciones principales
+
+// Crea el efecto de escritura para el título
 const typeEffect = () => {
   const current = currentIndex;
 
@@ -113,10 +115,12 @@ const typeEffect = () => {
   typingInterval = setTimeout(typeEffect, typingSpeed);
 };
 
-const toggleDropdown = () => {
+// Alterna la visibilidad del menú desplegable
+const toggleDropdown = () => { 
   dropdownOpen.value = !dropdownOpen.value;
 };
 
+// Inicializa el mapa y configura los controles
 const initMap = () => {
   map.value = L.map('map').setView([10.96854, -74.78132], 12);
 
@@ -186,6 +190,7 @@ const initMap = () => {
   });
 };
 
+// Almacena la forma creada para el dispositivo seleccionado
 const storeShape = (layer) => {
   if (!selectedDevice.value) return;
 
@@ -196,6 +201,7 @@ const storeShape = (layer) => {
   deviceShapes.value[selectedDevice.value.id].push(layer);
 };
 
+// Maneja la selección de un dispositivo
 const selectDevice = (device) => {
   drawnItems.value.clearLayers();
 
@@ -220,6 +226,7 @@ const selectDevice = (device) => {
   });
 };
 
+// Elimina la última forma creada para el dispositivo seleccionado
 const deleteLastShape = () => {
   if (!selectedDevice.value || !deviceShapes.value[selectedDevice.value.id]) {
     Swal.fire({
@@ -251,6 +258,7 @@ const deleteLastShape = () => {
   }
 };
 
+// Filtra los resultados de búsqueda de dispositivos
 const filterResults = () => {
   const query = searchQuery.value.toLowerCase();
   filteredResults.value = devices.value.filter(item =>
@@ -258,6 +266,7 @@ const filterResults = () => {
   );
 };
 
+// Carga los dispositivos desde la API
 const cargarDispositivos = async () => {
   try {
     const response = await fetch('http://localhost:3001/devices');
@@ -282,7 +291,6 @@ onMounted(() => {
 onUnmounted(() => {
   clearTimeout(typingInterval);
 });
-
 </script>
 
 <style scoped>
@@ -476,7 +484,7 @@ onUnmounted(() => {
 .hone h1 {
   text-align: center;
   margin-top: 10px;
-  font-size: 15px;
+  font-size: 16px;
   color: var(--text-color);
   position: relative;
   z-index: 1;
@@ -577,6 +585,3 @@ onUnmounted(() => {
   border-radius: 3px;
 }
 </style>
-
-
-

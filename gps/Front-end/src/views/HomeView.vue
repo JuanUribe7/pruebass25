@@ -159,6 +159,7 @@ onMounted(() => {
   position: relative;
   min-height: 100vh;
   color: var(--text-color);
+  
 }
 
 .home .navar {
@@ -335,6 +336,7 @@ onMounted(() => {
   background-color: var(--sidebar-color);
   position: relative;
   z-index: 2;
+  
 }
 
 .feature-card {

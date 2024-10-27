@@ -106,6 +106,8 @@ const devices = ref([]);
 const filteredResults = ref([]);
 
 // Funciones
+
+// Crea el efecto de escritura para el título
 const typeEffect = () => {
   const current = currentIndex;
   
@@ -131,6 +133,7 @@ const typeEffect = () => {
   typingInterval = setTimeout(typeEffect, typingSpeed);
 };
 
+// Inicializa el mapa de Leaflet
 function initMap() {
   var colombia = { lat: 10.9685, lng: -74.7813 };
   const mapOptions = {
@@ -145,10 +148,12 @@ function initMap() {
   }).addTo(map);
 }
 
+// Alterna la visibilidad del menú desplegable
 function toggleDropdown() {
   dropdownOpen.value = !dropdownOpen.value;
 }
 
+// Filtra los resultados de la búsqueda de dispositivos
 function filterResults() {
   const query = searchQuery.value.toLowerCase();
   filteredResults.value = devices.value.filter(item =>
@@ -156,6 +161,7 @@ function filterResults() {
   );
 }
 
+// Muestra una alerta para seleccionar el rango de fechas
 const showAlert = (item) => {
   Swal.fire({
     title: 'Seleccionar rango de fechas y horas',
@@ -184,34 +190,72 @@ const showAlert = (item) => {
   });
 };
 
-const showHistory = (device, startDate, endDate) => {
-  // Aquí deberías hacer una llamada a la API para obtener el historial del dispositivo
-  // Por ahora, usaremos datos de ejemplo
-  const coordenadas = [
-    [device.lat, device.lng],
-    [device.lat + 0.001, device.lng + 0.001],
-    [device.lat + 0.002, device.lng + 0.002],
-    [device.lat + 0.003, device.lng + 0.003],
-    [device.lat + 0.004, device.lng + 0.004]
-  ];
-
-  if (polyline) {
-    map.removeLayer(polyline);
+// Muestra el historial de ubicaciones en el mapa
+const showHistory = async (device, startDate, endDate) => {
+  // Verifica si el dispositivo tiene un ID válido
+  if (!device || !device._id) {
+    console.error('ID del dispositivo no válido:', device);
+    Swal.fire({
+      title: 'Error',
+      text: 'No se puede obtener el historial del dispositivo.',
+      icon: 'error',
+      confirmButtonText: 'Entendido'
+    });
+    return;
   }
 
-  polyline = L.polyline(coordenadas, { color: 'red' }).addTo(map);
+  try {
+    // Coordenadas manuales para demostración
+    const coordenadasManuales = [
+      [10.9685, -74.7813],
+      [10.9700, -74.7800],
+      [10.9720, -74.7790],
+      [10.9740, -74.7785],
+      [10.9760, -74.7780],
+    ];
 
-  if (marker) {
-    map.removeLayer(marker);
+    // Usar las coordenadas manuales en lugar de obtenerlas de la API
+    const coordenadas = coordenadasManuales;
+
+    // Limpiar el mapa de rutas anteriores
+    if (polyline) {
+      map.removeLayer(polyline);
+    }
+
+    // Dibujar la nueva ruta
+    polyline = L.polyline(coordenadas, { color: 'red' }).addTo(map);
+
+    // Actualizar el marcador
+    if (marker) { 
+      map.removeLayer(marker);
+    }
+    marker = L.marker(coordenadas[0]).addTo(map).bindPopup('Inicio');
+
+    // Ajustar la vista del mapa
+    map.fitBounds(polyline.getBounds());
+
+    // Guardar las coordenadas para la reproducción
+    window.recordingCoords = coordenadas;
+
+    /*Swal.fire({
+      title: 'Éxito',
+      text: 'Historial cargado con coordenadas de demostración',
+      icon: 'success',
+      confirmButtonText: 'Entendido'
+    });*/
+
+  } catch (error) {
+    console.error('Error al mostrar el historial:', error);
+    Swal.fire({
+      title: 'Error',
+      text: 'No se pudo mostrar el historial del dispositivo.',
+      icon: 'error',
+      confirmButtonText: 'Entendido'
+    });
   }
-
-  marker = L.marker(coordenadas[0]).addTo(map).bindPopup('Inicio');
-
-  map.fitBounds(polyline.getBounds());
-
-  window.recordingCoords = coordenadas;
 };
 
+// Reproduce la animación del recorrido en el mapa
 const playRecording = () => {
   if (!window.recordingCoords) {
     Swal.fire({
@@ -241,6 +285,7 @@ const playRecording = () => {
   }, playbackSpeed);
 };
 
+// Carga la lista de dispositivos desde la API
 const cargarDispositivos = async () => {
   try {
     const response = await fetch('http://localhost:3001/devices');
@@ -445,14 +490,13 @@ onMounted(() => {
 }
 
 .hone h1 {
-  text-align: left;
   margin-top: 10px;
-  margin-left: 20px;
-  font-size: 13px;
+  font-size: 16px;
   position: relative;
   z-index: 1;
   color: var(--text-color);
   flex-shrink: 0;
+  text-align: center;
 }
 
 .hone2 {
@@ -563,4 +607,3 @@ onMounted(() => {
   border-radius: 3px;
 }
 </style>
-
