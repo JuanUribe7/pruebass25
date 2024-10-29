@@ -85,6 +85,7 @@
                 <th>Dispositivo</th>
                 <th>Responsable</th>
                 <th>IMEI</th>
+                <th>Teléfono</th> <!-- Nueva columna -->
                 <th>Estado</th>
                 <th>Acción</th>
               </tr>
@@ -95,6 +96,7 @@
                 <td>{{ dispositivo.deviceName }}</td>
                 <td>{{ dispositivo.responsible }}</td>
                 <td>{{ dispositivo.imei }}</td>
+                <td>{{ dispositivo.phoneNumber }}</td> <!-- Nueva celda -->
                 <td>{{ dispositivo.status }}</td>
                 <td>
                   <i class='bx bx-edit iconD' @click="editarDispositivo(index)"></i>
@@ -195,6 +197,7 @@ const editarDispositivo = (index) => {
       <input id="nombre" class="swal2-input" placeholder="Nombre" value="${dispositivo.deviceName}">
       <input id="responsable" class="swal2-input" placeholder="Responsable" value="${dispositivo.responsible}">
       <input id="imei" class="swal2-input" placeholder="IMEI" value="${dispositivo.imei}">
+      <input id="telefono" class="swal2-input" placeholder="Teléfono" value="${dispositivo.phoneNumber || ''}"> <!-- Nuevo campo -->
       <input id="estatus" class="swal2-input" placeholder="Estatus" value="${dispositivo.status}">
     `,
     focusConfirm: false,
@@ -205,16 +208,21 @@ const editarDispositivo = (index) => {
       const nombre = document.getElementById('nombre').value;
       const responsable = document.getElementById('responsable').value;
       const imei = document.getElementById('imei').value;
+      const telefono = document.getElementById('telefono').value; // Nuevo campo
       const estatus = document.getElementById('estatus').value;
 
       if (!nombre || !responsable || !imei || !estatus) {
-        Swal.showValidationMessage('Por favor, complete todos los campos.');
+        Swal.showValidationMessage('Por favor, complete todos los campos obligatorios.');
         return false;
       }
 
-      console.log('Datos a editar:', { deviceName: nombre, responsible: responsable, imei, status: estatus });
-
-      return { deviceName: nombre, responsible: responsable, imei, status: estatus };
+      return { 
+        deviceName: nombre, 
+        responsible: responsable, 
+        imei, 
+        phoneNumber: telefono, // Nuevo campo
+        status: estatus 
+      };
     }
   }).then((result) => {
     if (result.isConfirmed) {
@@ -285,6 +293,7 @@ const insertarDispositivo = async () => {
       <input id="nombre" class="swal2-input" placeholder="Nombre del dispositivo">
       <input id="responsable" class="swal2-input" placeholder="Responsable">
       <input id="imei" class="swal2-input" placeholder="IMEI">
+      <input id="telefono" class="swal2-input" placeholder="Teléfono"> <!-- Nuevo campo -->
       <input id="estatus" class="swal2-input" placeholder="Estatus">
     `,
     focusConfirm: false,
@@ -295,11 +304,11 @@ const insertarDispositivo = async () => {
       const nombre = document.getElementById('nombre').value;
       const responsable = document.getElementById('responsable').value;
       const imei = document.getElementById('imei').value;
+      const telefono = document.getElementById('telefono').value; // Nuevo campo
       const estatus = document.getElementById('estatus').value;
-      
 
       if (!nombre || !responsable || !imei || !estatus) {
-        Swal.showValidationMessage('Por favor, complete todos los campos.');
+        Swal.showValidationMessage('Por favor, complete todos los campos obligatorios.');
         return false;
       }
 
@@ -309,7 +318,13 @@ const insertarDispositivo = async () => {
         return false;
       }
 
-      return { deviceName: nombre, responsible: responsable, imei, status: estatus };
+      return { 
+        deviceName: nombre, 
+        responsible: responsable, 
+        imei, 
+        phoneNumber: telefono, // Nuevo campo
+        status: estatus 
+      };
     }
   });
 
@@ -622,3 +637,5 @@ th {
   text-align: center;
 }
 </style>
+
+

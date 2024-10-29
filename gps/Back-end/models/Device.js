@@ -4,6 +4,7 @@ const deviceSchema = new mongoose.Schema({
     deviceName: { type: String, required: true },
     responsible: { type: String, required: true },
     imei: { type: String, required: true, unique: true },
+    phoneNumber: { type: String },  // Agregado el campo phoneNumber
     status: { type: String, required: true },
     coordenadas: {
         latitud: { type: Number},

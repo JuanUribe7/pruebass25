@@ -2,6 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const { getImei, setImei } = require('./config');
+const imeis = new Map(); // Añadir esta línea
 
 const authRoutes = require('./routes/auth');
 const deviceRoutes = require('./routes/devices');
@@ -15,7 +17,7 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 // Conexión a MongoDB
-mongoose.connect('mongodb://localhost:27017/Navify_gps', {
+mongoose.connect('mongodb+srv://lospopulare:gps1234@gps.zgbl7.mongodb.net/proyecto?retryWrites=true&w=majority&appName=gps', {
         useNewUrlParser: true,
         useUnifiedTopology: true,
 })
@@ -31,6 +33,12 @@ app.post('/sms', async (req, res) => {
     const messageBody = req.body.Body;
     const fromNumber = req.body.From;
     const normalizedFromNumber = fromNumber.replace(/[^0-9]/g, '');
+    
+    // Obtener el IMEI actual
+    const currentImei = getImei();
+    if (currentImei) {
+        imeis.set(normalizedFromNumber, currentImei);
+    }
 
     const regex = /\/place\/([-+]?\d*\.\d+),([-+]?\d*\.\d+)\//;
     const match = messageBody.match(regex);
@@ -38,89 +46,49 @@ app.post('/sms', async (req, res) => {
     if (match) {
         const latitud = parseFloat(match[1]);
         const longitud = parseFloat(match[2]);
+        console.log(fromNumber);
+        console.log(normalizedFromNumber);
 
         try {
-            if(normalizedFromNumber==="573002694294"){
-                const updatedDevice = await Device.findOneAndUpdate(
-                    { imei: '1234'}, // Condición de búsqueda
-                    { $set: { 'coordenadas.latitud': latitud, 'coordenadas.longitud': longitud } }, // Actualización
-                    { new: true } // Retorna el documento actualizado
-                );
-    
-                if (updatedDevice) {
-                    console.log('Dispositivo actualizado:', JSON.stringify(updatedDevice, null, 2));
-    
-                    mensajesRecibidos.push({ from: fromNumber, body: messageBody });
-                    return res.send(`
-                        <Response>
-                            <Message>Coordenadas actualizadas correctamente.</Message>
-                        </Response>
-                    `);
-                } else {
-                    console.log('Dispositivo no encontrado.');
-                    return res.send(`
-                        <Response>
-                            <Message>No se encontró el dispositivo con el IMEI especificado.</Message>
-                        </Response>
-                    `);
-                }
-            }
-                
+            // Primero buscamos el dispositivo por el número de teléfono
+            const device = await Device.findOne({
+                $or: [
+                    { 'phoneNumber': normalizedFromNumber },
+                    { 'imei': { $in: Array.from(imeis.values()) } }
+                ]
+            });
 
-                if(normalizedFromNumber==="573042157518"){
-                    console.log(fromNumber)
-                    const updatedDevice = await Device.findOneAndUpdate(
-                        { imei: '3015' }, // Condición de búsqueda
-                        { $set: { 'coordenadas.latitud': latitud, 'coordenadas.longitud': longitud } }, // Actualización
-                        { new: true } // Retorna el documento actualizado
-                    );
-        
-                    if (updatedDevice) {
-                        console.log('Dispositivo actualizado:', JSON.stringify(updatedDevice, null, 2));
-        
-                        mensajesRecibidos.push({ from: fromNumber, body: messageBody });
-                        return res.send(`
-                            <Response>
-                                <Message>Coordenadas actualizadas correctamente.</Message>
-                            </Response>
-                        `);
-                    } else {
-                        console.log('Dispositivo no encontrado.');
-                        return res.send(`
-                            <Response>
-                                <Message>No se encontró el dispositivo con el IMEI especificado.</Message>
-                            </Response>
-                        `);
-                    }
-                }
-            // Actualizar en la base de datos solo si el IMEI coincide
-            if(normalizedFromNumber==="573103479455"){
-                console.log(fromNumber)
-                const updatedDevice = await Device.findOneAndUpdate(
-                    { imei: '863829074212901' }, // Condición de búsqueda
-                    { $set: { 'coordenadas.latitud': latitud, 'coordenadas.longitud': longitud } }, // Actualización
-                    { new: true } // Retorna el documento actualizado
-                );
-    
-                if (updatedDevice) {
-                    console.log('Dispositivo actualizado:', JSON.stringify(updatedDevice, null, 2));
-    
-                    mensajesRecibidos.push({ from: fromNumber, body: messageBody });
-                    return res.send(`
-                        <Response>
-                            <Message>Coordenadas actualizadas correctamente.</Message>
-                        </Response>
-                    `);
-                } else {
-                    console.log('Dispositivo no encontrado.');
-                    return res.send(`
-                        <Response>
-                            <Message>No se encontró el dispositivo con el IMEI especificado.</Message>
-                        </Response>
-                    `);
-                }
+            if (!device) {
+                return res.send(`
+                    <Response>
+                        <Message>No se encontró un dispositivo asociado a este número.</Message>
+                    </Response>
+                `);
             }
-          
+
+            const updatedDevice = await Device.findByIdAndUpdate(
+                device._id,
+                { $set: { 'coordenadas.latitud': latitud, 'coordenadas.longitud': longitud } },
+                { new: true }
+            );
+
+            if (updatedDevice) {
+                console.log('Dispositivo actualizado:', JSON.stringify(updatedDevice, null, 2));
+    
+                mensajesRecibidos.push({ from: fromNumber, body: messageBody });
+                return res.send(`
+                    <Response>
+                        <Message>Coordenadas actualizadas correctamente.</Message>
+                    </Response>
+                `);
+            } else {
+                console.log('Dispositivo no encontrado.');
+                return res.send(`
+                    <Response>
+                        <Message>No se encontró el dispositivo con el IMEI especificado.</Message>
+                    </Response>
+                `);
+            }
         } catch (error) {
             console.error('Error al actualizar las coordenadas:', error);
             return res.status(500).send(`

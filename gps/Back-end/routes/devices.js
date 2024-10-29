@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const Device = require('../models/Device');
+const { getImei, setImei } = require('../config');
 
 // Listar todos los dispositivos
 router.get('/', async (req, res) => {
     try {
-        const devices = await Device.find({}, 'deviceName responsible status imei coordenadas ');
+        const devices = await Device.find({}, 'deviceName responsible status imei phoneNumber coordenadas');
         res.json(devices);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -15,8 +16,8 @@ router.get('/', async (req, res) => {
 // Agregar un nuevo dispositivo
 router.post('/', async (req, res) => {
     try {
-        const { deviceName, responsible, imei, status } = req.body;
-
+        const { deviceName, responsible, imei, status, phoneNumber } = req.body;
+        
         if (!deviceName || !responsible || !imei || !status) {
             return res.status(400).json({ error: 'Los campos deviceName, responsible, imei y status son obligatorios.' });
         }
@@ -26,13 +27,17 @@ router.post('/', async (req, res) => {
             responsible,
             imei,
             status,
+            phoneNumber,
             coordenadas: { latitud: null, longitud: null },
             kilometraje: null,
             velocidad: null
         });
 
-        await nuevoDispositivo.save();
-        res.status(201).json(nuevoDispositivo);
+        const dispositivoGuardado = await nuevoDispositivo.save();
+        setImei(dispositivoGuardado._id.toString(), imei);
+        console.log('IMEI guardado para dispositivo:', dispositivoGuardado._id, getImei(dispositivoGuardado._id.toString()));
+
+        res.status(201).json(dispositivoGuardado);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Error al agregar el dispositivo: ' + error.message });
