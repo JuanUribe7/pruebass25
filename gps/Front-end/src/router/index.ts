@@ -2,16 +2,13 @@
 
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import HomeView from '../views/HomeView.vue';
-import TiempoReal from '../views/TiempoReal.vue';  // Asegúrate de que el import apunte al componente correcto
+import TiempoReal from '../views/TiempoReal.vue';  
 import GeozonasView from '../views/GeozonasView.vue';
 import HistorialView from '../views/HistorialView.vue';
 import DispositivoView from '../views/DispositivoView.vue';
 import ReporteView from '../views/ReporteView.vue';
 import Barralateral from '../components/BarraLateral.vue';
-
-
-
-
+import Reporte2View from '../views/Reporte2View.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -52,11 +49,15 @@ const routes: Array<RouteRecordRaw> = [
     path: '/barralateral',
     name: 'Barralateral',
     component: Barralateral
+  },
+  {
+    path: '/reporte2',
+    name: 'reporte2',
+    component: Reporte2View
   }
-  // Agrega más rutas según sea necesario para tus otras vistas
 ];
 
-const router = createRouter({
+const router = createRouter({ 
   history: createWebHistory(process.env.BASE_URL),
   routes
 });

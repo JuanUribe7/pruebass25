@@ -2,6 +2,7 @@
   <!-- Importando los estilos de los iconos -->
   <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  
  
   <!-- Barra lateral de navegación -->
   <nav class="sidebar" :class="{ close: isSidebarClosed }">
@@ -64,12 +65,25 @@
             </router-link>
           </li>
 
-          <li class="nav-link">
-            <router-link to="/reporte">
-              <i class='bx bxs-user-account icon'></i>
-              <span class="text nav-text">Reporte</span>
-            </router-link>
+          <li class="nav-link" @click="toggleReportDropdown">
+            <i class='bx bxs-user-account icon'></i>
+            <span class="text nav-text">Reporte</span>
+            <i class='bx bx-chevron-down icon' :class="{ 'rotate': isReportDropdownOpen }"></i>
           </li>
+          <ul v-if="isReportDropdownOpen" class="dropdown2">
+            <li>
+              <router-link to="/reporte">
+                <i class='bx bx-file icon'></i>
+                <span>General</span>
+              </router-link>
+            </li>
+            <li>
+              <router-link to="/reporte2">
+                <i class='bx bx-file-blank icon'></i>
+                <span>Dispositivo</span>
+              </router-link>
+            </li>
+          </ul>
         </ul>
       </div>
 
@@ -112,11 +126,16 @@ import { ref } from 'vue';
 const isSidebarClosed = ref(true);
 const isDarkMode = ref(false);
 let modeText = ref("Dark mode");
+const isReportDropdownOpen = ref(false);
 
 
 // Función para alternar el estado de la barra lateral
 function toggleSidebar() {
   isSidebarClosed.value = !isSidebarClosed.value;
+  // Cerrar el submenú de reporte al cerrar la barra lateral
+  if (isSidebarClosed.value) {
+    isReportDropdownOpen.value = false;
+  }
 }
 
 // Función para alternar el modo claro/oscuro
@@ -130,8 +149,11 @@ function toggleDarkMode() {
 function closeSidebarOnClickOutside(event) {
   const sidebar = document.querySelector(".sidebar");
   const toggle = document.querySelector(".toggle");
-  if (!sidebar.contains(event.target) && !toggle.contains(event.target)) {
+  const dropdown = document.querySelector(".dropdown2");
+
+  if (!sidebar.contains(event.target) && !toggle.contains(event.target) && (!dropdown || !dropdown.contains(event.target))) {
     isSidebarClosed.value = true;
+    isReportDropdownOpen.value = false;
   }
 }
 
@@ -143,5 +165,9 @@ const logout = () => {
   localStorage.removeItem('isAuthenticated');
   window.location.reload();
 };
+
+function toggleReportDropdown() {
+  isReportDropdownOpen.value = !isReportDropdownOpen.value;
+}
 </script>
 

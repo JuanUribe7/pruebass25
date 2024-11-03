@@ -7,10 +7,12 @@
       </div>
 
       <div class="actions">
-        <button class="notification-btn">
+        <router-link to="/reporte2">
+          <button class="notification-btn">
           <i class='bx bx-bell'></i>
           <span class="notification-indicator"></span>
         </button>
+        </router-link>
         
         <div class="dropdown">
           <button class="dropbtn" @click="toggleDropdown">
@@ -37,7 +39,7 @@
 
     <div class="crud">
       <div class="titu">
-        <h1><i class='bx bxs-report icoon'></i> Reportes</h1>
+        <h1><i class='bx bxs-report icoon'></i> Reportes Generales</h1>
       </div>
 
       <div class="cruds">

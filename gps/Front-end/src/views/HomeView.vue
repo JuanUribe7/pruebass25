@@ -8,11 +8,12 @@
 
       <div class="actions">
         <!-- Icono de notificación con indicador -->
-        <button class="notification-btn">
+        <router-link to="/reporte2">
+          <button class="notification-btn">
           <i class='bx bx-bell'></i>
           <span class="notification-indicator"></span>
         </button>
-        
+        </router-link>
         <!-- Menú desplegable de configuración mejorado -->
         <div class="dropdown">
           <button class="dropbtn" @click="toggleDropdown">
@@ -45,7 +46,7 @@
     </div>
   </section>
 
-  <section class="home2">
+  <section class="home" id="home2">
     <div class="features">
       <div class="feature-card">
         <i class='bx bx-bus'></i>
@@ -101,7 +102,7 @@ const toggleDropdown = () => {
 };
 
 const scrollToFeatures = () => {
-  const featuresElement = document.querySelector('.home2');
+  const featuresElement = document.querySelector('#home2');
   if (featuresElement) {
     featuresElement.scrollIntoView({ behavior: 'smooth' });
   }
@@ -155,12 +156,10 @@ onMounted(() => {
   color: white;
 }
 
-.home2 {
-  position: relative;
-  min-height: 100vh;
-  color: var(--text-color);
-  
+#home2{
+  min-height: 140vh;
 }
+
 
 .home .navar {
   background-color: var(--sidebar-color);
@@ -292,7 +291,6 @@ onMounted(() => {
   text-align: center;
   position: relative;
   z-index: 2;
-  padding: 0 20px;
   background-color: rgba(0, 0, 0, 0.6);
   min-height: 100vh;
 }
@@ -332,11 +330,12 @@ onMounted(() => {
   display: flex;
   justify-content: space-around;
   flex-wrap: wrap;
-  padding: 4rem 2rem;
+  padding: 4rem 0px;
   background-color: var(--sidebar-color);
   position: relative;
   z-index: 2;
-  
+  min-height: 50vh;
+  min-width: auto;
 }
 
 .feature-card {
@@ -348,6 +347,7 @@ onMounted(() => {
   text-align: center;
   box-shadow: 0 10px 20px rgba(0,0,0,0.1);
   transition: all 0.3s ease;
+  
 }
 
 .feature-card:hover {

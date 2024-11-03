@@ -8,10 +8,12 @@
 
       <div class="actions">
         <!-- Icono de notificación con indicador -->
-        <button class="notification-btn">
+        <router-link to="/reporte2">
+          <button class="notification-btn">
           <i class='bx bx-bell'></i>
           <span class="notification-indicator"></span>
         </button>
+        </router-link>
 
         <!-- Menú desplegable de configuración mejorado -->
         <div class="dropdown">

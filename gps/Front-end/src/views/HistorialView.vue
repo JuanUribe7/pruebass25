@@ -7,10 +7,12 @@
       </div>
 
       <div class="actions">
-        <button class="notification-btn">
+        <router-link to="/reporte2">
+          <button class="notification-btn">
           <i class='bx bx-bell'></i>
           <span class="notification-indicator"></span>
         </button>
+        </router-link>
         
         <div class="dropdown">
           <button class="dropbtn" @click="toggleDropdown">
