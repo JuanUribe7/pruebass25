@@ -17,7 +17,7 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
     try {
         const { deviceName, responsible, imei, status, phoneNumber } = req.body;
-        
+
         if (!deviceName || !responsible || !imei || !status) {
             return res.status(400).json({ error: 'Los campos deviceName, responsible, imei y status son obligatorios.' });
         }
@@ -41,6 +41,37 @@ router.post('/', async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Error al agregar el dispositivo: ' + error.message });
+    }
+});
+
+// Endpoint para actualizar la ubicación del dispositivo desde el GPS
+router.post('/update-from-gps', async (req, res) => {
+    try {
+        const { imei, decodedLat, decodedLon } = req.body;
+
+        // Verificar que todos los datos requeridos estén presentes
+        if (!imei || decodedLat === undefined || decodedLon === undefined) {
+            return res.status(400).json({ error: 'IMEI, latitud y longitud son obligatorios.' });
+        }
+
+        // Encontrar el dispositivo por IMEI
+        const dispositivo = await Device.findOne({ imei });
+
+        if (!dispositivo) {
+            return res.status(404).json({ message: 'Dispositivo no encontrado' });
+        }
+
+        // Actualizar las coordenadas del dispositivo
+        dispositivo.coordenadas = { latitud: decodedLat, longitud: decodedLon };
+
+        // Guardar los cambios en la base de datos
+        await dispositivo.save();
+
+        console.log(`Ubicación actualizada para IMEI: ${imei} - Latitud: ${decodedLat}, Longitud: ${decodedLon}`);
+        res.json({ message: 'Ubicación actualizada exitosamente' });
+    } catch (error) {
+        console.error('Error al actualizar la ubicación:', error.message);
+        res.status(500).json({ error: 'Error al actualizar la ubicación: ' + error.message });
     }
 });
 
