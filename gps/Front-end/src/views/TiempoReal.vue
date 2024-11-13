@@ -177,7 +177,7 @@ function showDeviceOnMap(device) {
   });
 
   // Centrar el mapa en la ubicación del dispositivo
-  map.setView([device.coordenadas.latitud, device.coordenadas.longitud], 18);
+  map.setView([device.coordenadas.latitud, device.coordenadas.longitud], 15);
 
   // Añadir un nuevo marcador para el dispositivo
   const marker = L.marker([device.coordenadas.latitud, device.coordenadas.longitud]).addTo(map);

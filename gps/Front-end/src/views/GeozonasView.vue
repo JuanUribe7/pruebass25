@@ -9,10 +9,16 @@
       <div class="actions">
         <router-link to="/reporte2">
           <button class="notification-btn">
-          <i class='bx bx-bell'></i>
-          <span class="notification-indicator"></span>
-        </button>
+            <i class='bx bx-bell'></i>
+            <span class="notification-indicator"></span>
+          </button>
         </router-link>
+
+        
+
+        <button class="generate-route-btn" @click="generateRoute">
+          Generar Ruta
+        </button>
 
         <div class="dropdown">
           <button class="dropbtn" @click="toggleDropdown">
@@ -35,6 +41,10 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <div class="hone2">
+      <h1>Geozona</h1>
     </div>
 
     <div class="tituloo">
@@ -70,10 +80,16 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import * as L from 'leaflet';
 import Swal from 'sweetalert2';
 import 'leaflet/dist/leaflet.css';
+import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
+import iconUrl from 'leaflet/dist/images/marker-icon.png';
+import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
+
 import '@geoman-io/leaflet-geoman-free';
 import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
 
-// Variables reactivas
+import 'leaflet-routing-machine';
+import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
+
 const map = ref(null);
 const drawnItems = ref(new L.FeatureGroup());
 const searchQuery = ref('');
@@ -88,10 +104,16 @@ const displayedText = ref("");
 let currentIndex = 0;
 let isDeleting = false;
 let typingInterval;
+let routingControl = null;
+let deviceMarker = null;
 
-// Funciones principales
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl,
+  iconUrl,
+  shadowUrl
+});
 
-// Crea el efecto de escritura para el título
 const typeEffect = () => {
   const current = currentIndex;
 
@@ -117,82 +139,91 @@ const typeEffect = () => {
   typingInterval = setTimeout(typeEffect, typingSpeed);
 };
 
-// Alterna la visibilidad del menú desplegable
-const toggleDropdown = () => { 
+const toggleDropdown = () => {
   dropdownOpen.value = !dropdownOpen.value;
 };
 
-// Inicializa el mapa y configura los controles
 const initMap = () => {
-  map.value = L.map('map').setView([10.96854, -74.78132], 12);
+  if (!map.value) {
+    map.value = L.map('map').setView([10.96854, -74.78132], 12);
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19
-  }).addTo(map.value);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19
+    }).addTo(map.value);
 
-  drawnItems.value.addTo(map.value);
+    drawnItems.value.addTo(map.value);
 
-  map.value.pm.addControls({
-    position: 'topleft',
-    drawPolygon: true,
-    drawPolyline: true,
-    drawRectangle: true,
-    drawCircle: true,
-    drawMarker: false,
-    editMode: true,
-    deleteMode: true,
-  });
-
-  map.value.on('pm:create', (e) => {
-    const layer = e.layer;
-
-    if (!selectedDevice.value) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Debe seleccionar un dispositivo antes de crear una geozona.',
-        icon: 'warning',
-        confirmButtonText: 'Cerrar'
-      });
-
-      map.value.removeLayer(layer);
-      return;
-    }
-
-    Swal.fire({
-      title: 'Confirmar Creación de Geozona',
-      text: `¿Desea crear una geozona para el dispositivo ${selectedDevice.value.name}?`,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'Crear',
-      cancelButtonText: 'Cancelar',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        drawnItems.value.addLayer(layer);
-        storeShape(layer);
-
-        Swal.fire({
-          title: 'Geozona Creada',
-          icon: 'success',
-          confirmButtonText: 'Cerrar',
-        });
-      } else {
-        map.value.removeLayer(layer);
-        Swal.fire({
-          title: 'Cancelado',
-          text: 'La creación de la geozona ha sido cancelada.',
-          icon: 'info',
-          confirmButtonText: 'Cerrar',
-        });
-      }
+    map.value.pm.addControls({
+      position: 'topright',
+      drawPolygon: true,
+      drawPolyline: true,
+      drawRectangle: true,
+      drawCircle: true,
+      drawCircleMarker: false,
+      drawMarker: false,
+      editMode: true,
+      deleteMode: true,
+      createZone: true,
     });
-  });
 
-  map.value.on('pm:remove', (e) => {
-    console.log('Forma eliminada:', e.layer);
-  });
+    map.value.on('pm:create', (e) => {
+      const layer = e.layer;
+
+      Swal.fire({
+        title: 'Confirmar Creación de Geozona',
+        text: `¿Desea crear una geozona?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Crear',
+        cancelButtonText: 'Cancelar',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          let coordinates;
+          if (layer instanceof L.Circle) {
+            coordinates = {
+              center: layer.getLatLng(),
+              radius: layer.getRadius()
+            };
+
+            if (coordinates.radius <= 0) {
+              console.error('Error: El radio de la circunferencia debe ser mayor que cero.');
+              return;
+            }
+
+            console.log('Círculo creado - Centro:', coordinates.center, 'Radio:', coordinates.radius);
+          } else if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
+            coordinates = layer.getLatLngs();
+            console.log('Coordenadas de la figura creada:', coordinates);
+          } else {
+            console.error('Tipo de capa no soportado:', layer);
+          }
+
+          drawnItems.value.addLayer(layer);
+          storeShape(layer);
+
+          Swal.fire({
+            title: 'Geozona Creada',
+            icon: 'success',
+            confirmButtonText: 'Cerrar',
+          });
+        } else {
+          map.value.removeLayer(layer);
+          Swal.fire({
+            title: 'Cancelado',
+            text: 'La creación de la geozona ha sido cancelada.',
+            icon: 'info',
+            confirmButtonText: 'Cerrar',
+          });
+        }
+      });
+    });
+
+    map.value.on('pm:remove', (e) => {
+      console.log('Forma eliminada:', e.layer);
+    });
+  }
 };
 
-// Almacena la forma creada para el dispositivo seleccionado
 const storeShape = (layer) => {
   if (!selectedDevice.value) return;
 
@@ -203,10 +234,29 @@ const storeShape = (layer) => {
   deviceShapes.value[selectedDevice.value.id].push(layer);
 };
 
-// Maneja la selección de un dispositivo
-const selectDevice = (device) => {
-  drawnItems.value.clearLayers();
+const showDeviceOnMap = (device) => {
+  if (!map.value) {
+    console.error('El mapa no está inicializado');
+    return;
+  }
 
+  if (deviceMarker) {
+    map.value.removeLayer(deviceMarker);
+  }
+
+  map.value.setView([device.coordenadas.latitud, device.coordenadas.longitud], 15);
+
+  deviceMarker = L.marker([device.coordenadas.latitud, device.coordenadas.longitud]).addTo(map.value);
+  deviceMarker.bindPopup(`
+    <b>${device.deviceName}</b><br>
+    Latitud: ${device.coordenadas.latitud}<br>
+    Longitud: ${device.coordenadas.longitud}<br>
+  `).openPopup();
+
+  map.value.invalidateSize();
+};
+
+const selectDevice = (device) => {
   selectedDevice.value = device;
 
   if (deviceShapes.value[device.id]) {
@@ -215,20 +265,9 @@ const selectDevice = (device) => {
     });
   }
 
-  Swal.fire({
-    title: 'Dispositivo Seleccionado',
-    text: device.name,
-    confirmButtonText: 'Crear Geozona',
-    showCancelButton: true,
-    cancelButtonText: 'Cancelar'
-  }).then((result) => {
-    if (result.isDismissed) {
-      selectedDevice.value = null;
-    }
-  });
+  showDeviceOnMap(device);
 };
 
-// Elimina la última forma creada para el dispositivo seleccionado
 const deleteLastShape = () => {
   if (!selectedDevice.value || !deviceShapes.value[selectedDevice.value.id]) {
     Swal.fire({
@@ -260,7 +299,6 @@ const deleteLastShape = () => {
   }
 };
 
-// Filtra los resultados de búsqueda de dispositivos
 const filterResults = () => {
   const query = searchQuery.value.toLowerCase();
   filteredResults.value = devices.value.filter(item =>
@@ -268,7 +306,6 @@ const filterResults = () => {
   );
 };
 
-// Carga los dispositivos desde la API
 const cargarDispositivos = async () => {
   try {
     const response = await fetch('http://localhost:3001/devices');
@@ -283,7 +320,58 @@ const cargarDispositivos = async () => {
   }
 };
 
-// Hooks del ciclo de vida
+import PuntoA from '../assets/puntoA.png';
+
+const generateRoute = () => {
+  if (!map.value) {
+    console.error('El mapa no está inicializado');
+    return;
+  }
+
+  const pointA = L.latLng(10.950751, -74.771095);
+  const pointB = L.latLng(10.942815, -74.781778);
+
+  if (routingControl) {
+    map.value.removeControl(routingControl);
+  }
+
+  routingControl = L.Routing.control({
+    waypoints: [pointA, pointB],
+    routeWhileDragging: true,
+    lineOptions: {
+      styles: [{ color: 'rgb(133, 76, 214)', opacity: 1, weight: 5 }]
+    },
+    createMarker: function (i, waypoint, n) {
+      return L.marker(waypoint.latLng, {
+        draggable: true,
+        icon: L.icon({
+          iconUrl: PuntoA,
+          iconSize: [35, 35],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34],
+          shadowSize: [41, 41]
+        })
+      }).bindPopup(`Punto ${i + 1}`);
+    },
+    formatter: new L.Routing.Formatter({
+      language: 'es',
+      units: 'metric',
+      roundingSensitivity: 1000
+    }),
+    show: false
+  }).addTo(map.value);
+
+  routingControl.on('routesfound', function() {
+    const container = document.querySelector('.leaflet-routing-container');
+    if (container) {
+      container.classList.add('custom-routing-container');
+      container.style.maxHeight = '400px';
+      container.style.overflowY = 'auto';
+      container.style.scrollbarColor = 'var(--text-color) var(--sidebar-color)';
+    }
+  });
+};
+
 onMounted(() => {
   cargarDispositivos();
   initMap();
@@ -292,17 +380,19 @@ onMounted(() => {
 
 onUnmounted(() => {
   clearTimeout(typingInterval);
+  if (routingControl) {
+    map.value.removeControl(routingControl);
+  }
 });
 </script>
 
+
 <style scoped>
-/* Estilos generales */
 .home {
   height: 100vh;
   overflow: hidden;
 }
 
-/* Estilos de la barra de navegación */
 .actions {
   align-items: center;
   display: flex;
@@ -423,7 +513,6 @@ onUnmounted(() => {
   min-width: 100px;
 }
 
-/* Estilos del mapa y contenedor */
 #map {
   height: calc(100vh - 60px);
   width: 100%;
@@ -460,36 +549,50 @@ onUnmounted(() => {
 
 .tituloo {
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
   position: relative;
   z-index: 1;
- 
 }
 
-/* Estilos del panel lateral */
+.hone2 {
+  margin-left: 30px;
+  background-color: var(--sidebar-color);
+  height: 50px;
+  position: absolute;
+  top: 25%;
+  z-index: 2;
+  border-radius: 10px;
+  padding: 5px 15px;
+  border: 1px solid;
+}
+
+.hone2 h1 {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 15px;
+  color: var(--text-color);
+}
+
 .hone {
+  margin-left: 30px;
   width: 17%;
   background-color: var(--sidebar-color);
   height: 280px;
   position: absolute;
-  top: 25%;
-  z-index: 10;
+  top: 30%;
+  z-index: 2;
   border-radius: 10px;
   padding: 10px;
   display: flex;
   flex-direction: column;
   border: 1px solid;
-  overflow: hidden;
-  margin-right: 30px;
 }
 
 .hone h1 {
-  text-align: center;
   margin-top: 10px;
   font-size: 16px;
+  text-align: center;
   color: var(--text-color);
-  position: relative;
-  z-index: 1;
 }
 
 .group {
@@ -514,7 +617,6 @@ onUnmounted(() => {
   padding-left: 2.5rem;
   transition: .3s ease;
   width: 100%;
-  
 }
 
 .input::placeholder {
@@ -573,7 +675,6 @@ onUnmounted(() => {
   flex-shrink: 0;
 }
 
-/* Estilos para la barra de desplazamiento */
 .device-list-container::-webkit-scrollbar {
   width: 6px;
 }
@@ -586,4 +687,39 @@ onUnmounted(() => {
   background-color: var(--body-color);
   border-radius: 3px;
 }
+
+.generate-route-btn{
+  padding: 4px;
+  border-radius: 5px;
+  border: 1px solid var(--text-color);
+  margin-right: 5px;
+  color: var(--text-color);
+  background-color: var(--sidebar-color);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dark-mode-table {
+  background-color: #333;
+  color: #fff;
+  border: 1px solid #444;
+}
+
+.dark-mode-table th,
+.dark-mode-table td {
+  border: 1px solid #444;
+}
+
+.dark-mode-table th {
+  background-color: #444;
+}
+
+.dark-mode-table tr:nth-child(even) {
+  background-color: #555;
+}
+
+.dark-mode-table tr:nth-child(odd) {
+  background-color: #666;
+}
+
 </style>

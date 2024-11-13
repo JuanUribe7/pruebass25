@@ -158,6 +158,7 @@ onMounted(() => {
 
 #home2{
   min-height: 140vh;
+  background: var(--body-color);
 }
 
 

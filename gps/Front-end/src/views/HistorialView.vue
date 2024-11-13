@@ -41,9 +41,22 @@
       <div class="hone2">
         <h1>Historial</h1>
       </div>
-      <div id="play-content">
-        <button @click="playRecording" class="play-button">Reproducir Historial</button>
-      </div>
+      <div id="play-content" class="play-content">
+          <div class="player-controls">
+            <button @click="playRecording" class="control-button">
+              <i class='bx bx-play'></i>
+            </button>
+            <button @click="stopRecording" class="control-button">
+              <i class='bx bx-stop'></i>
+            </button>
+            <button @click="pauseRecording" class="control-button">
+              <i class='bx bx-pause'></i>
+            </button>
+            <button @click="resetRecording" class="control-button">
+              <i class='bx bx-reset'></i>
+            </button>
+          </div>
+        </div>
     </div>
 
     <div class="tituloo">
@@ -67,7 +80,9 @@
           </ul>
         </div>
       </div>
-      <div id="map" class="map-container"></div>
+      <div id="map" class="map-container">
+       
+      </div>
     </div>
   </section>
 </template>
@@ -81,7 +96,6 @@ import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
 import iconUrl from 'leaflet/dist/images/marker-icon.png';
 import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
 
-// Configuración de Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl,
@@ -89,7 +103,6 @@ L.Icon.Default.mergeOptions({
   shadowUrl
 });
 
-// Variables reactivas
 let map;
 let polyline;
 let marker;
@@ -107,9 +120,6 @@ const searchQuery = ref('');
 const devices = ref([]);
 const filteredResults = ref([]);
 
-// Funciones
-
-// Crea el efecto de escritura para el título
 const typeEffect = () => {
   const current = currentIndex;
   
@@ -135,7 +145,6 @@ const typeEffect = () => {
   typingInterval = setTimeout(typeEffect, typingSpeed);
 };
 
-// Inicializa el mapa de Leaflet
 function initMap() {
   var colombia = { lat: 10.9685, lng: -74.7813 };
   const mapOptions = {
@@ -150,12 +159,10 @@ function initMap() {
   }).addTo(map);
 }
 
-// Alterna la visibilidad del menú desplegable
 function toggleDropdown() {
   dropdownOpen.value = !dropdownOpen.value;
 }
 
-// Filtra los resultados de la búsqueda de dispositivos
 function filterResults() {
   const query = searchQuery.value.toLowerCase();
   filteredResults.value = devices.value.filter(item =>
@@ -163,7 +170,6 @@ function filterResults() {
   );
 }
 
-// Muestra una alerta para seleccionar el rango de fechas
 const showAlert = (item) => {
   Swal.fire({
     title: 'Seleccionar rango de fechas y horas',
@@ -192,9 +198,7 @@ const showAlert = (item) => {
   });
 };
 
-// Muestra el historial de ubicaciones en el mapa
 const showHistory = async (device, startDate, endDate) => {
-  // Verifica si el dispositivo tiene un ID válido
   if (!device || !device._id) {
     console.error('ID del dispositivo no válido:', device);
     Swal.fire({
@@ -207,7 +211,6 @@ const showHistory = async (device, startDate, endDate) => {
   }
 
   try {
-    // Coordenadas manuales para demostración
     const coordenadasManuales = [
       [10.9685, -74.7813],
       [10.9700, -74.7800],
@@ -216,35 +219,22 @@ const showHistory = async (device, startDate, endDate) => {
       [10.9760, -74.7780],
     ];
 
-    // Usar las coordenadas manuales en lugar de obtenerlas de la API
     const coordenadas = coordenadasManuales;
 
-    // Limpiar el mapa de rutas anteriores
     if (polyline) {
       map.removeLayer(polyline);
     }
 
-    // Dibujar la nueva ruta
     polyline = L.polyline(coordenadas, { color: 'red' }).addTo(map);
 
-    // Actualizar el marcador
     if (marker) { 
       map.removeLayer(marker);
     }
     marker = L.marker(coordenadas[0]).addTo(map).bindPopup('Inicio');
 
-    // Ajustar la vista del mapa
     map.fitBounds(polyline.getBounds());
 
-    // Guardar las coordenadas para la reproducción
     window.recordingCoords = coordenadas;
-
-    /*Swal.fire({
-      title: 'Éxito',
-      text: 'Historial cargado con coordenadas de demostración',
-      icon: 'success',
-      confirmButtonText: 'Entendido'
-    });*/
 
   } catch (error) {
     console.error('Error al mostrar el historial:', error);
@@ -257,7 +247,6 @@ const showHistory = async (device, startDate, endDate) => {
   }
 };
 
-// Reproduce la animación del recorrido en el mapa
 const playRecording = () => {
   if (!window.recordingCoords) {
     Swal.fire({
@@ -287,7 +276,6 @@ const playRecording = () => {
   }, playbackSpeed);
 };
 
-// Carga la lista de dispositivos desde la API
 const cargarDispositivos = async () => {
   try {
     const response = await fetch('http://localhost:3001/devices');
@@ -302,7 +290,21 @@ const cargarDispositivos = async () => {
   }
 };
 
-// Lifecycle hooks
+const pauseRecording = () => {
+  if (playbackInterval) {
+    clearInterval(playbackInterval);
+    playbackInterval = null;
+  }
+};
+
+const resetRecording = () => {
+  if (playbackInterval) {
+    clearInterval(playbackInterval);
+  }
+  marker.setLatLng(window.recordingCoords[0]);
+  map.setView(window.recordingCoords[0], map.getZoom());
+};
+
 onUnmounted(() => {
   clearTimeout(typingInterval);
 });
@@ -315,39 +317,18 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Estilos del mapa */
 .map-container {
   height: calc(100vh - 60px);
   width: 100%; 
-  z-index: 0; 
+  position: relative;
+  z-index: 0;
 }
 
-/* Estilos del botón de reproducción */
-.play-button {
-  width: 17%;
-  position: absolute;
-  bottom: 80px;
-  padding: 10px 20px;
-  background-color: var(--body-color);
-  color: var(--text-color);
-  font-weight: 600;
-  margin-left: 30px;
-  border: 1px solid;
-  border-radius: 5px;
-  font-size: 16px;
-  cursor: pointer;
-  z-index: 3;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  transition: background-color 0.3s ease;
-}
-
-/* Estilos generales */
 .home {
   height: 100vh;
   overflow: hidden;
 }
 
-/* Estilos de la barra de navegación */
 .home .navar {
   background-color: var(--sidebar-color);
   border-bottom: 3px solid var(--body-color);
@@ -391,7 +372,7 @@ onMounted(() => {
 
 .titulo {
   display: inline-block;
-  min-width: 100px; /* Ajusta según sea necesario */
+  min-width: 100px;
 }
 
 .dropdown {
@@ -465,7 +446,6 @@ onMounted(() => {
   font-weight: 500;
 }
 
-/* Separador entre elementos */
 .dropdown-item:not(:last-child) {
   border-bottom: 1px solid rgba(var(--text-colar-rgb), 0.1);
 }
@@ -511,7 +491,6 @@ onMounted(() => {
   border-radius: 10px;
   padding: 5px 15px;
   overflow-y: auto;
-  /* Para permitir el desplazamiento si la lista es larga */
   border: 1px solid;
 }
 
@@ -595,7 +574,6 @@ onMounted(() => {
   flex-shrink: 0;
 }
 
-/* Estilos para la barra de desplazamiento */
 .device-list-container::-webkit-scrollbar {
   width: 6px;
 }
@@ -608,4 +586,44 @@ onMounted(() => {
   background-color: var(--body-color);
   border-radius: 3px;
 }
+
+.play-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20%;
+  z-index: 10;
+  background-color: var(--body-color);
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px var(--body-color);
+}
+
+.player-controls {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.control-button {
+  background: var(--sidebar-color);
+  border: none;
+  cursor: pointer;
+  font-size: 24px;
+  color: var(--text-colar);
+  position: relative;
+  padding: 10px;
+  border-radius: 5px;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.control-button:hover {
+  background-color: var(--body-color);
+  transform: scale(1.1);
+}
+
 </style>

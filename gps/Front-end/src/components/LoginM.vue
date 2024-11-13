@@ -31,6 +31,7 @@
 import { ref, defineEmits, onMounted } from 'vue';
 import Swal from 'sweetalert2';
 import '../styles_App/login.css';
+import router from '../router';
 
 
 const emit = defineEmits(['loginSuccess']);
@@ -54,6 +55,7 @@ const login = async () => {
 
         if (response.ok) {
             localStorage.setItem('isAuthenticated', 'true');
+            router.push({ name: 'Home' });
             emit('loginSuccess'); 
         } else {
             Swal.fire({
