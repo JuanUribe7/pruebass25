@@ -278,7 +278,7 @@ const playRecording = () => {
 
 const cargarDispositivos = async () => {
   try {
-    const response = await fetch('http://localhost:3001/devices');
+    const response = await fetch('http://3.136.116.162/devices');
     if (!response.ok) {
       throw new Error('Error en la respuesta de la API');
     }
