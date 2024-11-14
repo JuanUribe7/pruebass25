@@ -29,7 +29,7 @@ const mqttClient = mqtt.connect({
     username: brokerUser,
     password: brokerPasswd
 });
-app.use(express.static(path.join(__dirname, 'dist' , inde)));
+app.use(express.static(path.join(__dirname, 'dist' )));
 // Servidor TCP
 var tcpServer = net.createServer((client) => {
     var gt06 = new Gt06();
