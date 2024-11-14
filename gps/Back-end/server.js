@@ -6,13 +6,14 @@ const { Device } = require('./models/Device');
 const bodyParser = require('body-parser');
 const express = require('express');
 const app = express();
+const path = require('path'); 
 const authRoutes = require('./routes/auth');
 const deviceRoutes = require('./routes/devices');
 const Gt06 = require('./gt06'); // Asegúrate de tener el módulo Gt06
 const mqtt = require('mqtt');
 
 const PORT = process.env.GT06_SERVER_PORT || 4000;
-const HTTP_PORT = process.env.HTTP_PORT || 3001;
+const HTTP_PORT = process.env.HTTP_PORT || 80;
 const rootTopic = process.env.MQTT_ROOT_TOPIC || 'gt06';
 const brokerUrl = process.env.MQTT_BROKER_URL || '11ec3ffa829840c785105a23a3994db1.s1.eu.hivemq.cloud';
 const brokerPort = process.env.MQTT_BROKER_PORT || 1883;
@@ -28,7 +29,7 @@ const mqttClient = mqtt.connect({
     username: brokerUser,
     password: brokerPasswd
 });
-
+app.use(express.static(path.join(__dirname, 'dist')));
 // Servidor TCP
 var tcpServer = net.createServer((client) => {
     var gt06 = new Gt06();
