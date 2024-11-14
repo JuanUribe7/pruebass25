@@ -76,7 +76,7 @@ var tcpServer = net.createServer((client) => {
     
             // Enviar los datos a la ruta /update-from-gps
             try {
-                await axios.post(`http://3.136.116.162/update-from-gps`, deviceData);
+                await axios.post(`http://3.136.116.162/devices/update-from-gps`, deviceData);
                 console.log(`Datos enviados a /update-from-gps para IMEI: ${gt06.imei}`);
             } catch (error) {
                 if (error.response) {
