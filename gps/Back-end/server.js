@@ -2,6 +2,7 @@ const net = require('net');
 const axios = require('axios'); // Asegúrate de tener axios instalado e importado
 const mongoose = require('mongoose');
 const cors = require('cors');
+const { Device } = require('./models/Device');
 const bodyParser = require('body-parser');
 const express = require('express');
 const app = express();

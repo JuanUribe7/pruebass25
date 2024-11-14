@@ -129,18 +129,6 @@ let currentIndex = 0;
 let isDeleting = false;
 let typingInterval;
 
-const mensajes = ref([]);
-
-// Función para obtener los mensajes desde el servidor
-const fetchMensajes = async () => {
-  try {
-    const response = await fetch('http://localhost:3001/mensajes');
-    if (!response.ok) throw new Error('Error al obtener mensajes');
-    mensajes.value = await response.json();
-  } catch (error) {
-    console.error('Error:', error);
-  }
-};
 
 // Computed properties
 const filteredDispositivos = computed(() => {
@@ -330,7 +318,7 @@ const insertarDispositivo = async () => {
   });
 
   if (imei) {
-     const response=fetch('http://localhost:3001/routes/devices', {
+      fetch('http://localhost:3001/devices', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -350,7 +338,6 @@ const insertarDispositivo = async () => {
       .catch((error) => {
         console.error('Error al agregar dispositivo:', error);
         Swal.fire('Error', 'No se pudo agregar el dispositivo', 'error');
-        console.log(response);
       });
   }
 };
@@ -361,7 +348,6 @@ const toggleDropdown = () => {
 
 // Hooks del ciclo de vida
 onMounted(() => {
-  fetchMensajes();
   typeEffect();
   cargarDispositivos();
 });

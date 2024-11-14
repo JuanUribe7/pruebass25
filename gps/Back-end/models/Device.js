@@ -1,13 +1,12 @@
 const mongoose = require('mongoose');
 
+
 const deviceSchema = new mongoose.Schema({
     imei: { type: String, required: true, unique: true },
     deviceName: { type: String, required: false },
     responsible: { type: String, required: false },
     phoneNumber: { type: String, required: false },
 }, { minimize: false });
-
-module.exports = mongoose.model('Device', deviceSchema);
 
 const deviceStatusSchema = new mongoose.Schema({
     imei: { type: String, required: true, unique: true },
@@ -27,4 +26,8 @@ const deviceStatusSchema = new mongoose.Schema({
     serialNr: { type: Number, required: false },
 }, { minimize: false });
 
-module.exports = mongoose.model('DeviceStatus', deviceStatusSchema);
+// Exportar ambos modelos
+module.exports = {
+    Device: mongoose.model('Device', deviceSchema),
+    DeviceStatus: mongoose.model('DeviceStatus', deviceStatusSchema)
+};

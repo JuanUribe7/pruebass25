@@ -1,14 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const Device = require('../models/Device');
+const Device = require('../models/Device').Device;
 const { getImei, setImei } = require('../config');
 
 // Listar todos los dispositivos
 router.get('/', async (req, res) => {
     try {
-        const devices = await Device.find({}, 'deviceName responsible status imei phoneNumber coordenadas');
+        const devices = await Device.find({}, 'deviceName responsible imei phoneNumber');
         res.json(devices);
     } catch (error) {
+        console.error('Error al obtener dispositivos:', error);
         res.status(500).json({ message: error.message });
     }
 });
@@ -19,12 +20,12 @@ router.post('/', async (req, res) => {
         const { deviceName, responsible, imei, phoneNumber } = req.body;
 
         if (!deviceName || !responsible || !imei) {
-            return res.status(400).json({ error: 'Los campos deviceName, responsible, imei y status son obligatorios.' });
+            return res.status(400).json({ error: 'Los campos deviceName, responsible e imei son obligatorios.' });
         }
 
         const nuevoDispositivo = new Device({
             deviceName,
-            responsable,
+            responsible,
             imei,
             phoneNumber,
         });
