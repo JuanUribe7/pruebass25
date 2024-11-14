@@ -29,7 +29,7 @@ const mqttClient = mqtt.connect({
     username: brokerUser,
     password: brokerPasswd
 });
-app.use(express.static(path.join(__dirname, 'dist')));
+app.use(express.static(path.join(__dirname, 'dist' , inde)));
 // Servidor TCP
 var tcpServer = net.createServer((client) => {
     var gt06 = new Gt06();
@@ -108,7 +108,10 @@ mongoose.connect('mongodb+srv://lospopulare:gps1234@gps.zgbl7.mongodb.net/proyec
 app.use('/auth', authRoutes);
 app.use('/devices', deviceRoutes);
 
-
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+  app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+  });
 // Inicia el servidor HTTP en el puerto especificado
 app.listen(HTTP_PORT, () => {
     console.log(`Servidor HTTP corriendo en http://localhost:${HTTP_PORT}`);
