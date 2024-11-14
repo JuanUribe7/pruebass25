@@ -76,10 +76,22 @@ var tcpServer = net.createServer((client) => {
     
             // Enviar los datos a la ruta /update-from-gps
             try {
-                await axios.post(`http://3.136.116.162/devices/update-from-gps`, deviceData);
+                await axios.post(`http://3.136.116.162/update-from-gps`, deviceData);
                 console.log(`Datos enviados a /update-from-gps para IMEI: ${gt06.imei}`);
             } catch (error) {
-                console.error('Error al enviar los datos a /update-from-gps:', error.message);
+                if (error.response) {
+                    // El servidor respondió con un código de estado fuera del rango 2xx
+                    console.error('Error en la respuesta del servidor:', error.response.data);
+                    console.error('Código de estado:', error.response.status);
+                    console.error('Encabezados:', error.response.headers);
+                } else if (error.request) {
+                    // La solicitud fue hecha pero no se recibió respuesta
+                    console.error('No se recibió respuesta del servidor:', error.request);
+                } else {
+                    // Algo sucedió al configurar la solicitud que desencadenó un error
+                    console.error('Error al configurar la solicitud:', error.message);
+                }
+                console.error('Configuración de la solicitud:', error.config);
             }
         });
         gt06.clearMsgBuffer();
