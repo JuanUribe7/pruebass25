@@ -88,7 +88,7 @@
                 <th>Responsable</th>
                 <th>IMEI</th>
                 <th>Teléfono</th> <!-- Nueva columna -->
-                <th>Estado</th>
+
                 <th>Acción</th>
               </tr>
             </thead>
@@ -99,7 +99,7 @@
                 <td>{{ dispositivo.responsible }}</td>
                 <td>{{ dispositivo.imei }}</td>
                 <td>{{ dispositivo.phoneNumber }}</td> <!-- Nueva celda -->
-                <td>{{ dispositivo.status }}</td>
+        
                 <td>
                   <i class='bx bx-edit iconD' @click="editarDispositivo(index)"></i>
                   <i class='bx bx-trash iconD' @click="eliminarDispositivo(index)"></i>
@@ -296,7 +296,7 @@ const insertarDispositivo = async () => {
       <input id="responsable" class="swal2-input" placeholder="Responsable">
       <input id="imei" class="swal2-input" placeholder="IMEI">
       <input id="telefono" class="swal2-input" placeholder="Teléfono"> <!-- Nuevo campo -->
-      <input id="estatus" class="swal2-input" placeholder="Estatus">
+  
     `,
     focusConfirm: false,
     showCancelButton: true,
@@ -307,9 +307,9 @@ const insertarDispositivo = async () => {
       const responsable = document.getElementById('responsable').value;
       const imei = document.getElementById('imei').value;
       const telefono = document.getElementById('telefono').value; // Nuevo campo
-      const estatus = document.getElementById('estatus').value;
 
-      if (!nombre || !responsable || !imei || !estatus) {
+
+      if (!nombre || !responsable || !imei) {
         Swal.showValidationMessage('Por favor, complete todos los campos obligatorios.');
         return false;
       }
@@ -325,13 +325,12 @@ const insertarDispositivo = async () => {
         responsible: responsable, 
         imei, 
         phoneNumber: telefono, // Nuevo campo
-        status: estatus 
       };
     }
   });
 
   if (imei) {
-    fetch('http://localhost:3001/devices', {
+     const response=fetch('http://localhost:3001/routes/devices', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -351,6 +350,7 @@ const insertarDispositivo = async () => {
       .catch((error) => {
         console.error('Error al agregar dispositivo:', error);
         Swal.fire('Error', 'No se pudo agregar el dispositivo', 'error');
+        console.log(response);
       });
   }
 };

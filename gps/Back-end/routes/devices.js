@@ -16,21 +16,17 @@ router.get('/', async (req, res) => {
 // Agregar un nuevo dispositivo
 router.post('/', async (req, res) => {
     try {
-        const { deviceName, responsible, imei, status, phoneNumber } = req.body;
+        const { deviceName, responsible, imei, phoneNumber } = req.body;
 
-        if (!deviceName || !responsible || !imei || !status) {
+        if (!deviceName || !responsible || !imei) {
             return res.status(400).json({ error: 'Los campos deviceName, responsible, imei y status son obligatorios.' });
         }
 
         const nuevoDispositivo = new Device({
             deviceName,
-            responsible,
+            responsable,
             imei,
-            status,
             phoneNumber,
-            coordenadas: { latitud: null, longitud: null },
-            kilometraje: null,
-            velocidad: null
         });
 
         const dispositivoGuardado = await nuevoDispositivo.save();
@@ -47,10 +43,11 @@ router.post('/', async (req, res) => {
 // Endpoint para actualizar la ubicación del dispositivo desde el GPS
 router.post('/update-from-gps', async (req, res) => {
     try {
-        const { imei, decodedLat, decodedLon } = req.body;
+        const { imei, Lat, Lon, speed, course, time, eventNumber, eventString, mcc, mnc, lac, cellId, serialNr } = req.body;
+
 
         // Verificar que todos los datos requeridos estén presentes
-        if (!imei || decodedLat === undefined || decodedLon === undefined) {
+        if (!imei || Lat === undefined || Lon === undefined) {
             return res.status(400).json({ error: 'IMEI, latitud y longitud son obligatorios.' });
         }
 
@@ -62,12 +59,30 @@ router.post('/update-from-gps', async (req, res) => {
         }
 
         // Actualizar las coordenadas del dispositivo
-        dispositivo.coordenadas = { latitud: decodedLat, longitud: decodedLon };
+        dispositivo.status = {
+            event: {
+                number: eventNumber,
+                string: eventString
+            },
+            fixTime: time,
+            coordenadas: {
+                latitud: Lat,
+                longitud: Lon,
+                velocidad: speed,
+                rumbo: course,
+                fecha: time
+            },
+            mcc: mcc,
+            mnc: mnc,
+            lac: lac,
+            cellId: cellId,
+            serialNr: serialNr
+        };
 
         // Guardar los cambios en la base de datos
         await dispositivo.save();
 
-        console.log(`Ubicación actualizada para IMEI: ${imei} - Latitud: ${decodedLat}, Longitud: ${decodedLon}`);
+        console.log(`Ubicación actualizada para IMEI: ${imei} - Latitud: ${Lat}, Longitud: ${Lon}`);
         res.json({ message: 'Ubicación actualizada exitosamente' });
     } catch (error) {
         console.error('Error al actualizar la ubicación:', error.message);

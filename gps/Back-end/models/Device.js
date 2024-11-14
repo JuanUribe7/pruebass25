@@ -1,17 +1,30 @@
 const mongoose = require('mongoose');
 
 const deviceSchema = new mongoose.Schema({
-    deviceName: { type: String, required: true },
-    responsible: { type: String, required: true },
     imei: { type: String, required: true, unique: true },
-    phoneNumber: { type: String },  // Agregado el campo phoneNumber
-    status: { type: String, required: true },
-    coordenadas: {
-        latitud: { type: Number},
-        longitud: { type: Number }
-    },
-    kilometraje: { type: Number, default: null },
-    velocidad: { type: Number, default: null }
+    deviceName: { type: String, required: false },
+    responsible: { type: String, required: false },
+    phoneNumber: { type: String, required: false },
 }, { minimize: false });
 
 module.exports = mongoose.model('Device', deviceSchema);
+
+const deviceStatusSchema = new mongoose.Schema({
+    imei: { type: String, required: true, unique: true },
+    event: {
+        number: { type: Number, required: false },
+        string: { type: String, required: false }
+    },
+    fixTime: { type: Date, required: false },
+    lat: { type: Number, required: false },
+    lon: { type: Number, required: false },
+    speed: { type: Number, required: false },
+    course: { type: Number, required: false },
+    mcc: { type: Number, required: false },
+    mnc: { type: Number, required: false },
+    lac: { type: Number, required: false },
+    cellId: { type: Number, required: false },
+    serialNr: { type: Number, required: false },
+}, { minimize: false });
+
+module.exports = mongoose.model('DeviceStatus', deviceStatusSchema);
