@@ -145,7 +145,7 @@ const fetchMensajes = async () => {
 // Computed properties
 const filteredDispositivos = computed(() => {
   return dispositivos.value.filter(dispositivo =>
-    dispositivo.deviceName.toLowerCase().includes(searchTerm.value.toLowerCase())
+    dispositivo.deviceName.includes(searchTerm.value)
   );
 });
 
@@ -190,113 +190,14 @@ const cargarDispositivos = async () => {
   }
 };
 
-const editarDispositivo = (index) => {
-  const dispositivo = dispositivos.value[index];
-
-  Swal.fire({
-    title: 'Editar Dispositivo',
-    html: ` 
-      <input id="nombre" class="swal2-input" placeholder="Nombre" value="${dispositivo.deviceName}">
-      <input id="responsable" class="swal2-input" placeholder="Responsable" value="${dispositivo.responsible}">
-      <input id="imei" class="swal2-input" placeholder="IMEI" value="${dispositivo.imei}">
-      <input id="telefono" class="swal2-input" placeholder="Teléfono" value="${dispositivo.phoneNumber || ''}"> <!-- Nuevo campo -->
-      <input id="estatus" class="swal2-input" placeholder="Estatus" value="${dispositivo.status}">
-    `,
-    focusConfirm: false,
-    showCancelButton: true,
-    confirmButtonText: 'Guardar',
-    cancelButtonText: 'Cancelar',
-    preConfirm: () => {
-      const nombre = document.getElementById('nombre').value;
-      const responsable = document.getElementById('responsable').value;
-      const imei = document.getElementById('imei').value;
-      const telefono = document.getElementById('telefono').value; // Nuevo campo
-      const estatus = document.getElementById('estatus').value;
-
-      if (!nombre || !responsable || !imei || !estatus) {
-        Swal.showValidationMessage('Por favor, complete todos los campos obligatorios.');
-        return false;
-      }
-
-      return { 
-        deviceName: nombre, 
-        responsible: responsable, 
-        imei, 
-        phoneNumber: telefono, // Nuevo campo
-        status: estatus 
-      };
-    }
-  }).then((result) => {
-    if (result.isConfirmed) {
-      fetch(`http://localhost:3001/devices/${dispositivo._id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(result.value)
-      })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Error al editar dispositivo');
-          }
-          return response.json();
-        })
-        .then(data => {
-          dispositivos.value.splice(index, 1, data);
-          console.log('Dispositivo editado:', data);
-          Swal.fire('¡Dispositivo editado!', '', 'success');
-        })
-        .catch((error) => {
-          console.error('Error al editar dispositivo:', error);
-          Swal.fire('Error', 'No se pudo editar el dispositivo', 'error');
-        });
-    }
-  });
-};
-
-const eliminarDispositivo = (index) => {
-  const dispositivo = dispositivos.value[index];
-
-  Swal.fire({
-    title: '¿Estás seguro?',
-    text: `¿Deseas eliminar el dispositivo ${dispositivo.deviceName}?`,
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Eliminar',
-    cancelButtonText: 'Cancelar'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      fetch(`http://localhost:3001/devices/${dispositivo._id}`, {
-        method: 'DELETE'
-      })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Error al eliminar dispositivo');
-          }
-          return response.json();
-        })
-        .then(() => {
-          dispositivos.value.splice(index, 1);
-          console.log('Dispositivo eliminado:', dispositivo);
-          Swal.fire('¡Dispositivo eliminado!', '', 'success');
-        })
-        .catch((error) => {
-          console.error('Error al eliminar dispositivo:', error);
-          Swal.fire('Error', 'No se pudo eliminar el dispositivo', 'error');
-        });
-    }
-  });
-};
-
 const insertarDispositivo = async () => {
-  const { value: imei } = await Swal.fire({
+  const { value: formValues } = await Swal.fire({
     title: 'Agregar Dispositivo',
     html: ` 
       <input id="nombre" class="swal2-input" placeholder="Nombre del dispositivo">
       <input id="responsable" class="swal2-input" placeholder="Responsable">
       <input id="imei" class="swal2-input" placeholder="IMEI">
       <input id="telefono" class="swal2-input" placeholder="Teléfono"> <!-- Nuevo campo -->
-  
     `,
     focusConfirm: false,
     showCancelButton: true,
@@ -307,7 +208,6 @@ const insertarDispositivo = async () => {
       const responsable = document.getElementById('responsable').value;
       const imei = document.getElementById('imei').value;
       const telefono = document.getElementById('telefono').value; // Nuevo campo
-
 
       if (!nombre || !responsable || !imei) {
         Swal.showValidationMessage('Por favor, complete todos los campos obligatorios.');
@@ -329,13 +229,13 @@ const insertarDispositivo = async () => {
     }
   });
 
-  if (imei) {
-     const response=fetch('http://localhost:3001/routes/devices', {
+  if (formValues) {
+    fetch('http://localhost:3001/devices', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(imei)
+      body: JSON.stringify(formValues)
     })
       .then(response => {
         if (!response.ok) {
@@ -350,7 +250,6 @@ const insertarDispositivo = async () => {
       .catch((error) => {
         console.error('Error al agregar dispositivo:', error);
         Swal.fire('Error', 'No se pudo agregar el dispositivo', 'error');
-        console.log(response);
       });
   }
 };
@@ -370,6 +269,7 @@ onUnmounted(() => {
   clearTimeout(typingInterval);
 });
 </script>
+
 
 <style scoped>
 /* Estilos generales */

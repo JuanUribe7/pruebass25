@@ -19,12 +19,12 @@ router.post('/', async (req, res) => {
         const { deviceName, responsible, imei, phoneNumber } = req.body;
 
         if (!deviceName || !responsible || !imei) {
-            return res.status(400).json({ error: 'Los campos deviceName, responsible, imei y status son obligatorios.' });
+            return res.status(400).json({ error: 'Los campos deviceName, responsible e imei son obligatorios.' });
         }
 
         const nuevoDispositivo = new Device({
             deviceName,
-            responsable,
+            responsible, // Cambiado a 'responsible'
             imei,
             phoneNumber,
         });
@@ -39,7 +39,6 @@ router.post('/', async (req, res) => {
         res.status(500).json({ error: 'Error al agregar el dispositivo: ' + error.message });
     }
 });
-
 // Endpoint para actualizar la ubicación del dispositivo desde el GPS
 router.post('/update-from-gps', async (req, res) => {
     try {
