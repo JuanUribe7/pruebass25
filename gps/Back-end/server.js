@@ -58,24 +58,20 @@ var tcpServer = net.createServer((client) => {
             mqttClient.publish(rootTopic + '/' + gt06.imei + '/pos', JSON.stringify(msg));
     
             // Preparar los datos para enviar a la ruta /update-from-gps
-            const deviceData = {
-                imei: gt06.imei,
-                Lat: msg.Lat,
-                Lon: msg.Lon,
-                speed: msg.speed,
-                course: msg.course,
-                time: msg.time,
-                eventNumber: msg.eventNumber,
-                eventString: msg.eventString,
-                mcc: msg.mcc,
-                mnc: msg.mnc,
-                lac: msg.lac,
-                cellId: msg.cellId,
-                serialNr: msg.serialNr
-            };
+            if (gt06.event.string === 'location') {
+         
+                console.log('Latitude:', gt06.lat);
+                console.log('Longitude:', gt06.lon);
+                console.log('Hora:', gt06.fixTime);
+                console.log('Rumbo:', gt06.course);
+                console.log('velocidad:', gt06.speed);
+         
+        
+                }
+
     
             // Enviar los datos a la ruta /update-from-gps
-            try {
+             try {
                 await axios.post(`http://3.136.116.162/devices/update-from-gps`, deviceData);
                 console.log(`Datos enviados a /update-from-gps para IMEI: ${gt06.imei}`);
             } catch (error) {
@@ -92,11 +88,11 @@ var tcpServer = net.createServer((client) => {
                     console.error('Error al configurar la solicitud:', error.message);
                 }
                 console.error('Configuración de la solicitud:', error.config);
-            }
+            } 
         });
         gt06.clearMsgBuffer();
     });
-});
+}); 
 
 // Inicia el servidor TCP en el puerto especificado
 tcpServer.listen(PORT, () => {

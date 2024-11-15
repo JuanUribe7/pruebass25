@@ -44,7 +44,7 @@ router.post('/', async (req, res) => {
 // Endpoint para actualizar la ubicación del dispositivo desde el GPS
 router.post('/update-from-gps', async (req, res) => {
     try {
-        const { imei, Lat, Lon, speed, course, time, eventNumber, eventString, mcc, mnc, lac, cellId, serialNr } = req.body;
+        const { imei, Lat, Lon, speed, course, time} = req.body;
 
 
         // Verificar que todos los datos requeridos estén presentes
@@ -61,10 +61,7 @@ router.post('/update-from-gps', async (req, res) => {
 
         // Actualizar las coordenadas del dispositivo
         dispositivo.status = {
-            event: {
-                number: eventNumber,
-                string: eventString
-            },
+           
             fixTime: time,
             coordenadas: {
                 latitud: Lat,
@@ -73,11 +70,7 @@ router.post('/update-from-gps', async (req, res) => {
                 rumbo: course,
                 fecha: time
             },
-            mcc: mcc,
-            mnc: mnc,
-            lac: lac,
-            cellId: cellId,
-            serialNr: serialNr
+    
         };
 
         // Guardar los cambios en la base de datos
