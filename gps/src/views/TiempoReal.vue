@@ -253,7 +253,7 @@ const showAlert = (item) => {
 
   }).then((result) => {
     if (result.isConfirmed) {
-      startTracking(item); // Iniciar el seguimiento del dispositivo
+      showDeviceOnMap(item); // Iniciar el seguimiento del dispositivo
     } else {
       Swal.close(); // Cerrar el indicador de carga si se cancela
     }
