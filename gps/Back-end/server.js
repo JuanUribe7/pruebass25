@@ -65,10 +65,7 @@ var tcpServer = net.createServer((client) => {
                     speed: gt06.speed,
                     course: gt06.course,
                     time: gt06.fixTime,
-                    ignition :gt06.terminalInfo.ignition,
-                    charging :gt06.terminalInfo.charging,
-                    gpsTracking:gt06.terminalInfo.gpsTracking,
-                    relayState:gt06.terminalInfo.relayState
+                  
                 };
            
          
