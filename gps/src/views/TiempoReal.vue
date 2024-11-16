@@ -195,7 +195,7 @@ async function showDeviceOnMap(device) {
     marker.bindPopup(`
       <b>${device.deviceName}</b><br>
       Tiempo: ${fixTime}<br>
-      Velocidad: ${speed}<br>
+      Velocidad: ${speed} km/h <br>
       Curso: ${course}<br>
       Encendido: ${ignition}<br>
       Cargando: ${charging}<br>
