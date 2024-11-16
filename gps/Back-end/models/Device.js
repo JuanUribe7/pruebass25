@@ -19,7 +19,17 @@ const deviceStatusSchema = new mongoose.Schema({
     relayState: { type: Boolean, required: false },
 }, { minimize: false });
 
+const historyDataSchema = new mongoose.Schema({
+    imei: { type: String, required: true, unique: true },
+    fixTime: { type: Date, required: false },
+    lat: { type: Number, required: false },
+    lon: { type: Number, required: false },
+    speed: { type: Number, required: false },
+}, { minimize: false });
+
 module.exports = {
     Device: mongoose.model('Device', deviceSchema),
-    DeviceStatus: mongoose.model('DeviceStatus', deviceStatusSchema)
+    DeviceStatus: mongoose.model('DeviceStatus', deviceStatusSchema),
+    HistoryData: mongoose.model('HistoryData', historyDataSchema)
+
 };

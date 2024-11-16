@@ -64,15 +64,14 @@ var tcpServer = net.createServer((client) => {
                     Lon: gt06.lon,
                     speed: gt06.speed,
                     course: gt06.course,
-                    time: gt06.fixTime
-                    
-
+                    time: gt06.fixTime,
+                    status: gt06.terminalInfo.status,
+                    ignition :gt06.terminalInfo.ignition,
+                    charging :gt06.terminalInfo.charging,
+                    gpsTracking:gt06.terminalInfo.gpsTracking,
+                    relayState:gt06.terminalInfo.relayState
                 };
-                console.log('Latitude:', gt06.lat);
-                console.log('Longitude:', gt06.lon);
-                console.log('Hora:', gt06.fixTime);
-                console.log('Rumbo:', gt06.course);
-                console.log('velocidad:', gt06.speed);
+           
          
                 // Enviar los datos a la ruta /update-from-gps
                 try {

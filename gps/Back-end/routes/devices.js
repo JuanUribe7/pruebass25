@@ -13,10 +13,36 @@ router.get('/', async (req, res) => {
     }
 });
 
+router.post('/save-history', async (req, res) => {
+    try {
+        const { imei, fixTime, lat, lon, speed } = req.body;
+
+        // Verificar que todos los datos requeridos estén presentes
+        if (!imei || lat === undefined || lon === undefined) {
+            return res.status(400).json({ error: 'IMEI, latitud y longitud son obligatorios.' });
+        }
+
+        // Crear un nuevo registro de historial
+        const historyData = new HistoryData({
+            imei,
+            fixTime,
+            lat,
+            lon,
+            speed
+        });
+
+        // Guardar el registro en la base de datos
+        await historyData.save();
+
+        res.status(201).json({ message: 'Datos históricos guardados exitosamente.' });
+    } catch (error) {
+        console.error('Error al guardar datos históricos:', error);
+        res.status(500).json({ error: 'Error interno del servidor.' });
+    }});
 // Endpoint para actualizar la ubicación del dispositivo desde el GPS
 router.post('/update-from-gps', async (req, res) => {
     try {
-        const { imei, Lat, Lon, speed, course, time } = req.body;
+        const { imei, Lat, Lon, speed, course, time, status, ignition, charging, gpsTracking } = req.body;
 
         // Verificar que todos los datos requeridos estén presentes
         if (!imei || Lat === undefined || Lon === undefined) {
@@ -38,7 +64,11 @@ router.post('/update-from-gps', async (req, res) => {
                 lat: Lat,
                 lon: Lon,
                 speed,
-                course
+                course,
+                status,
+                ignition, 
+                charging,
+                gpsTracking
             },
             { upsert: true, new: true }
         );
