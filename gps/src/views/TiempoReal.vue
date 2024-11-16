@@ -214,6 +214,7 @@ async function showDeviceOnMap(device) {
   } catch (error) {
     console.error('Error al obtener la ubicación del dispositivo:', error);
     Swal.fire('Error', 'No se pudo obtener la ubicación del dispositivo', 'error');
+    Swal.close(); // Cerrar el indicador de carga en caso de error
   }
 }
 
@@ -253,6 +254,8 @@ const showAlert = (item) => {
   }).then((result) => {
     if (result.isConfirmed) {
       startTracking(item); // Iniciar el seguimiento del dispositivo
+    } else {
+      Swal.close(); // Cerrar el indicador de carga si se cancela
     }
   });
 };
