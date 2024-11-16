@@ -65,17 +65,17 @@ var tcpServer = net.createServer((client) => {
                     speed: gt06.speed,
                     course: gt06.course,
                     time: gt06.fixTime,
-                    ignition: Boolean(gt06.terminalInfo.ignition),
-                    charging: Boolean(gt06.terminalInfo.charging),
-                    gpsTracking: Boolean(gt06.terminalInfo.gpsTracking),
-                    relayState: Boolean(gt06.terminalInfo.relayState)
+                    ignition: gt06.terminalInfo ? Boolean(gt06.terminalInfo.ignition) : false,
+                    charging: gt06.terminalInfo ? Boolean(gt06.terminalInfo.charging) : false,
+                    gpsTracking: gt06.terminalInfo ? Boolean(gt06.terminalInfo.gpsTracking) : false,
+                    relayState: gt06.terminalInfo ? Boolean(gt06.terminalInfo.relayState) : false
                 };
             
                 console.log(
-                    gt06.terminalInfo.ignition,
-                    gt06.terminalInfo.charging,
-                    gt06.terminalInfo.gpsTracking,
-                    gt06.terminalInfo.relayState
+                    gt06.terminalInfo ? gt06.terminalInfo.ignition : 'undefined',
+                    gt06.terminalInfo ? gt06.terminalInfo.charging : 'undefined',
+                    gt06.terminalInfo ? gt06.terminalInfo.gpsTracking : 'undefined',
+                    gt06.terminalInfo ? gt06.terminalInfo.relayState : 'undefined'
                 );
             
                 // Enviar los datos a la ruta /update-from-gps

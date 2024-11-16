@@ -235,7 +235,7 @@ function startTracking(device) {
   // Iniciar un nuevo seguimiento
   trackingIntervalId = setInterval(() => {
     showDeviceOnMap(device);
-  }, 5000); // Actualizar cada 5 segundos
+  }, 2000); // Actualizar cada 5 segundos
 }
 
 // Muestra una alerta con los detalles del dispositivo
