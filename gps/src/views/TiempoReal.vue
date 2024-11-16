@@ -221,7 +221,6 @@ async function showDeviceOnMap(device) {
 
 function startTracking(device) {
   // Mostrar la ubicación inmediatamente
-  showDeviceOnMap(device);
 
   // Detener cualquier seguimiento anterior
   if (trackingIntervalId) {
@@ -247,10 +246,8 @@ const showAlert = (item) => {
     `,
     confirmButtonText: 'Mostrar en Mapa',
     showCancelButton: true,
-    cancelButtonText: 'Cancelar',
-    didOpen: () => {
-      Swal.showLoading(); // Mostrar indicador de carga
-    }
+    cancelButtonText: 'Cancelar'
+
   }).then((result) => {
     if (result.isConfirmed) {
       startTracking(item); // Iniciar el seguimiento del dispositivo
