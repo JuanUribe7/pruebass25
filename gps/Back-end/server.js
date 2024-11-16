@@ -65,21 +65,25 @@ var tcpServer = net.createServer((client) => {
                     speed: gt06.speed,
                     course: gt06.course,
                     time: gt06.fixTime,
-            
+                    ignition: Boolean(gt06.terminalInfo.ignition),
+                    charging: Boolean(gt06.terminalInfo.charging),
+                    gpsTracking: Boolean(gt06.terminalInfo.gpsTracking),
+                    relayState: Boolean(gt06.terminalInfo.relayState)
                 };
-           console.log(
-            gt06.terminalInfo.ignition,
-            gt06.terminalInfo.charging,
-            gt06.terminalInfo.gpsTracking,
-            gt06.terminalInfo.relayState);
-         
+            
+                console.log(
+                    gt06.terminalInfo.ignition,
+                    gt06.terminalInfo.charging,
+                    gt06.terminalInfo.gpsTracking,
+                    gt06.terminalInfo.relayState
+                );
+            
                 // Enviar los datos a la ruta /update-from-gps
                 try {
                     await axios.post(`http://3.12.147.103/devices/update-from-gps`, deviceData);
                     console.log(`Datos enviados a /update-from-gps para IMEI: ${gt06.imei}`);
                 } catch (error) {
-                    console.error('Error al enviar los datos a /update-from-gps:', error.message);
-                    console.error('Configuración de la solicitud:', error.config);
+                    console.error('Error al enviar los datos:', error);
                 }
             }
         });
