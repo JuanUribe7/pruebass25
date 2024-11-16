@@ -18,11 +18,10 @@ const deviceStatusSchema = new mongoose.Schema({
     lon: { type: Number, required: false },
     speed: { type: Number, required: false },
     course: { type: Number, required: false },
-    mcc: { type: Number, required: false },
-    mnc: { type: Number, required: false },
-    lac: { type: Number, required: false },
-    cellId: { type: Number, required: false },
-    serialNr: { type: Number, required: false },
+    ignition: { type: Boolean, required: false },
+    charging: { type: Boolean, required: false },
+    gpsTracking: { type: Boolean, required: false },
+    relayState: { type: Boolean, required: false }
 }, { minimize: false });
 
 module.exports = {
