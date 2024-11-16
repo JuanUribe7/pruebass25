@@ -1,4 +1,4 @@
-<template>
+  <template>
   <section class="home">
     <div class="overlay"></div>
     <div class="navar">
@@ -176,7 +176,7 @@ async function showDeviceOnMap(device) {
       throw new Error('Error en la respuesta de la API');
     }
     const data = await response.json();
-    const { lat, lon, fixTime, speed } = data;
+    const { lat, lon, fixTime, speed, course, ignition, charging, gpsTracking, relayState } = data;
 
     // Limpiar marcadores existentes
     map.eachLayer((layer) => {
@@ -197,7 +197,12 @@ async function showDeviceOnMap(device) {
       Latitud: ${lat}<br>
       Longitud: ${lon}<br>
       Tiempo: ${fixTime}<br>
-      Velocidad: ${speed}
+      Velocidad: ${speed},
+      Curso: ${course},
+      Encendido: ${ignition},
+      Cargando: ${charging},
+      Señal: ${gpsTracking},
+
     `).openPopup();
 
     // Forzar una actualización del mapa
