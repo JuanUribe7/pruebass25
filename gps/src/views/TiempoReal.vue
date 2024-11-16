@@ -194,14 +194,12 @@ async function showDeviceOnMap(device) {
     // Mostrar información del dispositivo en un popup
     marker.bindPopup(`
       <b>${device.deviceName}</b><br>
-      Latitud: ${lat}<br>
-      Longitud: ${lon}<br>
       Tiempo: ${fixTime}<br>
-      Velocidad: ${speed},
-      Curso: ${course},
-      Encendido: ${ignition},
-      Cargando: ${charging},
-      Señal: ${gpsTracking},
+      Velocidad: ${speed}<br>
+      Curso: ${course}<br>
+      Encendido: ${ignition}<br>
+      Cargando: ${charging}<br>
+      Señal: ${gpsTracking}<br>
 
     `).openPopup();
 
