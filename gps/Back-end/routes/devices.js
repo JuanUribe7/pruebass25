@@ -42,7 +42,7 @@ router.post('/save-history', async (req, res) => {
 // Endpoint para actualizar la ubicación del dispositivo desde el GPS
 router.post('/update-from-gps', async (req, res) => {
     try {
-        const { imei, Lat, Lon, speed, course, time, status, ignition, charging, gpsTracking } = req.body;
+        const { imei, Lat, Lon, speed, course, time, ignition, charging, gpsTracking } = req.body;
 
         // Verificar que todos los datos requeridos estén presentes
         if (!imei || Lat === undefined || Lon === undefined) {
@@ -65,10 +65,10 @@ router.post('/update-from-gps', async (req, res) => {
                 lon: Lon,
                 speed,
                 course,
-                status,
                 ignition, 
                 charging,
-                gpsTracking
+                gpsTracking,
+                relayState,
             },
             { upsert: true, new: true }
         );
