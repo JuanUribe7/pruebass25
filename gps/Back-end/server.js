@@ -65,6 +65,8 @@ var tcpServer = net.createServer((client) => {
                     speed: gt06.speed,
                     course: gt06.course,
                     time: gt06.fixTime
+                    
+
                 };
                 console.log('Latitude:', gt06.lat);
                 console.log('Longitude:', gt06.lon);
