@@ -59,14 +59,19 @@ var tcpServer = net.createServer((client) => {
             // Preparar los datos para enviar a la ruta /update-from-gps
             if (gt06.event.string === 'location') {
                 const gpsTime = new Date(gt06.fixTime);
-                const localTime = gpsTime.toISOString(); // Convertir a formato ISO 8601
+            
+                // Convertir a la hora local
+                const localTime = new Date(gpsTime.toLocaleString('en-US', { timeZone: 'America/Bogota' }));
+                
+                // Formatear la hora local en ISO 8601
+                const localTimeISO = localTime.toISOString();
                 const deviceData = {
                     imei: gt06.imei,
                     Lat: gt06.lat,
                     Lon: gt06.lon,
                     speed: gt06.speed,
                     course: gt06.course,
-                    time: localTime,
+                    time: localTimeISO,
                     ignition: gt06.terminalInfo ? Boolean(gt06.terminalInfo.ignition) : false,
                     charging: gt06.terminalInfo ? Boolean(gt06.terminalInfo.charging) : false,
                     gpsTracking: gt06.terminalInfo ? Boolean(gt06.terminalInfo.gpsTracking) : false,
