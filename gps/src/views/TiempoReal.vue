@@ -195,7 +195,7 @@ async function showDeviceOnMap(device) {
     marker.bindPopup(`
       <b>${device.deviceName}</b><br>
       Tiempo: ${fixTime}<br>
-      Velocidad: ${speed}<br>
+      Velocidad: ${speed} km/h <br>
       Curso: ${course}<br>
       Encendido: ${ignition}<br>
       Cargando: ${charging}<br>
@@ -222,8 +222,10 @@ async function showDeviceOnMap(device) {
 }
 
 
+
 function startTracking(device) {
   // Mostrar la ubicación inmediatamente
+  showDeviceOnMap(device);
 
   // Detener cualquier seguimiento anterior
   if (trackingIntervalId) {
@@ -233,7 +235,7 @@ function startTracking(device) {
   // Iniciar un nuevo seguimiento
   trackingIntervalId = setInterval(() => {
     showDeviceOnMap(device);
-  }, 5000); // Actualizar cada 5 segundos
+  }, 2000); // Actualizar cada 5 segundos
 }
 
 // Muestra una alerta con los detalles del dispositivo

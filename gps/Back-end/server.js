@@ -91,17 +91,24 @@ router.post('/save-history', async (req, res) => {
 module.exports = router;
             // Preparar los datos para enviar a la ruta /update-from-gps
             if (gt06.event.string === 'location') {
+                const gpsTime = new Date(gt06.fixTime);
+            
+                // Convertir a la hora local
+                const localTime = new Date(gpsTime.toLocaleString('en-US', { timeZone: 'America/Bogota' }));
+                
+                // Formatear la hora local en ISO 8601
+                const localTimeISO = localTime.toISOString();
                 const deviceData = {
                     imei: gt06.imei,
                     Lat: gt06.lat,
                     Lon: gt06.lon,
                     speed: gt06.speed,
                     course: gt06.course,
-                    time: gt06.fixTime,
-                    ignition: Boolean(gt06.terminalInfo.ignition),
-                    charging: Boolean(gt06.terminalInfo.charging),
-                    gpsTracking: Boolean(gt06.terminalInfo.gpsTracking),
-                    relayState: Boolean(gt06.terminalInfo.relayState)
+                    time: localTimeISO,
+                    ignition: gt06.terminalInfo ? Boolean(gt06.terminalInfo.ignition) : false,
+                    charging: gt06.terminalInfo ? Boolean(gt06.terminalInfo.charging) : false,
+                    gpsTracking: gt06.terminalInfo ? Boolean(gt06.terminalInfo.gpsTracking) : false,
+                    relayState: gt06.terminalInfo ? Boolean(gt06.terminalInfo.relayState) : false
                 };
                 const HistoryData = {
                     imei: gt06.imei,
@@ -114,10 +121,10 @@ module.exports = router;
                 };
             
                 console.log(
-                    gt06.terminalInfo.ignition,
-                    gt06.terminalInfo.charging,
-                    gt06.terminalInfo.gpsTracking,
-                    gt06.terminalInfo.relayState
+                    gt06.terminalInfo ? gt06.terminalInfo.ignition : 'undefined',
+                    gt06.terminalInfo ? gt06.terminalInfo.charging : 'undefined',
+                    gt06.terminalInfo ? gt06.terminalInfo.gpsTracking : 'undefined',
+                    gt06.terminalInfo ? gt06.terminalInfo.relayState : 'undefined'
                 );
             
                 // Enviar los datos a la ruta /update-from-gps
