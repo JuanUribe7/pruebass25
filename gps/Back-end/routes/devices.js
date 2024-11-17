@@ -15,24 +15,24 @@ router.get('/', async (req, res) => {
 
 router.post('/save-history', async (req, res) => {
     try {
-        const { imei, fixTime, lat, lon, speed } = req.body;
+        const { imei, fixTime, Lat, Lon, speed } = req.body;
 
         // Verificar que todos los datos requeridos estén presentes
-        if (!imei || lat === undefined || lon === undefined) {
+        if (!imei || Lat === undefined || Lon === undefined) {
             return res.status(400).json({ error: 'IMEI, latitud y longitud son obligatorios.' });
         }
 
         // Crear un nuevo registro de historial
-        const historyData = new HistoryData({
+        const historyData = new historyData({
             imei,
             fixTime,
-            lat,
-            lon,
+            Lat,
+            Lon,
             speed
         });
 
         // Guardar el registro en la base de datos
-        await historydatas.save();
+        await historyData.save();
 
         res.status(201).json({ message: 'Datos históricos guardados exitosamente.' });
     } catch (error) {
