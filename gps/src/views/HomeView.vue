@@ -21,18 +21,18 @@
             <i class='bx bx-chevron-down'></i>
           </button>
           <div class="dropdown-content" :class="{ 'show': dropdownOpen }">
-            <a href="#" class="dropdown-item">
+            <router-link to="#" class="dropdown-item" @click.prevent="toggleProfileCard">
               <i class='bx bx-user-circle'></i>
               <span>Perfil</span>
-            </a>
-            <a href="#" class="dropdown-item">
+            </router-link>
+            <router-link to="#" class="dropdown-item" @click.prevent="togglePasswordCard">
               <i class='bx bx-lock-alt'></i>
               <span>Contraseña</span>
-            </a>
-            <a href="#" class="dropdown-item">
+            </router-link>
+            <router-link to="/privacidad" class="dropdown-item">
               <i class='bx bx-user-x'></i>
               <span>Privacidad</span>
-            </a>
+            </router-link>
           </div>
         </div>
       </div>
@@ -84,13 +84,18 @@
       </div>
     </div>
   </section>
+
+  <PerfilCard v-if="showProfileCard" @close="toggleProfileCard" />
+  <PaswordC v-if="showPasswordCard" @close="togglePasswordCard" />
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
-
+import PerfilCard from '../components/PerfilCard.vue';
+import PaswordC from '../components/PaswordC.vue';
 const dropdownOpen = ref(false);
-
+const showProfileCard = ref(false);
+const showPasswordCard = ref(false);
 const fullText = "Navify";
 const displayedText = ref("");
 let currentIndex = 0;
@@ -99,6 +104,17 @@ let typingInterval;
 
 const toggleDropdown = () => {
   dropdownOpen.value = !dropdownOpen.value;
+};
+
+const toggleProfileCard = () => {
+  showProfileCard.value = !showProfileCard.value;
+  if (dropdownOpen.value) {
+    dropdownOpen.value = false;
+  }
+};
+
+const togglePasswordCard = () => {
+  showPasswordCard.value = !showPasswordCard.value;
 };
 
 const scrollToFeatures = () => {
@@ -473,5 +489,22 @@ body.dark .promo-text li {
 
 body.dark .home {
   background-image: url('../assets/fondo1_1.jpg');
+}
+
+.perfil{
+  min-height: 100vh;
+  background-color: var(--sidebar-color);
+}
+
+/* Estilos para el modal */
+.profile-card {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
 }
 </style>
