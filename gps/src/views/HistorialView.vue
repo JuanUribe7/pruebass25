@@ -220,9 +220,14 @@ const showHistory = async (device, startDate, endDate) => {
     });
     const historyData = response.data;
 
+    if (!Array.isArray(historyData)) {
+      throw new Error('La respuesta del servidor no es un array.');
+    }
+
     if (!historyData.length) {
       throw new Error('No se encontraron datos de historial para este IMEI.');
     }
+
     const coordenadas = historyData.map(point => [point.lat, point.lon]);
 
     if (polyline) {
@@ -231,7 +236,7 @@ const showHistory = async (device, startDate, endDate) => {
 
     polyline = L.polyline(coordenadas, { color: 'red' }).addTo(map);
 
-    if (marker) { 
+    if (marker) {
       map.removeLayer(marker);
     }
     marker = L.marker(coordenadas[0]).addTo(map).bindPopup('Inicio');
@@ -244,7 +249,7 @@ const showHistory = async (device, startDate, endDate) => {
     console.error('Error al mostrar el historial:', error);
     Swal.fire({
       title: 'Error',
-      text: 'No se pudo mostrar el historial del dispositivo.',
+      text: `No se pudo mostrar el historial del dispositivo. Detalles: ${error.message}`,
       icon: 'error',
       confirmButtonText: 'Entendido'
     });
