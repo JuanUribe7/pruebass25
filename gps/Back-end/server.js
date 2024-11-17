@@ -28,7 +28,9 @@ const mqttClient = mqtt.connect({
     username: brokerUser,
     password: brokerPasswd
 });
+
 app.use(express.static(path.join(__dirname, 'dist' )));
+
 // Servidor TCP
 var tcpServer = net.createServer((client) => {
     var gt06 = new Gt06();
@@ -55,40 +57,7 @@ var tcpServer = net.createServer((client) => {
         }
         gt06.msgBuffer.forEach(async (msg) => {
             mqttClient.publish(rootTopic + '/' + gt06.imei + '/pos', JSON.stringify(msg));
-    const express = require('express');
-const router = express.Router();
-
-
-router.post('/save-history', async (req, res) => {
-    try {
-        const { imei, fixTime, lat, lon, speed } = req.body;
-
-        // Verificar que todos los datos requeridos estén presentes
-        if (!imei || lat === undefined || lon === undefined) {
-            return res.status(400).json({ error: 'IMEI, latitud y longitud son obligatorios.' });
-        }
-
-        // Crear un nuevo registro de historial
-        const historyData = new HistoryData({
-            imei,
-            fixTime,
-            lat,
-            lon,
-            speed
-        });
-
-        // Guardar el registro en la base de datos
-        await historyData.save();
-
-        // Responder con el registro guardado
-        res.status(201).json(historyData);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Error al guardar el historial.' });
-    }
-});
-
-module.exports = router;
+            
             // Preparar los datos para enviar a la ruta /update-from-gps
             if (gt06.event.string === 'location') {
                 const gpsTime = new Date(gt06.fixTime);
@@ -110,14 +79,13 @@ module.exports = router;
                     gpsTracking: gt06.terminalInfo ? Boolean(gt06.terminalInfo.gpsTracking) : false,
                     relayState: gt06.terminalInfo ? Boolean(gt06.terminalInfo.relayState) : false
                 };
-                const HistoryData = {
+                const historyData = {
                     imei: gt06.imei,
                     Lat: gt06.lat,
                     Lon: gt06.lon,
                     speed: gt06.speed,
                     course: gt06.course,
                     time: gt06.fixTime,
-                  
                 };
             
                 console.log(
@@ -130,7 +98,7 @@ module.exports = router;
                 // Enviar los datos a la ruta /update-from-gps
                 try {
                     await axios.post(`http://3.12.147.103/devices/update-from-gps`, deviceData);
-                    await axios.post(`http://3.12.147.103/devices/save-history                              `, HistoryData);
+                    await axios.post(`http://3.12.147.103/devices/save-history`, historyData);
 
                     console.log(`Datos enviados a /update-from-gps para IMEI: ${gt06.imei}`);
                 } catch (error) {
