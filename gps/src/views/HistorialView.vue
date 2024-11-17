@@ -95,7 +95,7 @@ import 'leaflet/dist/leaflet.css';
 import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
 import iconUrl from 'leaflet/dist/images/marker-icon.png';
 import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
-
+import axios from 'axios';
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl,
@@ -189,7 +189,8 @@ const showAlert = (item) => {
       if (!startDate || !endDate) {
         Swal.showValidationMessage('Por favor ingrese todas las fechas');
       }
-      return { startDate, endDate };
+      return {  startDate: new Date(startDate).toISOString(),
+        endDate: new Date(endDate).toISOString()};
     }
   }).then((result) => {
     if (result.isConfirmed) {
@@ -211,15 +212,18 @@ const showHistory = async (device, startDate, endDate) => {
   }
 
   try {
-    const coordenadasManuales = [
-      [10.9685, -74.7813],
-      [10.9700, -74.7800],
-      [10.9720, -74.7790],
-      [10.9740, -74.7785],
-      [10.9760, -74.7780],
-    ];
+    const response = await axios.get(`/api/history/${device.imei}`, {
+      params: {
+        startDate,
+        endDate
+      }
+    });
+    const historyData = response.data;
 
-    const coordenadas = coordenadasManuales;
+    if (!historyData.length) {
+      throw new Error('No se encontraron datos de historial para este IMEI.');
+    }
+    const coordenadas = historyData.map(point => [point.lat, point.lon]);
 
     if (polyline) {
       map.removeLayer(polyline);
