@@ -37,5 +37,5 @@ const historyDataSchema = new mongoose.Schema({
 module.exports = {
     Device: mongoose.model('Device', deviceSchema),
     DeviceStatus: mongoose.model('DeviceStatus', deviceStatusSchema),
-    historyDataSchema: mongoose.model('historyDataSchema', historyDataSchema)
+    historyDataSchema: mongoose.model('HistoryData', historyDataSchema)
 };

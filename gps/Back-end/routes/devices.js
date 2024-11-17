@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { Device, DeviceStatus, historyDataSchema  } = require('../models/Device'); // Asegúrate de importar DeviceStatus
+const { Device, DeviceStatus } = require('../models/Device'); // Asegúrate de importar DeviceStatus
+const HistoryData = require('../models/HistoryData'); // Importa el modelo HistoryData
 
 // Endpoint para obtener todos los dispositivos
 router.get('/', async (req, res) => {
@@ -27,7 +28,7 @@ router.post('/save-history', async (req, res) => {
         }
 
         // Crear un nuevo registro de historial
-        const historyData = new historyDataSchema({
+        const historyData = new HistoryData({
             imei,
             fixTime,
             lat,
@@ -41,13 +42,14 @@ router.post('/save-history', async (req, res) => {
         res.status(201).json({ message: 'Datos históricos guardados exitosamente.' });
     } catch (error) {
         console.error('Error al guardar datos históricos:', error);
-        res.status(500).json({ error: 'Error.' });
-    }});
-// Endpoint para actualizar la ubicación del dispositivo desde el GPS
+        res.status(500).json({ error: 'Error interno del servidor.', details: error.message });
+    }
+});
 
+// Endpoint para actualizar la ubicación del dispositivo desde el GPS
 router.post('/update-from-gps', async (req, res) => {
     try {
-        const { imei, Lat, Lon, speed, course, time, ignition, charging, gpsTracking, relayState  } = req.body;
+        const { imei, Lat, Lon, speed, course, time, ignition, charging, gpsTracking, relayState } = req.body;
 
         // Verificar que todos los datos requeridos estén presentes
         if (!imei || Lat === undefined || Lon === undefined) {
@@ -135,7 +137,8 @@ router.put('/:id', async (req, res) => {
         res.status(500).json({ error: 'Error al actualizar dispositivo: ' + error.message });
     }
 });
-// En devices.js
+
+// Endpoint para obtener el estado de un dispositivo por IMEI
 router.get('/status/:imei', async (req, res) => {
     try {
         const { imei } = req.params;
