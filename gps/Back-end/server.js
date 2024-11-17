@@ -81,8 +81,8 @@ var tcpServer = net.createServer((client) => {
                 };
                 const historyData = {
                     imei: gt06.imei,
-                    Lat: gt06.lat,
-                    Lon: gt06.lon,
+                    lat: gt06.lat,
+                    lon: gt06.lon,
                     speed: gt06.speed,
                     course: gt06.course,
                     time: gt06.fixTime,
