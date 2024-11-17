@@ -8,7 +8,7 @@ const deviceSchema = new mongoose.Schema({
 }, { minimize: false });
 
 const deviceStatusSchema = new mongoose.Schema({
-    imei: { type: String, required: true, unique: true },
+    imei: { type: String, required: true},
     event: {
         number: { type: Number, required: false },
         string: { type: String, required: false }
