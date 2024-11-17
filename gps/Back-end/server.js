@@ -57,7 +57,7 @@ var tcpServer = net.createServer((client) => {
             mqttClient.publish(rootTopic + '/' + gt06.imei + '/pos', JSON.stringify(msg));
     const express = require('express');
 const router = express.Router();
-const HistoryData = require('./models/HistoryData'); // Asegúrate de ajustar la ruta según tu estructura de proyecto
+
 
 router.post('/save-history', async (req, res) => {
     try {
