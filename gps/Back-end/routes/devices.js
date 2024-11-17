@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { Device, DeviceStatus } = require('../models/Device'); // Asegúrate de importar DeviceStatus
-const HistoryData = require('../models/HistoryData'); // Importa el modelo HistoryData
+const HistoryData = require('../models/Device/HistoryData'); // Importa el modelo HistoryData
 
 // Endpoint para obtener todos los dispositivos
 router.get('/', async (req, res) => {
