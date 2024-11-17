@@ -30,5 +30,5 @@ const deviceStatusSchema = new mongoose.Schema({
 module.exports = {
     Device: mongoose.model('Device', deviceSchema),
     DeviceStatus: mongoose.model('DeviceStatus', deviceStatusSchema),
-    historyDataSchema: mongoose.model('HistoryData', historyDataSchema)
+  
 };
