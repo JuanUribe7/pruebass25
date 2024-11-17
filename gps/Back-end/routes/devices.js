@@ -41,7 +41,7 @@ router.post('/save-history', async (req, res) => {
         res.status(201).json({ message: 'Datos históricos guardados exitosamente.' });
     } catch (error) {
         console.error('Error al guardar datos históricos:', error);
-        res.status(500).json({ error: 'Error interno del servidor.' });
+        res.status(500).json({ error: 'Error.' });
     }});
 // Endpoint para actualizar la ubicación del dispositivo desde el GPS
 
