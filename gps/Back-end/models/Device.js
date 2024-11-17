@@ -1,14 +1,14 @@
 const mongoose = require('mongoose');
 
 const deviceSchema = new mongoose.Schema({
-    imei: { type: String, required: true},
+    imei: { type: String, required: true, unique: true },
     deviceName: { type: String, required: false },
     responsible: { type: String, required: false },
     phoneNumber: { type: String, required: false },
 }, { minimize: false });
 
 const deviceStatusSchema = new mongoose.Schema({
-    imei: { type: String, required: true },
+    imei: { type: String, required: true, unique: true },
     event: {
         number: { type: Number, required: false },
         string: { type: String, required: false }
@@ -30,4 +30,5 @@ const deviceStatusSchema = new mongoose.Schema({
 module.exports = {
     Device: mongoose.model('Device', deviceSchema),
     DeviceStatus: mongoose.model('DeviceStatus', deviceStatusSchema),
+    historyDataSchema: mongoose.model('HistoryData', historyDataSchema)
 };
