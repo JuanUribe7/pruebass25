@@ -1,14 +1,14 @@
 const mongoose = require('mongoose');
 
 const deviceSchema = new mongoose.Schema({
-    imei: { type: String, required: true, unique: true },
+    imei: { type: String, required: true},
     deviceName: { type: String, required: false },
     responsible: { type: String, required: false },
     phoneNumber: { type: String, required: false },
 }, { minimize: false });
 
 const deviceStatusSchema = new mongoose.Schema({
-    imei: { type: String, required: true, unique: true },
+    imei: { type: String, required: true },
     event: {
         number: { type: Number, required: false },
         string: { type: String, required: false }
