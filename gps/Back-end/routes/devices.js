@@ -27,7 +27,7 @@ router.post('/save-history', async (req, res) => {
         }
 
         // Crear un nuevo registro de historial
-        const historyData = new historyData({
+        const historyData = new historyDataSchema({
             imei,
             fixTime,
             lat,
