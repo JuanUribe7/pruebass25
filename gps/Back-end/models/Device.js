@@ -23,7 +23,7 @@ const deviceStatusSchema = new mongoose.Schema({
     gpsTracking: { type: Boolean, required: false },
     relayState: { type: Boolean, required: false }
 }, { minimize: false });
-const mongoose = require('mongoose');
+
 
 const historyDataSchema = new mongoose.Schema({
     imei: { type: String, required: true },
