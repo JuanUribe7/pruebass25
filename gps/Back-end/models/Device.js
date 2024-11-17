@@ -25,17 +25,9 @@ const deviceStatusSchema = new mongoose.Schema({
 }, { minimize: false });
 
 
-const historyDataSchema = new mongoose.Schema({
-    imei: { type: String, required: true },
-    fixTime: { type: Date, required: true },
-    lat: { type: Number, required: true },
-    lon: { type: Number, required: true },
-    speed: { type: Number, required: false }
-});
 
 
 module.exports = {
     Device: mongoose.model('Device', deviceSchema),
     DeviceStatus: mongoose.model('DeviceStatus', deviceStatusSchema),
-    historyDataSchema: mongoose.model('HistoryData', historyDataSchema)
 };
