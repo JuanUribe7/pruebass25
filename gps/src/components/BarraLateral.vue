@@ -13,6 +13,9 @@
           <img :src="require('../assets/LP2.png')" alt="" class="logo-claro">
           <img :src="require('../assets/LP.png')" alt="" class="logo-oscuro">
         </span>
+        <span class="beta" v-if="isBetaVisible">
+          <h2>beta</h2>
+        </span>
 
         <div class="logo-text">
           <span class="name"></span>
@@ -127,14 +130,22 @@ const isSidebarClosed = ref(true);
 const isDarkMode = ref(false);
 let modeText = ref("Dark mode");
 const isReportDropdownOpen = ref(false);
+const isBetaVisible = ref(false);
 
 
 // Función para alternar el estado de la barra lateral
 function toggleSidebar() {
   isSidebarClosed.value = !isSidebarClosed.value;
+  
   // Cerrar el submenú de reporte al cerrar la barra lateral
   if (isSidebarClosed.value) {
     isReportDropdownOpen.value = false;
+  }
+
+  if (isSidebarClosed.value) {
+    isBetaVisible.value = false;
+  }else{
+    isBetaVisible.value = true;
   }
 }
 
@@ -154,6 +165,7 @@ function closeSidebarOnClickOutside(event) {
   if (!sidebar.contains(event.target) && !toggle.contains(event.target) && (!dropdown || !dropdown.contains(event.target))) {
     isSidebarClosed.value = true;
     isReportDropdownOpen.value = false;
+    isBetaVisible.value = false;
   }
 }
 

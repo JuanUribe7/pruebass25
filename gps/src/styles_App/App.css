@@ -129,9 +129,15 @@ body.dark .logo-oscuro {
     display: flex;
     align-items: center;
     justify-content: center;
-   
 }
 
+.sidebar header .image-text .beta {
+    font-size: 8px;
+    font-weight: 500;
+    position: absolute;
+    left: 60%;
+    color: var(--text-color);
+}
 .sidebar header .logo-text { 
     display: flex;
     flex-direction: column;
