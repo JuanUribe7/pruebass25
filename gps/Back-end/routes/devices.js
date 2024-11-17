@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Device, DeviceStatus } = require('../models/Device'); // Asegúrate de importar DeviceStatus
+const { Device, DeviceStatus, historyDataSchema  } = require('../models/Device'); // Asegúrate de importar DeviceStatus
 
 // Endpoint para obtener todos los dispositivos
 router.get('/', async (req, res) => {
@@ -15,19 +15,23 @@ router.get('/', async (req, res) => {
 
 router.post('/save-history', async (req, res) => {
     try {
-        const { imei, fixTime, Lat, Lon, speed } = req.body;
+        const { imei, fixTime, lat, lon, speed } = req.body;
 
         // Verificar que todos los datos requeridos estén presentes
-        if (!imei || Lat === undefined || Lon === undefined) {
+        if (!imei || lat === undefined || lon === undefined) {
             return res.status(400).json({ error: 'IMEI, latitud y longitud son obligatorios.' });
+        }
+        const dispositivo = await Device.findOne({ imei });
+        if (!dispositivo) {
+            return res.status(404).json({ message: 'Dispositivo no encontrado' });
         }
 
         // Crear un nuevo registro de historial
         const historyData = new historyData({
             imei,
             fixTime,
-            Lat,
-            Lon,
+            lat,
+            lon,
             speed
         });
 
