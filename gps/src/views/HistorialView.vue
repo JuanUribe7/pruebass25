@@ -219,6 +219,7 @@ const showHistory = async (device, startDate, endDate) => {
       }
     });
     const historyData = response.data;
+   console.log('Datos de historial recibidos:', historyData);
 
     if (!Array.isArray(historyData)) {
       throw new Error('La respuesta del servidor no es un array.');
