@@ -85,7 +85,7 @@ var tcpServer = net.createServer((client) => {
                     lon: gt06.lon,
                     speed: gt06.speed,
                     course: gt06.course,
-                    time: gt06.fixTime,
+                    fixTime: localTimeISO
                 };
             
                 console.log(
