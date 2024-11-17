@@ -95,7 +95,6 @@ import 'leaflet/dist/leaflet.css';
 import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
 import iconUrl from 'leaflet/dist/images/marker-icon.png';
 import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
-import axios from 'axios';
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -199,91 +198,52 @@ const showAlert = (item) => {
   });
 };
 
+const showHistory = async (device, startDate, endDate) => {
+  if (!device || !device._id) {
+    console.error('ID del dispositivo no válido:', device);
+    Swal.fire({
+      title: 'Error',
+      text: 'No se puede obtener el historial del dispositivo.',
+      icon: 'error',
+      confirmButtonText: 'Entendido'
+    });
+    return;
+  }
 
-  methods: {
-    async showHistory(device, startDate, endDate) {
-      if (!device || !device._id) {
-        console.error('ID del dispositivo no válido:', device);
-        Swal.fire({
-          title: 'Error',
-          text: 'No se puede obtener el historial del dispositivo.',
-          icon: 'error',
-          confirmButtonText: 'Entendido'
-        });
-        return;
-      }
+  try {
+    const coordenadasManuales = [
+      [10.9685, -74.7813],
+      [10.9700, -74.7800],
+      [10.9720, -74.7790],
+      [10.9740, -74.7785],
+      [10.9760, -74.7780],
+    ];
 
-      try {
-        const response = await axios.get(`/api/history/${device.imei}`, {
-          params: {
-            startDate,
-            endDate
-          }
-        });
-        const historyData = response.data;
+    const coordenadas = coordenadasManuales;
 
-        if (!historyData.length) {
-          throw new Error('No se encontraron datos de historial para este IMEI.');
-        }
-
-        const coordenadas = historyData.map(point => [point.lat, point.lon]);
-
-        if (this.polyline) {
-          this.map.removeLayer(this.polyline);
-        }
-
-        this.polyline = L.polyline(coordenadas, { color: 'red' }).addTo(this.map);
-
-        if (this.marker) {
-          this.map.removeLayer(this.marker);
-        }
-        this.marker = L.marker(coordenadas[0]).addTo(this.map).bindPopup('Inicio');
-
-        this.map.fitBounds(this.polyline.getBounds());
-
-        window.recordingCoords = coordenadas;
-
-      } catch (error) {
-        console.error('Error al mostrar el historial:', error);
-        Swal.fire({
-          title: 'Error',
-          text: 'No se pudo mostrar el historial del dispositivo.',
-          icon: 'error',
-          confirmButtonText: 'Entendido'
-        });
-      }
-    },
-    initMap() {
-      this.map = L.map('map').setView([10.9685, -74.7813], 13);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      }).addTo(this.map);
-    },
-    async handleUserAction() {
-      const result = await Swal.fire({
-        title: 'Selecciona el rango de fechas',
-        html: '<input type="date" id="startDate" class="swal2-input">' +
-              '<input type="date" id="endDate" class="swal2-input">',
-        focusConfirm: false,
-        preConfirm: () => {
-          return {
-            startDate: document.getElementById('startDate').value,
-            endDate: document.getElementById('endDate').value
-          };
-        }
-      });
-
-      if (result.isConfirmed) {
-        const device = { imei: '123456789012345', _id: 'someDeviceId' }; // Reemplaza esto con el IMEI y ID que deseas consultar
-        this.showHistory(device, result.value.startDate, result.value.endDate);
-      }
-    },
-    handleClick() {
-      this.handleUserAction();
+    if (polyline) {
+      map.removeLayer(polyline);
     }
-  },
-  mounted() {
-    this.initMap();
+
+    polyline = L.polyline(coordenadas, { color: 'red' }).addTo(map);
+
+    if (marker) { 
+      map.removeLayer(marker);
+    }
+    marker = L.marker(coordenadas[0]).addTo(map).bindPopup('Inicio');
+
+    map.fitBounds(polyline.getBounds());
+
+    window.recordingCoords = coordenadas;
+
+  } catch (error) {
+    console.error('Error al mostrar el historial:', error);
+    Swal.fire({
+      title: 'Error',
+      text: 'No se pudo mostrar el historial del dispositivo.',
+      icon: 'error',
+      confirmButtonText: 'Entendido'
+    });
   }
 };
 
