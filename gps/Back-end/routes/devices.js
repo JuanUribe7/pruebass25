@@ -32,7 +32,7 @@ router.post('/save-history', async (req, res) => {
         });
 
         // Guardar el registro en la base de datos
-        await historyData.save();
+        await historydatas.save();
 
         res.status(201).json({ message: 'Datos históricos guardados exitosamente.' });
     } catch (error) {
@@ -40,6 +40,7 @@ router.post('/save-history', async (req, res) => {
         res.status(500).json({ error: 'Error interno del servidor.' });
     }});
 // Endpoint para actualizar la ubicación del dispositivo desde el GPS
+
 router.post('/update-from-gps', async (req, res) => {
     try {
         const { imei, Lat, Lon, speed, course, time, ignition, charging, gpsTracking, relayState  } = req.body;

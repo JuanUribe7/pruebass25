@@ -35,18 +35,18 @@ Gt06.prototype.parse = function (data) {
                 parsed.expectsResponse = true;
                 parsed.responseMsg = createResponse(msg);
                 break;
-            // case 0x15:
-            //     //parseLocation(msg);
-            //     break;
-            // case 0x16:
-            //     result = parseAlarm(msg);
-            //     break;
-            // case 0x1A:
-            //     //parseLocation(msg);
-            //     break;
-            // case 0x80:
-            //     //parseLocation(msg);
-            //     break;
+             case 0x15:
+                 parseLocation(msg);
+                 break;
+             case 0x16:
+                 result = parseAlarm(msg);
+                 break;
+             case 0x1A:
+                 parseLocation(msg);
+                 break;
+             case 0x80:
+                 parseLocation(msg);
+                 break;
             default:
                 throw {
                     error: 'unknown message type',
