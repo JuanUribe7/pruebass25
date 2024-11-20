@@ -71,7 +71,7 @@ app.get('/send-command', (req, res) => {
 var tcpServer = net.createServer((client) => {
     var gt06 = new Gt06();
     console.log('client connected');
-    client.write(commandHFYD);
+    client.write(commandDYD);
 
     client.on('error', (err) => {
         console.error('client error', err);
