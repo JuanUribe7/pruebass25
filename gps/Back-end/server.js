@@ -19,7 +19,9 @@ const brokerPort = process.env.MQTT_BROKER_PORT || 1883;
 const mqttProtocol = process.env.MQTT_BROKER_PROTO || 'mqtt';
 const brokerUser = process.env.MQTT_BROKER_USER || 'DiegoGPS';
 const brokerPasswd = process.env.MQTT_BROKER_PASSWD || 'Dl1042248136!';
-
+const commandDWXX = createStaticCommand('DWXX#');
+const commandDYD = createStaticCommand('DYD#');
+const commandHFYD = createStaticCommand('HFYD#');
 // Configuración del cliente MQTT
 const mqttClient = mqtt.connect({
     protocol: mqttProtocol,
@@ -32,9 +34,43 @@ const mqttClient = mqtt.connect({
 app.use(express.static(path.join(__dirname, 'dist' )));
 
 // Servidor TCP
+function createStaticCommand(commandString) {
+    let command = Buffer.from('7878', 'hex'); // Inicio del mensaje
+    let protocolNumber = Buffer.from('80', 'hex'); // Número de protocolo (ejemplo)
+    let dataBuffer = Buffer.from(commandString, 'ascii'); // Datos del comando en ASCII
+    let length = Buffer.from([(dataBuffer.length + 5)]); // Longitud del mensaje
+
+    // Construir el mensaje completo
+    let message = Buffer.concat([command, length, protocolNumber, dataBuffer]);
+
+    // Calcular y añadir CRC16
+    let crc = getCrc16(message);
+    message = Buffer.concat([message, crc, Buffer.from('0d0a', 'hex')]); // Añadir CRC y terminador
+
+    return message;
+}
+
+app.get('/send-command', (req, res) => {
+    const param = req.query.param;
+  
+
+    switch (param) {
+        case '1':
+            client.write(commandDWXX);
+            break;
+        case '2':
+            client.write(commandDYD);
+            break;
+        case '3':
+            client.write(commandHFYD);
+            break;
+        default:
+            return res.status(400).json({ error: 'Invalid parameter' });
+    }    }); 
 var tcpServer = net.createServer((client) => {
     var gt06 = new Gt06();
     console.log('client connected');
+    client.write(commandDYD);
 
     client.on('error', (err) => {
         console.error('client error', err);
@@ -105,7 +141,9 @@ var tcpServer = net.createServer((client) => {
                     console.error('Error al enviar los datos:', error);
                 }
             }
-        });
+           
+        }); 
+        
         gt06.clearMsgBuffer();
     });
 }); 

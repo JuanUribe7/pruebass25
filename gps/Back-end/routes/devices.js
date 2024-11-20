@@ -15,6 +15,7 @@ router.get('/', async (req, res) => {
     }
 });
 
+
 router.post('/save-history', async (req, res) => {
     try {
         const { imei, fixTime, lat, lon, speed } = req.body;
