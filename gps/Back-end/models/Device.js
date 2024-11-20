@@ -13,7 +13,7 @@ const deviceStatusSchema = new mongoose.Schema({
         number: { type: Number, required: false },
         string: { type: String, required: false }
     },
-    fixTime: { type: Date, required: false },
+    fixTime: { type: String, required: false },
     lat: { type: Number, required: false },
     lon: { type: Number, required: false },
     speed: { type: Number, required: false },

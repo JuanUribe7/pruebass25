@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { Device, DeviceStatus} = require('../models/Device'); // Asegúrate de importar DeviceStatus
+const Alert = require('../models/Alert'); 
 const HistoryData = require('../models/HistoryData'); // Importa HistoryData desde HistoryData.js
-
+const formatearFecha = require('../utils/expresiones')
 
 // Endpoint para obtener todos los dispositivos
 router.get('/', async (req, res) => {
@@ -32,7 +33,7 @@ router.post('/save-history', async (req, res) => {
         // Crear un nuevo registro de historial
         const historyData = new HistoryData({
             imei,
-            fixTime,
+            fixTime: formatearFecha(fixTime),
             lat,
             lon,
             speed
@@ -69,7 +70,7 @@ router.post('/update-from-gps', async (req, res) => {
             { imei },
             {
                 imei,
-                fixTime: time,
+                fixTime: formatearFecha(time),
                 lat: Lat,
                 lon: Lon,
                 speed,
@@ -81,6 +82,22 @@ router.post('/update-from-gps', async (req, res) => {
             },
             { upsert: true, new: true }
         );
+        console.log(`Velocidad actual: ${speed} km/h`);
+        if (speed > 2) {
+            console.log(`Velocidad de ${speed} km/h detectada, creando alerta...`);
+            const alert = new Alert({
+                imei: imei,
+                alertName: `Exceso de velocidad: ${speed} km/h`,
+                alertTime: formatearFecha(time)
+            });
+
+            try {
+                await alert.save();
+                console.log(`Alerta de exceso de velocidad guardada para IMEI: ${imei}`);
+            } catch (error) {
+                console.error('Error al guardar la alerta:', error);
+            }
+        }
 
         console.log(`Ubicación actualizada para IMEI: ${imei} - Latitud: ${Lat}, Longitud: ${Lon}`);
         res.json({ message: 'Ubicación actualizada exitosamente' });

@@ -40,18 +40,24 @@
                 <h1><i class='bx bxs-report icoon'></i> Reporte del Dispositivo</h1>
             </div>
 
+            <div class="submenu">
+                <div class="select">
+                    <input type="text" readonly
+                        :value="selectedDevice ? selectedDevice.deviceName : 'Seleccione un dispositivo'"
+                        @click="toggleDeviceDropdown" />
+                    <i class="arrow" @click="toggleDeviceDropdown">&#9660;</i>
+                </div>
+                <ul v-if="deviceDropdownOpen" class="dropdown-menu">
+                    <li v-for="device in devices" :key="device.imei" @click="selectDevice(device)">
+                        <i class='bx bxs-bus iconn'></i>
+                        <span>{{ device.deviceName }}</span>
+                    </li>
+                </ul>
+            </div>
             <div class="search-container">
                 <div class="group">
-                    <svg class="icon" aria-hidden="true" viewBox="0 0 24 24">
-                        <g>
-                            <path
-                                d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z">
-                            </path>
-                        </g>
-                    </svg>
-                    <input placeholder="Buscar" type="search" class="search-input" v-model="searchQuery"
-                        @input="filterResults">
-                    <button class="button" type="button"  @click="downloadReport">
+
+                    <button class="button" type="button" @click="downloadReport">
                         <span class="button__text">Download</span>
                         <span class="button__icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 35 35"
                                 id="bdd05811-e15d-428c-bb53-8661459f9307" data-name="Layer 2" class="svg">
@@ -69,20 +75,22 @@
                 </div>
             </div>
 
+
             <div class="tabla">
                 <table>
                     <thead>
                         <tr>
-                            <th>Placa</th>
                             <th>Notificación</th>
                             <th>Fecha</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="(row, index) in filteredReportData" :key="index">
-                            <td>{{ row.placa }}</td>
-                            <td>{{ row.notificacion }}</td>
-                            <td>{{ row.fecha }}</td>
+                        <tr v-for="alert in alerts" :key="alert._id">
+                            <td>{{ alert.alertName }}</td>
+                            <td>{{ alert.alertTime }}</td>
+                        </tr>
+                        <tr v-if="alerts.length === 0">
+                            <td colspan="2">No hay alertas disponibles</td>
                         </tr>
                     </tbody>
                 </table>
@@ -94,11 +102,16 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import Swal from 'sweetalert2';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
+import axios from 'axios'
 import imgPath from '../assets/LP.png'; // Importa la imagen aquí
 
 // Variables reactivas
+const devices = ref([]);
+const deviceDropdownOpen = ref(false);
+const selectedDevice = ref(null);
 const displayedText = ref("");
 const dropdownOpen = ref(false);
 const fullText = "Navify";
@@ -106,6 +119,36 @@ let currentIndex = 0;
 let isDeleting = false;
 let typingInterval;
 const isDownloading = ref(false);
+const alerts = ref([]);
+
+const cargarDispositivos = async () => {
+    try {
+        const response = await fetch('http://3.12.147.103/devices');
+        if (!response.ok) {
+            throw new Error('Error en la respuesta de la API');
+        }
+        const data = await response.json();
+        devices.value = data
+    } catch (error) {
+        console.error('Error al cargar dispositivos:', error);
+    }
+};
+
+const selectDevice = async (device) => {
+    console.log('Dispositivo seleccionado:', device); // Verifica el dispositivo seleccionado
+    if (!device.imei) {
+        console.error('IMEI del dispositivo no disponible');
+        return;
+    }
+    selectedDevice.value = device;
+    deviceDropdownOpen.value = false;
+    await cargarAlertas(device.imei); // Llamada para cargar alertas
+};
+
+
+const toggleDeviceDropdown = () => {
+    deviceDropdownOpen.value = !deviceDropdownOpen.value;
+};
 
 // Datos de la tabla como un array
 const reportData = ref([
@@ -147,8 +190,8 @@ const downloadReport = () => {
         doc.text("Reporte del dispositivo", 13, 27);
 
         // Encabezado de la tabla
-        const headers = [["Placa", "Notificación", "Fecha"]];
-        const data = filteredReportData.value.map(row => [row.placa, row.notificacion, row.fecha]);
+        const headers = [["Notificación", "Fecha"]];
+        const data = filteredReportData.value.map(row => [row.notificacion, row.fecha]);
 
         // Establecer el estilo del encabezado
         doc.autoTable({
@@ -204,8 +247,31 @@ const typeEffect = () => {
     typingInterval = setTimeout(typeEffect, typingSpeed);
 };
 
+const cargarAlertas = async (imei) => {
+    if (!imei) {
+        console.error('IMEI no válido');
+        return;
+    }
+    try {
+        const response = await fetch(`http://3.12.147.103/devices/alerts/${imei}`);
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Error del servidor:', errorText);
+            return;
+        }
+        const data = await response.json();
+        console.log(data); // Verifica los datos recibidos
+        alerts.value = data;
+    } catch (error) {
+        console.error('Error al cargar alertas:', error);
+        alerts.value = [];
+    }
+};
+
+
 // Llama a la función en el ciclo de vida
 onMounted(() => {
+    cargarDispositivos();
     typeEffect();
 });
 
@@ -214,7 +280,88 @@ onUnmounted(() => {
 });
 </script>
 
+
 <style scoped>
+.submenu {
+    margin-top: 10px;
+    position: relative;
+}
+
+.select {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.select input {
+    width: 100%;
+    padding: 12px 15px;
+    padding-right: 30px;
+    border: 1px solid var(--text-colar);
+    border-radius: 8px;
+    cursor: pointer;
+    background-color: var(--sidebar-color);
+    color: var(--text-colar);
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.select input:hover {
+    border-color: var(--primary-color);
+}
+
+.select .arrow {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-colar);
+    pointer-events: none;
+    transition: transform 0.3s ease;
+}
+
+.select:hover .arrow {
+    transform: translateY(-50%) rotate(180deg);
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: var(--sidebar-color);
+    border: 2px solid var(--text-colar);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 10;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-menu li {
+    padding: 12px 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    color: var(--text-colar);
+    transition: background-color 0.3s ease;
+}
+
+.dropdown-menu li:hover {
+    background-color: var(--primary-color-light);
+}
+
+.dropdown-menu .iconn {
+    margin-right: 15px;
+    font-size: 1.2em;
+    color: var(--text-colar);
+}
+
 .home {
     min-height: 160vh;
 }
@@ -418,64 +565,66 @@ onUnmounted(() => {
     transform: translateY(-50%);
 }
 
-/* From Uiverse.io by andrew-demchenk0 */ 
+/* From Uiverse.io by andrew-demchenk0 */
 .button {
-  position: relative;
-  width: 150px;
-  height: 40px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  border: 2px solid var(--text-colar);
-  box-shadow: 4px 4px var(--text-colar);
-  background-color: var(--sidebar-color);
-  border-radius: 10px;
-  overflow: hidden;
-  color: var(--text-colar);
+    position: relative;
+    width: 150px;
+    height: 40px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    border: 2px solid var(--text-colar);
+    box-shadow: 4px 4px var(--text-colar);
+    background-color: var(--sidebar-color);
+    border-radius: 10px;
+    overflow: hidden;
+    color: var(--text-colar);
 }
 
-.button, .button__icon, .button__text {
-  transition: all 0.3s;
+.button,
+.button__icon,
+.button__text {
+    transition: all 0.3s;
 }
 
 .button .button__text {
-  transform: translateX(22px);
-  color: var(--text-colar);
-  font-weight: 600;
+    transform: translateX(22px);
+    color: var(--text-colar);
+    font-weight: 600;
 }
 
 .button .button__icon {
-  position: absolute;
-  transform: translateX(109px);
-  height: 100%;
-  width: 39px;
-  background-color: var(--body-color);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    position: absolute;
+    transform: translateX(109px);
+    height: 100%;
+    width: 39px;
+    background-color: var(--body-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .button .svg {
-  width: 20px;
-  fill: var(--text-colar);
+    width: 20px;
+    fill: var(--text-colar);
 }
 
 .button:hover {
-  background: var(--body-color);
+    background: var(--body-color);
 }
 
 .button:hover .button__text {
-  color: transparent;
+    color: transparent;
 }
 
 .button:hover .button__icon {
-  width: 148px;
-  transform: translateX(0);
+    width: 148px;
+    transform: translateX(0);
 }
 
 .button:active {
-  transform: translate(3px, 3px);
-  box-shadow: 0px 0px var(--main-color);
+    transform: translate(3px, 3px);
+    box-shadow: 0px 0px var(--main-color);
 }
 
 .group {
