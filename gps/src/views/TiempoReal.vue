@@ -1,4 +1,4 @@
-  <template>
+<template>
   <section class="home">
     <div class="overlay"></div>
     <div class="navar">
@@ -196,10 +196,10 @@ async function showDeviceOnMap(device) {
       <b>${device.deviceName}</b><br>
       Tiempo: ${fixTime}<br>
       Velocidad: ${speed} km/h <br>
-      Curso: ${course}<br>
+
       Encendido: ${ignition}<br>
       Cargando: ${charging}<br>
-      Señal: ${gpsTracking}<br>
+   
 
     `).openPopup();
 
@@ -558,6 +558,13 @@ onMounted(() => {
   border-radius: 3px;
 }
 </style>
+
+
+
+
+
+
+
 
 
 

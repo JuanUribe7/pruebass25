@@ -223,59 +223,27 @@ const storeShape = (layer, deviceId) => {
   deviceShapes.value[deviceId].push(layer);
 };
 
-// Muestra un dispositivo seleccionado en el mapa
-async function showDeviceOnMap(device) {
-  console.log('Mostrando dispositivo:', device);
-  
+const showDeviceOnMap = (device) => {
   if (!map.value) {
     console.error('El mapa no está inicializado');
     return;
   }
 
-  try {
-    const response = await fetch(`http://3.12.147.103/devices/status/${device.imei}`);
-    if (!response.ok) {
-      throw new Error('Error en la respuesta de la API');
-    }
-    const data = await response.json();
-    const { lat, lon } = data; // Solo obtenemos latitud y longitud
-
-    // Limpiar marcadores existentes
-    map.value.eachLayer((layer) => {
-      if (layer instanceof L.Marker) {
-        map.value.removeLayer(layer);
-      }
-    });
-
-    // Centrar el mapa en la ubicación del dispositivo
-    map.value.setView([lat, lon], 18);
-
-    // Añadir un nuevo marcador para el dispositivo
-    const marker = L.marker([lat, lon]).addTo(map.value);
-
-    // Mostrar solo latitud y longitud en el popup
-    marker.bindPopup(`
-      <strong>Latitud:</strong> ${lat}<br>
-      <strong>Longitud:</strong> ${lon}<br>
-    `).openPopup();
-
-    // Forzar una actualización del mapa
-    map.value.invalidateSize();
-
-    // Asegurar que el mapa se centre después de un breve retraso
-    setTimeout(() => {
-      map.value.setView([lat, lon], 18);
-      map.value.invalidateSize();
-    }, 100);
-
-    console.log('Marcador añadido y mapa centrado');
-    Swal.close(); // Cerrar el indicador de carga
-  } catch (error) {
-    console.error('Error al obtener la ubicación del dispositivo:', error);
-    Swal.fire('Error', 'No se pudo obtener la ubicación del dispositivo', 'error');
-    Swal.close(); // Cerrar el indicador de carga en caso de error
+  if (deviceMarker) {
+    map.value.removeLayer(deviceMarker);
   }
-}
+
+  map.value.setView([device.coordenadas.latitud, device.coordenadas.longitud], 15);
+
+  deviceMarker = L.marker([device.coordenadas.latitud, device.coordenadas.longitud]).addTo(map.value);
+  deviceMarker.bindPopup(`
+    <b>${device.deviceName}</b><br>
+    Latitud: ${device.coordenadas.latitud}<br>
+    Longitud: ${device.coordenadas.longitud}<br>
+  `).openPopup();
+
+  map.value.invalidateSize();
+};
 
 const selectDevice = (device) => {
   if (!coordinates) {
