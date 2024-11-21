@@ -25,7 +25,7 @@
               <i class='bx bx-user-circle'></i>
               <span>Perfil</span>
             </router-link>
-            <router-link to="#" class="dropdown-item" @click.prevent="togglePasswordCard">
+            <router-link to="#" class="dropdown-item" @click.prevent="togglePaswordCard">
               <i class='bx bx-lock-alt'></i>
               <span>Contraseña</span>
             </router-link>
@@ -86,16 +86,18 @@
   </section>
 
   <PerfilCard v-if="showProfileCard" @close="toggleProfileCard" />
-  <PaswordC v-if="showPasswordCard" @close="togglePasswordCard" />
+  <PaswordC v-if="showPaswordCard" @close="togglePaswordCard" />
+
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import PerfilCard from '../components/PerfilCard.vue';
 import PaswordC from '../components/PaswordC.vue';
+
 const dropdownOpen = ref(false);
 const showProfileCard = ref(false);
-const showPasswordCard = ref(false);
+const showPaswordCard = ref(false);
 const fullText = "Navify";
 const displayedText = ref("");
 let currentIndex = 0;
@@ -113,9 +115,13 @@ const toggleProfileCard = () => {
   }
 };
 
-const togglePasswordCard = () => {
-  showPasswordCard.value = !showPasswordCard.value;
+const togglePaswordCard = () => {
+  showPaswordCard.value = !showPaswordCard.value;
+  if (dropdownOpen.value) {
+    dropdownOpen.value = false;
+  }
 };
+
 
 const scrollToFeatures = () => {
   const featuresElement = document.querySelector('#home2');

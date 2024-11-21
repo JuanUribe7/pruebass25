@@ -25,26 +25,6 @@
             <p class="bio">
               Lorem ipsum dolor, sit amet consectetur adipisicing elit. Consectetur illum sapiente
             </p>
-            
-            <div class="stats">
-              <div class="stat">
-                <span class="stat-value">128</span>
-                <span class="stat-label">Projects</span>
-              </div>
-              <div class="stat">
-                <span class="stat-value">1.5k</span>
-                <span class="stat-label">Followers</span>
-              </div>
-              <div class="stat">
-                <span class="stat-value">4.8</span>
-                <span class="stat-label">Rating</span>
-              </div>
-            </div>
-            
-            <div class="actions">
-              <button class="action-button primary">View Profile</button>
-              <button class="action-button secondary">Message</button>
-            </div>
           </div>
         </div>
       </div>
@@ -52,8 +32,9 @@
   </template>
   
   <script setup>
-  import { defineEmits } from 'vue';
+  import { defineEmits, ref } from 'vue';
   const emit = defineEmits(['close']);
+  import Swal from 'sweetalert2';
   
   const close = () => {
     const modalContent = document.querySelector('.modal-content');
@@ -75,6 +56,57 @@
       };
       reader.readAsDataURL(input.files[0]);
     }
+  };
+  
+  const email = ref('');
+  const isEmailVerified = ref(false);
+  
+  const sendVerification = () => {
+    if (!email.value) {
+      Swal.fire('Error', 'Por favor ingresa un correo electrónico antes de enviar la verificación.', 'error');
+      return;
+    }
+    
+    // Aquí puedes agregar la lógica para enviar el correo de verificación
+    console.log(`Enviando verificación a: ${email.value}`);
+    
+    // Simulación de verificación exitosa
+    isEmailVerified.value = true; // Cambiar a true cuando el correo ha sido verificado
+    Swal.fire('Éxito', 'Correo Guardado', 'success');
+  };
+  
+  const changePassword = () => {
+    if (!isEmailVerified.value) {
+      Swal.fire('Error', 'Debes verificar tu correo electrónico antes de cambiar la contraseña.', 'error');
+      return;
+    }
+
+    // Mostrar SweetAlert para cambiar la contraseña
+    Swal.fire({
+      title: 'Cambiar Contraseña',
+      confirmButtonText: "Cambiar Contraseña",
+      html: `
+        <input type="password" id="currentPassword" class="swal2-input" placeholder="Clave Actual">
+        <input type="password" id="newPassword" class="swal2-input" placeholder="Nueva Contraseña">
+        <input type="password" id="confirmNewPassword" class="swal2-input" placeholder="Confirmar Nueva Contraseña">
+      `,
+      focusConfirm: false,
+      preConfirm: () => {
+        const currentPassword = document.getElementById('currentPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+        if (!currentPassword || !newPassword || !confirmNewPassword || newPassword !== confirmNewPassword) {
+          Swal.showValidationMessage('Por favor ingresa todos los campos y asegurate de que las contraseñas coincidan');
+          return false;
+        }
+        return { currentPassword, newPassword };
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Aquí puedes agregar la lógica para cambiar la contraseña
+        console.log(`Clave actual: ${result.value.currentPassword}, Nueva clave: ${result.value.newPassword}`);
+      }
+    });
   };
   </script>
   
@@ -343,5 +375,16 @@
         opacity: 0;
         transform: translateY(20px);
     }
+  }
+  
+  .email-container {
+    margin-bottom: 16px;
+  }
+  
+  .email-container input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
   }
   </style>

@@ -14,6 +14,10 @@
           <div class="modal-body">
             <form @submit.prevent="changePassword">
               <div class="form-group">
+                <label for="email">Correo Electrónico</label>
+                <input type="email" id="email" v-model="email" required />
+              </div>
+              <div class="form-group">
                 <label for="current-password">Contraseña Actual</label>
                 <input type="password" id="current-password" v-model="currentPassword" required />
               </div>
@@ -40,6 +44,7 @@
   const currentPassword = ref('');
   const newPassword = ref('');
   const confirmPassword = ref('');
+  const email = ref('');
 
   const changePassword = () => {
     // Lógica para cambiar la contraseña
