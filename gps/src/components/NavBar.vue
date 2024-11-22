@@ -6,7 +6,7 @@
 
         <div class="actions">
             <!-- Icono de notificación con indicador -->
-            <router-link to="/reporte2">
+            <router-link to="#"  @click.prevent="toggleNotificationModal">
                 <button class="notification-btn">
                     <i class='bx bx-bell'></i>
                     <span class="notification-indicator"></span>
@@ -37,16 +37,18 @@
     </div>
     <PerfilCard v-if="showProfileCard" @close="toggleProfileCard" />
     <PaswordC v-if="showPaswordCard" @close="togglePaswordCard" />
+    <NotificacionN v-if="showNotificationModal" @close="toggleNotificationModal" />
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import PerfilCard from './PerfilCard.vue';
 import PaswordC from './PaswordC.vue';
-
+import NotificacionN from './NotificacionN.vue';
 const dropdownOpen = ref(false);
 const showProfileCard = ref(false);
 const showPaswordCard = ref(false);
+const showNotificationModal = ref(false);
 const fullText = "Navify";
 const displayedText = ref("");
 let currentIndex = 0;
@@ -69,6 +71,10 @@ const togglePaswordCard = () => {
     if (dropdownOpen.value) {
         dropdownOpen.value = false;
     }
+};
+
+const toggleNotificationModal = () => {
+    showNotificationModal.value = !showNotificationModal.value;
 };
 
 const typeEffect = () => {
