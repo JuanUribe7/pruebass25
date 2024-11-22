@@ -187,7 +187,15 @@ router.get('/history/:imei', async (req, res) => {
         res.status(500).json({ error: 'Error al obtener el historial: ' + error.message });
     }
 });
-
+router.get('/alerts/:imei', async (req, res) => {
+    try {
+        const { imei } = req.params;
+        const alertas = await Alert.find({ imei });
+        res.json(alertas);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener alertas', error: error.message });
+    }
+});
 
 // Endpoint para eliminar un dispositivo
 router.delete('/:id', async (req, res) => {
