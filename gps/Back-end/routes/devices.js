@@ -94,7 +94,7 @@ router.post('/update-from-gps', async (req, res) => {
         
             // Enviar la alerta al cliente
             res.json({ message: 'Ubicación actualizada exitosamente', alert: alert });
-            return; // Asegúrate de salir de la función después de enviar la respuesta
+            return; // Asegúrate de salir de la función después de enviar las respuestas
         
             try {
                 await alert.save();
