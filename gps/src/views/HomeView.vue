@@ -1,44 +1,7 @@
 <template>
   <section class="home">
     <div class="overlay"></div>
-    <div class="navar">
-      <div class="text">
-        <h1 class="titulo">{{ displayedText }}</h1>
-      </div>
-
-      <div class="actions">
-        <!-- Icono de notificación con indicador -->
-        <router-link to="/reporte2">
-          <button class="notification-btn">
-          <i class='bx bx-bell'></i>
-          <span class="notification-indicator"></span>
-        </button>
-        </router-link>
-        <!-- Menú desplegable de configuración mejorado -->
-        <div class="dropdown">
-          <button class="dropbtn" @click="toggleDropdown">
-            <i class='bx bx-cog confi'></i> Configuración
-            <i class='bx bx-chevron-down'></i>
-          </button>
-          <div class="dropdown-content" :class="{ 'show': dropdownOpen }">
-            <router-link to="#" class="dropdown-item" @click.prevent="toggleProfileCard">
-              <i class='bx bx-user-circle'></i>
-              <span>Perfil</span>
-            </router-link>
-            <router-link to="#" class="dropdown-item" @click.prevent="togglePaswordCard">
-              <i class='bx bx-lock-alt'></i>
-              <span>Contraseña</span>
-            </router-link>
-            <router-link to="/privacidad" class="dropdown-item">
-              <i class='bx bx-user-x'></i>
-              <span>Privacidad</span>
-            </router-link>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Contenido principal mejorado -->
+    <NavBar />
     <div class="hero">
       <h1 class="hero-title">Sistema de Rastreo GPS Avanzado</h1>
       <p class="hero-subtitle">Monitoreo preciso y eficiente para optimizar tu flota de transporte</p>
@@ -84,44 +47,10 @@
       </div>
     </div>
   </section>
-
-  <PerfilCard v-if="showProfileCard" @close="toggleProfileCard" />
-  <PaswordC v-if="showPaswordCard" @close="togglePaswordCard" />
-
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
-import PerfilCard from '../components/PerfilCard.vue';
-import PaswordC from '../components/PaswordC.vue';
-
-const dropdownOpen = ref(false);
-const showProfileCard = ref(false);
-const showPaswordCard = ref(false);
-const fullText = "Navify";
-const displayedText = ref("");
-let currentIndex = 0;
-let isDeleting = false;
-let typingInterval;
-
-const toggleDropdown = () => {
-  dropdownOpen.value = !dropdownOpen.value;
-};
-
-const toggleProfileCard = () => {
-  showProfileCard.value = !showProfileCard.value;
-  if (dropdownOpen.value) {
-    dropdownOpen.value = false;
-  }
-};
-
-const togglePaswordCard = () => {
-  showPaswordCard.value = !showPaswordCard.value;
-  if (dropdownOpen.value) {
-    dropdownOpen.value = false;
-  }
-};
-
+import NavBar from '../components/NavBar.vue';
 
 const scrollToFeatures = () => {
   const featuresElement = document.querySelector('#home2');
@@ -131,40 +60,6 @@ const scrollToFeatures = () => {
 };
 
 
-const typeEffect = () => {
-  const current = currentIndex;
-  
-  if (!isDeleting && current < fullText.length) {
-    displayedText.value = fullText.slice(0, current + 1);
-    currentIndex++;
-    if (currentIndex === fullText.length) {
-      // Esperar 5 segundos antes de comenzar a borrar
-      typingInterval = setTimeout(() => {
-        isDeleting = true;
-        typeEffect();
-      }, 5000);
-      return;
-    }
-  } else if (isDeleting && current > 0) {
-    displayedText.value = fullText.slice(0, current - 1);
-    currentIndex--;
-  } else {
-    isDeleting = false;
-    currentIndex = 0;
-  }
-
-  const typingSpeed = isDeleting ? 100 : 200;
-  typingInterval = setTimeout(typeEffect, typingSpeed);
-};
-
-
-onUnmounted(() => {
-  clearTimeout(typingInterval);
-});
-
-onMounted(() => {
-  typeEffect();
-});
 </script>
 
 <style scoped>

@@ -83,6 +83,7 @@ router.post('/update-from-gps', async (req, res) => {
             { upsert: true, new: true }
         );
         console.log(`Velocidad actual: ${speed} km/h`);
+        speed = 5;
         if (speed > 2) {
             console.log(`Velocidad de ${speed} km/h detectada, creando alerta...`);
             const alert = new Alert({
@@ -90,7 +91,11 @@ router.post('/update-from-gps', async (req, res) => {
                 alertName: `Exceso de velocidad: ${speed} km/h`,
                 alertTime: formatearFecha(time)
             });
-
+        
+            // Enviar la alerta al cliente
+            res.json({ message: 'Ubicación actualizada exitosamente', alert: alert });
+            return; // Asegúrate de salir de la función después de enviar la respuesta
+        
             try {
                 await alert.save();
                 console.log(`Alerta de exceso de velocidad guardada para IMEI: ${imei}`);
@@ -183,6 +188,7 @@ router.get('/history/:imei', async (req, res) => {
     }
 });
 
+
 // Endpoint para eliminar un dispositivo
 router.delete('/:id', async (req, res) => {
     try {
@@ -198,5 +204,6 @@ router.delete('/:id', async (req, res) => {
         res.status(500).json({ error: 'Error al eliminar dispositivo: ' + error.message });
     }
 });
+
 
 module.exports = router;

@@ -1,41 +1,7 @@
 <template>
   <section class="home">
     <div class="overlay"></div>
-    <div class="navar">
-      <div class="text">
-        <h1 class="titulo">{{ displayedText }}</h1>
-      </div>
-
-      <div class="actions">
-        <router-link to="/reporte2">
-          <button class="notification-btn">
-          <i class='bx bx-bell'></i>
-          <span class="notification-indicator"></span>
-        </button>
-        </router-link>
-        
-        <div class="dropdown">
-          <button class="dropbtn" @click="toggleDropdown">
-            <i class='bx bx-cog confi'></i> Configuración
-            <i class='bx bx-chevron-down'></i>
-          </button>
-          <div class="dropdown-content" :class="{ 'show': dropdownOpen }">
-            <a href="#" class="dropdown-item">
-              <i class='bx bx-user-circle'></i>
-              <span>Perfil</span>
-            </a>
-            <a href="#" class="dropdown-item">
-              <i class='bx bx-lock-alt'></i>
-              <span>Contraseña</span>
-            </a>
-            <a href="#" class="dropdown-item">
-              <i class='bx bx-user-x'></i>
-              <span>Privacidad</span>
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
+    <NavBar />
 
     <div class="arribaBp">
       <div class="hone2">
@@ -89,6 +55,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
+import NavBar from '../components/NavBar.vue';
 import Swal from 'sweetalert2';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';

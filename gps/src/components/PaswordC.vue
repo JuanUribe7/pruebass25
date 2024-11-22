@@ -367,6 +367,7 @@
   .form-group label {
     display: block;
     margin-bottom: 4px;
+    color: #1a1a1a;
   }
 
   .form-group input {
