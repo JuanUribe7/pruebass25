@@ -199,4 +199,14 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
+router.get('/alerts/:imei', async (req, res) => {
+    try {
+        const { imei } = req.params;
+        const alertas = await Alert.find({ imei });
+        res.json(alertas);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener alertas', error: error.message });
+    }
+});
+
 module.exports = router;
