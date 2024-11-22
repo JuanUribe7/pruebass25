@@ -40,23 +40,9 @@
                 <h1><i class='bx bxs-report icoon'></i> Reporte del Dispositivo</h1>
             </div>
 
-            <div class="submenu">
-                <div class="select">
-                    <input type="text" readonly
-                        :value="selectedDevice ? selectedDevice.deviceName : 'Seleccione un dispositivo'"
-                        @click="toggleDeviceDropdown" />
-                    <i class="arrow" @click="toggleDeviceDropdown">&#9660;</i>
-                </div>
-                <ul v-if="deviceDropdownOpen" class="dropdown-menu">
-                    <li v-for="device in devices" :key="device.imei" @click="selectDevice(device)">
-                        <i class='bx bxs-bus iconn'></i>
-                        <span>{{ device.deviceName }}</span>
-                    </li>
-                </ul>
-            </div>
+            
             <div class="search-container">
                 <div class="group">
-
                     <button class="button" type="button" @click="downloadReport">
                         <span class="button__text">Download</span>
                         <span class="button__icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 35 35"
@@ -73,9 +59,19 @@
                             </svg></span>
                     </button>
                 </div>
+                <div class="select">
+                    <input type="text" readonly
+                        :value="selectedDevice ? selectedDevice.deviceName : 'Seleccione un dispositivo'"
+                        @click="toggleDeviceDropdown" />
+                    <i class="arrow" @click="toggleDeviceDropdown">&#9660;</i>
+                </div>
+                <ul v-if="deviceDropdownOpen" class="dropdown-menu">
+                    <li v-for="device in devices" :key="device.imei" @click="selectDevice(device)">
+                        <i class='bx bxs-bus iconn'></i>
+                        <span>{{ device.deviceName }}</span>
+                    </li>
+                </ul>
             </div>
-
-
             <div class="tabla">
                 <table>
                     <thead>
@@ -291,7 +287,7 @@ onUnmounted(() => {
     position: relative;
     display: flex;
     align-items: center;
-    width: 100%;
+    width: 30%;
 }
 
 .select input {
@@ -328,8 +324,8 @@ onUnmounted(() => {
 .dropdown-menu {
     position: absolute;
     top: 100%;
-    left: 0;
-    width: 100%;
+    left: 87%;
+    width: 10%;
     background-color: var(--sidebar-color);
     border: 2px solid var(--text-colar);
     border-top: none;
@@ -536,6 +532,8 @@ onUnmounted(() => {
 .search-container {
     margin: 20px 0px 0px 70px;
     position: relative;
+    display: flex;
+    width: 90%;
 
 }
 
