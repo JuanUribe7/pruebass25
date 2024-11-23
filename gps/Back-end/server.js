@@ -12,6 +12,7 @@ const Gt06 = require('./gt06'); // Asegúrate de tener el módulo Gt06
 const mqtt = require('mqtt');
 const getCrc16 = require('./crc16');
 const routes = require('./routes/routes');
+const notificacionRoutes = require('./routes/notificaciones');
 const { WebSocketServer } = require('ws');
 const iniciarWatcher = require('./utils/notificationWatcher');
 
@@ -174,6 +175,7 @@ mongoose.connect('mongodb+srv://lospopulare:gps1234@gps.zgbl7.mongodb.net/proyec
 app.use('/auth', authRoutes);
 app.use('/devices', deviceRoutes);
 app.use('/routes', routes);
+app.use('/notificaciones', notificacionRoutes);
 
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'dist', 'index.html'));
