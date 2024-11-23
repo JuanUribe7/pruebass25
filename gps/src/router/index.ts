@@ -9,6 +9,7 @@ import DispositivoView from '../views/DispositivoView.vue';
 import ReporteView from '../views/ReporteView.vue';
 import Barralateral from '../components/BarraLateral.vue';
 import Reporte2View from '../views/Reporte2View.vue';
+import RutasView from '../views/RutasView.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -54,6 +55,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/reporte2',
     name: 'reporte2',
     component: Reporte2View
+  },
+  {
+    path: '/rutas',
+    name: 'rutas',
+    component: RutasView
   }
 ];
 

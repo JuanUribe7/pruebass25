@@ -67,6 +67,12 @@
               <span class="text nav-text">Historial</span>
             </router-link>
           </li>
+          <li class="nav-link">
+            <router-link to="/rutas">
+              <i class='bx bx-trending-up icon'></i>
+              <span class="text nav-text">Rutas</span>
+            </router-link>
+          </li>
           <li class="nav-link" @click="toggleReportDropdown">
             <i class='bx bxs-user-account icon'></i>
             <span class="text nav-text">Reporte</span>
