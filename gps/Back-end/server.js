@@ -11,6 +11,7 @@ const deviceRoutes = require('./routes/devices');
 const Gt06 = require('./gt06'); // Asegúrate de tener el módulo Gt06
 const mqtt = require('mqtt');
 const getCrc16 = require('./crc16');
+const routes = require('./routes/routes');
 
 const PORT = process.env.GT06_SERVER_PORT || 4000;
 const HTTP_PORT = process.env.HTTP_PORT || 80;
@@ -170,6 +171,7 @@ mongoose.connect('mongodb+srv://lospopulare:gps1234@gps.zgbl7.mongodb.net/proyec
 // Rutas
 app.use('/auth', authRoutes);
 app.use('/devices', deviceRoutes);
+app.use('/routes', routes);
 
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'dist', 'index.html'));

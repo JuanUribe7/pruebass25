@@ -4,6 +4,7 @@ const { Device, DeviceStatus} = require('../models/Device'); // Asegúrate de im
 const Alert = require('../models/Alert'); 
 const HistoryData = require('../models/HistoryData'); // Importa HistoryData desde HistoryData.js
 const formatearFecha = require('../utils/expresiones')
+const Route = require('../models/Route');
 
 // Endpoint para obtener todos los dispositivos
 router.get('/', async (req, res) => {
