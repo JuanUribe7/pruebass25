@@ -26,4 +26,15 @@ router.get('/get-route/:id', async (req, res) => {
   }
 });
 
+// Endpoint para obtener todas las rutas
+router.get('/', async (req, res) => {
+  try {
+    const routes = await Route.find();
+    res.json(routes);
+  } catch (error) {
+    console.error('Error al obtener las rutas:', error.message);
+    res.status(500).json({ error: 'Error al obtener las rutas: ' + error.message });
+  }
+});
+
 module.exports = router;
