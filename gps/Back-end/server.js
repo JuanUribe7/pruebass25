@@ -11,6 +11,10 @@ const deviceRoutes = require('./routes/devices');
 const Gt06 = require('./gt06'); // Asegúrate de tener el módulo Gt06
 const mqtt = require('mqtt');
 const getCrc16 = require('./crc16');
+const routes = require('./routes/routes');
+const notificacionRoutes = require('./routes/notificaciones');
+const { WebSocketServer } = require('ws');
+const iniciarWatcher = require('./utils/notificationWatcher');
 
 const PORT = process.env.GT06_SERVER_PORT || 4000;
 const HTTP_PORT = process.env.HTTP_PORT || 80;
@@ -170,12 +174,30 @@ mongoose.connect('mongodb+srv://lospopulare:gps1234@gps.zgbl7.mongodb.net/proyec
 // Rutas
 app.use('/auth', authRoutes);
 app.use('/devices', deviceRoutes);
+app.use('/routes', routes);
+app.use('/notificaciones', notificacionRoutes);
 
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
+
 // Inicia el servidor HTTP en el puerto especificado
-app.listen(HTTP_PORT, () => {
+const server=app.listen(HTTP_PORT, () => {
     console.log(`Servidor HTTP corriendo en http://localhost:${HTTP_PORT}`);
+});
+const wss = new WebSocketServer({ server });
+iniciarWatcher(wss);
+
+wss.on('connection', (ws) => {
+    console.log('Cliente WebSocket conectado');
+
+    // Puedes manejar mensajes del cliente si es necesario
+    ws.on('message', (message) => {
+        console.log('Mensaje recibido:', message);
+    });
+
+    ws.on('close', () => {
+        console.log('Cliente WebSocket desconectado');
+    });
 });

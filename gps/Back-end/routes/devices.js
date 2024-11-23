@@ -4,6 +4,8 @@ const { Device, DeviceStatus} = require('../models/Device'); // Asegúrate de im
 const Alert = require('../models/Alert'); 
 const HistoryData = require('../models/HistoryData'); // Importa HistoryData desde HistoryData.js
 const formatearFecha = require('../utils/expresiones')
+const Notification = require('../models/notification');
+const Route = require('../models/Route');
 
 // Endpoint para obtener todos los dispositivos
 router.get('/', async (req, res) => {
@@ -83,18 +85,28 @@ router.post('/update-from-gps', async (req, res) => {
             { upsert: true, new: true }
         );
         console.log(`Velocidad actual: ${speed} km/h`);
-        speed = 5;
+
         if (speed > 2) {
             console.log(`Velocidad de ${speed} km/h detectada, creando alerta...`);
+            const notificacion = new Notification({
+                imei: imei,
+                alertName: `Exceso de velocidad: ${speed} km/h`,
+                alertTime: formatearFecha(time)
+            });
+            try {
+                await notificacion.save();
+                console.log(`Notificación de exceso de velocidad guardada para IMEI: ${imei}`);
+            } catch (error) {
+                console.error('Error al guardar la notificación:', error);
+            }
             const alert = new Alert({
                 imei: imei,
                 alertName: `Exceso de velocidad: ${speed} km/h`,
                 alertTime: formatearFecha(time)
             });
         
-            // Enviar la alerta al cliente
-            res.json({ message: 'Ubicación actualizada exitosamente', alert: alert });
-            return; // Asegúrate de salir de la función después de enviar las respuestas
+
+
         
             try {
                 await alert.save();
@@ -191,6 +203,14 @@ router.get('/alerts/:imei', async (req, res) => {
     try {
         const { imei } = req.params;
         const alertas = await Alert.find({ imei });
+        res.json(alertas);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener alertas', error: error.message });
+    }
+});
+router.get('/alerts/', async (req, res) => {
+    try {
+        const alertas = await Alert.find();
         res.json(alertas);
     } catch (error) {
         res.status(500).json({ message: 'Error al obtener alertas', error: error.message });
