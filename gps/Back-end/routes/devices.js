@@ -196,6 +196,14 @@ router.get('/alerts/:imei', async (req, res) => {
         res.status(500).json({ message: 'Error al obtener alertas', error: error.message });
     }
 });
+router.get('/alerts/', async (req, res) => {
+    try {
+        const alertas = await Alert.find();
+        res.json(alertas);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener alertas', error: error.message });
+    }
+});
 
 // Endpoint para eliminar un dispositivo
 router.delete('/:id', async (req, res) => {
