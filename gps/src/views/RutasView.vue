@@ -2,13 +2,12 @@
   <div class="home">
     <div class="overlay"></div>
     <NavBar />
-  
+    <div id="map" class="map-container"></div>
     <div class="btns">
       <button id="saveRoute" class="boton">Guardar Ruta</button>
       <button id="clearRoute" class="boton">Volver a Crear</button>
       <button @click="loadRoute" class="boton">Cargar Ruta</button>
     </div>
- 
     <div class="hone2">
       <h1>Rutas</h1>
     </div>
@@ -34,8 +33,6 @@
           </ul>
         </div>
       </div>
-
-      <div id="map" class="map-container"></div>
     </div>
   </div>
 </template>
@@ -102,6 +99,7 @@ onMounted(() => {
           const response = await axios.post('http://3.12.147.103/routes/save-route', { name: 'Mi Ruta', waypoints: route });
           console.log('Ruta guardada:', response.data);
           alert('Ruta guardada');
+          cargarRutas();
         } catch (error) {
           console.error('Error al guardar la ruta:', error.message);
           if (error.response) {
@@ -165,9 +163,36 @@ const filterResults = () => {
   });
 };
 
-const selectRoute = (route) => {
+const selectRoute = async (route) => {
   console.log('Ruta seleccionada:', route);
-  // Aquí puedes agregar la lógica para manejar la selección de la ruta
+  try {
+    const response = await axios.get(`http://3.12.147.103/routes/get-route/${route._id}`);
+    const routeData = response.data.waypoints;
+    waypoints = routeData.map(point => L.latLng(point.lat, point.lng));
+    if (routeControl) {
+      map.removeControl(routeControl);
+    }
+    routeControl = L.Routing.control({
+      waypoints: waypoints,
+      createMarker: function() { return null; },
+      routeWhileDragging: true,
+      geocoder: L.Control.Geocoder.nominatim()
+    }).addTo(map);
+  } catch (error) {
+    console.error('Error al cargar la ruta:', error.message);
+    if (error.response) {
+      console.error('Error data:', error.response.data);
+      console.error('Error status:', error.response.status);
+      console.error('Error headers:', error.response.headers);
+      alert(`Error al cargar la ruta: ${error.response.data.error}`);
+    } else if (error.request) {
+      console.error('Error request:', error.request);
+      alert('Error al cargar la ruta: No se recibió respuesta del servidor.');
+    } else {
+      console.error('Error message:', error.message);
+      alert(`Error al cargar la ruta: ${error.message}`);
+    }
+  }
 };
 
 const loadRoute = async () => {
@@ -201,7 +226,6 @@ const loadRoute = async () => {
   }
 };
 </script>
-
 
 <style scoped>
 .map-container {
