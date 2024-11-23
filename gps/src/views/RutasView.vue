@@ -6,7 +6,6 @@
     <div class="btns">
       <button id="saveRoute" class="boton">Guardar Ruta</button>
       <button id="clearRoute" class="boton">Volver a Crear</button>
-      <button @click="loadRoute" class="boton">Cargar Ruta</button>
     </div>
     <div class="hone2">
       <h1>Rutas</h1>
@@ -246,20 +245,19 @@ const loadRoute = async () => {
   align-items: center;
   position: absolute;
   top: 460px;
-  right: 700px;
+  right: 800px;
   z-index: 1000;
-  background-color: white;
-  border: 1px solid #ccc;
+
   padding: 10px;
   gap: 10px;
   margin-top: 50px;
 }
 
 .boton {
-  background-color: #4CAF50;
+  background-color: black;
   border: none;
   color: white;
-  padding: 15px 32px;
+  padding: 5px 20px;
   text-align: center;
   text-decoration: none;
   display: inline-block;
@@ -431,6 +429,7 @@ const loadRoute = async () => {
   justify-content: flex-start;
   position: relative;
   z-index: 1;
+  top: -400px;
 }
 
 .hone2 {
