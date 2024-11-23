@@ -1,0 +1,913 @@
+<template>
+    <div class="notification-container">
+        <div class="glass-effect"></div>
+        
+        <header class="notification-header">
+            <div class="header-left">
+                <div class="notification-badge">
+                    <i class='bx bx-bell-ring'></i>
+                    <span class="pulse"></span>
+                </div>
+                <h1>Notificaciones</h1>
+            </div>
+            
+            <div class="header-actions">
+                <button class="action-btn" @click="filterNotifications('all')" 
+                    :class="{ 'active': currentFilter === 'all' }">
+                    Todas
+                </button>
+                <button class="action-btn" @click="filterNotifications('unread')"
+                    :class="{ 'active': currentFilter === 'unread' }">
+                    No leídas
+                </button>
+                <button class="menu-btn" @click="toggleMenu">
+                    <i class='bx bx-cog'></i>
+                </button>
+            </div>
+        </header>
+
+        <Transition name="fade">
+            <div v-if="showMenu" class="settings-menu">
+                <div class="menu-header">
+                    <h3>Configuración</h3>
+                    <button class="close-btn" @click="toggleMenu">
+                        <i class='bx bx-x'></i>
+                    </button>
+                </div>
+                <div class="menu-options">
+                    <button class="menu-option">
+                        <i class='bx bx-check-double'></i>
+                        <span>Marcar todas como leídas</span>
+                    </button>
+                    <button class="menu-option">
+                        <i class='bx bx-trash-alt'></i>
+                        <span>Limpiar notificaciones</span>
+                    </button>
+                    <button class="menu-option">
+                        <i class='bx bx-bell-off'></i>
+                        <span>Pausar notificaciones</span>
+                    </button>
+                </div>
+            </div>
+        </Transition>
+
+        <div class="notifications-wrapper">
+            <TransitionGroup 
+                name="list" 
+                tag="div" 
+                class="notifications-grid"
+            >
+                <div v-for="(notification, index) in filteredNotifications" 
+                    :key="index"
+                    class="notification-card"
+                    :class="{ 'unread': !notification.read }"
+                >
+                    <div class="card-header">
+                        <div class="notification-type" :class="notification.type">
+                            <i :class="getTypeIcon(notification.type)"></i>
+                        </div>
+                        <time>{{ notification.time }}</time>
+                    </div>
+                    
+                    <div class="card-content">
+                        <p class="notification-title">{{ notification.title }}</p>
+                        <p class="notification-message">{{ notification.message }}</p>
+                    </div>
+                    
+                    <div class="card-actions">
+                        <button class="action-link" @click="handleAction(notification)">
+                            {{ notification.actionText }}
+                        </button>
+                        <button class="dismiss-btn" @click="dismissNotification(index)">
+                            <i class='bx bx-x'></i>
+                        </button>
+                    </div>
+                </div>
+            </TransitionGroup>
+        </div>
+    </div>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue';
+
+const showMenu = ref(false);
+const currentFilter = ref('all');
+
+const notifications = ref([
+    {
+        type: 'info',
+        title: 'Nueva actualización',
+        message: 'Hay una nueva versión disponible del sistema.',
+        time: 'Hace 5 min',
+        read: false,
+        actionText: 'Actualizar ahora'
+    },
+    {
+        type: 'success',
+        title: 'Tarea completada',
+        message: 'El informe mensual ha sido generado exitosamente.',
+        time: 'Hace 15 min',
+        read: false,
+        actionText: 'Ver informe'
+    },
+    {
+        type: 'warning',
+        title: 'Recordatorio',
+        message: 'Tienes una reunión programada en 30 minutos.',
+        time: 'Hace 1 hora',
+        read: true,
+        actionText: 'Unirse ahora'
+    },
+    {
+        type: 'error',
+        title: 'Error detectado',
+        message: 'No se pudo completar la sincronización de datos.',
+        time: 'Hace 2 horas',
+        read: false,
+        actionText: 'Reintentar'
+    }
+]);
+
+const filteredNotifications = computed(() => {
+    if (currentFilter.value === 'unread') {
+        return notifications.value.filter(n => !n.read);
+    }
+    return notifications.value;
+});
+
+const getTypeIcon = (type) => {
+    const icons = {
+        info: 'bx bx-info-circle',
+        success: 'bx bx-check-circle',
+        warning: 'bx bx-error',
+        error: 'bx bx-x-circle'
+    };
+    return icons[type];
+};
+
+const toggleMenu = () => {
+    showMenu.value = !showMenu.value;
+};
+
+const filterNotifications = (filter) => {
+    currentFilter.value = filter;
+};
+
+const dismissNotification = (index) => {
+    notifications.value = notifications.value.filter((_, i) => i !== index);
+};
+
+const handleAction = (notification) => {
+    notification.read = true;
+    // Aquí irían las acciones específicas
+};
+</script>
+
+<style scoped>
+.notification-container {
+    position: fixed;
+    top: 48%;
+    left: 80%;
+    transform: translate(-50%, -50%);
+    width: 420px;
+    height: 600px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 24px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.1),
+        0 2px 8px rgba(0, 0, 0, 0.05);
+    z-index: 9999;
+}
+
+.glass-effect {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.4) 0%,
+        rgba(255, 255, 255, 0.1) 100%
+    );
+    backdrop-filter: blur(10px);
+    z-index: -1;
+}
+
+.notification-header {
+    padding: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.8);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.notification-badge {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    border-radius: 12px;
+    color: white;
+    font-size: 20px;
+}
+
+.pulse {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 12px;
+    height: 12px;
+    background: #ef4444;
+    border-radius: 50%;
+    border: 2px solid white;
+    animation: pulse 2s infinite;
+}
+
+.header-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.action-btn {
+    padding: 8px 16px;
+    border: none;
+    background: transparent;
+    color: #6b7280;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+    background: rgba(99, 102, 241, 0.1);
+    color: #4f46e5;
+}
+
+.action-btn.active {
+    background: #4f46e5;
+    color: white;
+}
+
+.menu-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: #6b7280;
+    transition: all 0.2s ease;
+}
+
+.menu-btn:hover {
+    background: rgba(99, 102, 241, 0.1);
+    color: #4f46e5;
+}
+
+.settings-menu {
+    position: absolute;
+    top: 80px;
+    right: 24px;
+    width: 280px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+}
+
+.menu-header {
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.close-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: #6b7280;
+}
+
+.menu-options {
+    padding: 8px;
+}
+
+.menu-option {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #374151;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.menu-option:hover {
+    background: rgba(99, 102, 241, 0.1);
+    color: #4f46e5;
+}
+
+.notifications-wrapper {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+}
+
+.notifications-grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: 1fr;
+}
+
+.notification-card {
+    background: white;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.notification-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.notification-card.unread {
+    background: linear-gradient(
+        to right,
+        rgba(99, 102, 241, 0.05),
+        rgba(99, 102, 241, 0.02)
+    );
+    border-left: 3px solid #4f46e5;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.notification-type {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.notification-type.info {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.notification-type.success {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+}
+
+.notification-type.warning {
+    background: rgba(234, 179, 8, 0.1);
+    color: #eab308;
+}
+
+.notification-type.error {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+time {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.notification-title {
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 4px;
+}
+
+.notification-message {
+    color: #4b5563;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.card-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.action-link {
+    color: #4f46e5;
+    font-weight: 500;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.action-link:hover {
+    color: #4338ca;
+}
+
+.dismiss-btn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.dismiss-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.5);
+        opacity: 0.5;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Transiciones */
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+
+.list-enter-active,
+.list-leave-active {
+    transition: all 0.5s ease;
+}
+
+.list-enter-from {
+    opacity: 0;
+    transform: translateX(-30px);
+}
+
+.list-leave-to {
+    opacity: 0;
+    transform: translateX(30px);
+}
+
+/* Scrollbar personalizado */
+.notifications-wrapper::-webkit-scrollbar {
+    width: 5px;
+}
+
+.notifications-wrapper::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.notifications-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+<template>
+    <div class="notification-container">
+        <div class="notification-header">
+            <div class="header-content">
+                <h1 class="title">
+                    <i class='bx bx-bell'></i>
+                    Notificaciones
+                </h1>
+                <span class="unread-count">{{ notifications.length }}</span>
+            </div>
+            <button class="menu-button" @click="toggleMenu" :class="{ 'active': showMenu }">
+                <i class='bx bx-dots-vertical-rounded'></i>
+            </button>
+        </div>
+
+        <Transition name="fade">
+            <div v-if="showMenu" class="menu-overlay" @click="toggleMenu"></div>
+        </Transition>
+
+        <Transition name="slide">
+            <div v-if="showMenu" class="menu-panel">
+                <div class="menu-header">Opciones</div>
+                <div class="menu-items">
+                    <router-link to="#" class="menu-item">
+                        <i class='bx bx-trash'></i>
+                        <span>Limpiar todo</span>
+                    </router-link>
+                    <router-link to="/reporte2" class="menu-item">
+                        <i class='bx bx-folder-open'></i>
+                        <span>Ver historial</span>
+                    </router-link>
+                </div>
+            </div>
+        </Transition>
+
+        <div class="notifications-wrapper">
+            <TransitionGroup 
+                name="notification"
+                tag="ul"
+                class="notifications-list"
+            >
+                <li v-for="(notification, index) in notifications" 
+                    :key="index"
+                    class="notification-item"
+                    :class="{ 'unread': !notification.read }"
+                >
+                    <div class="notification-icon">
+                        <i class='bx bx-message-rounded-dots'></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-text">{{ notification.text }}</div>
+                        <div class="notification-time">{{ notification.time }}</div>
+                    </div>
+                    <button class="notification-action" @click="markAsRead(index)">
+                        <i class='bx bx-check'></i>
+                    </button>
+                </li>
+            </TransitionGroup>
+        </div>
+    </div>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+
+const showMenu = ref(false);
+const notifications = ref([
+    { text: 'Nueva actualización disponible', time: 'Hace 5 min', read: false },
+    { text: 'Juan comentó en tu publicación', time: 'Hace 10 min', read: false },
+    { text: 'Tienes un nuevo seguidor', time: 'Hace 15 min', read: true },
+    { text: 'Recordatorio: Reunión a las 15:00', time: 'Hace 30 min', read: false },
+    { text: 'Tu pedido ha sido enviado', time: 'Hace 1 hora', read: true },
+    { text: 'Nueva mensaje de soporte', time: 'Hace 2 horas', read: false },
+    { text: 'Actualización de seguridad', time: 'Hace 3 horas', read: true },
+]);
+
+const toggleMenu = () => {
+    showMenu.value = !showMenu.value;
+};
+
+const markAsRead = (index) => {
+    notifications.value[index].read = true;
+};
+</script>
+
+<style scoped>
+.notification-container {
+    position: fixed;
+    top: 48%;
+    left: 80%;
+    transform: translate(-50%, -50%);
+    width: 380px;
+    height: 600px;
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.notification-header {
+    padding: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f0f0f0;
+    background: #ffffff;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1a1a1a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.title i {
+    font-size: 24px;
+    color: #4a7bff;
+}
+
+.unread-count {
+    background: #4a7bff;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.menu-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    transition: all 0.3s ease;
+}
+
+.menu-button:hover {
+    background: #f5f5f5;
+}
+
+.menu-button.active {
+    color: #4a7bff;
+    background: #eef2ff;
+}
+
+.menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+}
+
+.menu-panel {
+    position: absolute;
+    top: 80px;
+    right: 24px;
+    width: 200px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 101;
+    overflow: hidden;
+}
+
+.menu-header {
+    padding: 16px;
+    font-weight: 600;
+    color: #1a1a1a;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.menu-items {
+    padding: 8px;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    color: #666;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.menu-item:hover {
+    background: #f5f5f5;
+    color: #4a7bff;
+}
+
+.notifications-wrapper {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+}
+
+.notifications-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.notification-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    margin-bottom: 8px;
+    background: white;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    animation: slideIn 0.5s ease forwards;
+    border: 1px solid #f0f0f0;
+}
+
+.notification-item:hover {
+    transform: translateX(4px);
+}
+
+.notification-item.unread {
+    background: #f8faff;
+    border-color: #e5edff;
+}
+
+.notification-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #eef2ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4a7bff;
+    font-size: 20px;
+}
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-text {
+    color: #1a1a1a;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.notification-time {
+    color: #999;
+    font-size: 12px;
+}
+
+.notification-action {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: #999;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    opacity: 0;
+}
+
+.notification-item:hover .notification-action {
+    opacity: 1;
+}
+
+.notification-action:hover {
+    background: #eef2ff;
+    color: #4a7bff;
+}
+
+/* Animaciones */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -40%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Transiciones */
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+
+.slide-enter-active,
+.slide-leave-active {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.slide-enter-from,
+.slide-leave-to {
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+.notification-enter-active,
+.notification-leave-active {
+    transition: all 0.5s ease;
+}
+
+.notification-enter-from {
+    opacity: 0;
+    transform: translateX(-30px);
+}
+
+.notification-leave-to {
+    opacity: 0;
+    transform: translateX(30px);
+}
+
+/* Scrollbar */
+.notifications-wrapper::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notifications-wrapper::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.notifications-wrapper::-webkit-scrollbar-thumb {
+    background: #e0e0e0;
+    border-radius: 3px;
+}
+
+.notifications-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #d0d0d0;
+}
+</style>
