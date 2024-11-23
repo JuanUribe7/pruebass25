@@ -64,7 +64,7 @@ onMounted(() => {
     if (waypoints.length > 1) {
       const route = waypoints.map(point => ({ lat: point.lat, lng: point.lng }));
       try {
-        const response = await axios.post('http://3.12.147.103/routes/save-route', { name: 'Mi Ruta', waypoints: route });
+        const response = await axios.post('http://3.12.147.103/save-route', { name: 'Mi Ruta', waypoints: route });
         console.log('Ruta guardada:', response.data);
         alert('Ruta guardada');
       } catch (error) {
