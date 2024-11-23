@@ -1,25 +1,59 @@
 <template>
     <div class="notification-container">
         <div class="notification-header">
-            <h1>Notificaciones</h1>
-            <span class="menu-dots" @click="toggleMenu">...</span>
-        </div>
-        <div v-if="showMenu" class="menu-modal">
-            <svg aria-hidden="true" height="12" viewBox="0 0 21 12" width="21" class="xem7dle x10l6tqk xng853d xdlq8gc"
-                style="transform: scale(-1, -1) translate(-9.5px, 0px);">
-                <path d="M21 0c-2.229.424-4.593 2.034-6.496 3.523L5.4 10.94c-2.026 2.291-5.434.62-5.4-2.648V0h21Z">
-                </path>
-            </svg>
-            <ul>
-                <li><router-link to="#"><i class='bx bxs-message-alt-x'></i> Limpiar</router-link></li>
-                <li><router-link to="/reporte2"><i class='bx bxs-book-open'></i> Abrir Notificación</router-link></li>
-            </ul>
+            <div class="header-content">
+                <h1 class="title">
+                    <i class='bx bx-bell'></i>
+                    Notificaciones
+                </h1>
+                <span class="unread-count">{{ notifications.length }}</span>
+            </div>
+            <button class="menu-button" @click="toggleMenu" :class="{ 'active': showMenu }">
+                <i class='bx bx-dots-vertical-rounded'></i>
+            </button>
         </div>
 
-        <div>
-            <ul class="notification-list">
-                <li v-for="(notification, index) in notifications.slice(0, 7)" :key="index">
-                    <router-link to="#"> {{ notification }}</router-link>
+        <Transition name="fade">
+            <div v-if="showMenu" class="menu-overlay" @click="toggleMenu"></div>
+        </Transition>
+
+        <Transition name="slide">
+            <div v-if="showMenu" class="menu-panel">
+                <div class="menu-header">Opciones</div>
+                <div class="menu-items">
+                    <router-link to="#" class="menu-item">
+                        <i class='bx bx-trash'></i>
+                        <span>Limpiar todo</span>
+                    </router-link>
+                    <router-link to="/reporte2" class="menu-item">
+                        <i class='bx bx-folder-open'></i>
+                        <span>Ver historial</span>
+                    </router-link>
+                </div>
+            </div>
+        </Transition>
+
+        <div class="notifications-wrapper">
+            <TransitionGroup 
+                name="notification"
+                tag="ul"
+                class="notifications-list"
+            >
+                <li v-for="(notification, index) in notifications" 
+                    :key="index"
+                    class="notification-item"
+                    :class="{ 'unread': !notification.read }"
+                >
+                    <div class="notification-icon">
+                        <i class='bx bx-message-rounded-dots'></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-text">{{ notification.text }}</div>
+                        <div class="notification-time">{{ notification.time }}</div>
+                    </div>
+                    <button class="notification-action" @click="markAsRead(index)">
+                        <i class='bx bx-check'></i>
+                    </button>
                 </li>
             </TransitionGroup>
         </div>
@@ -27,30 +61,44 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import iziToast from 'izitoast';
+import { ref } from 'vue';
 
-const alerts = ref([]);
 const showMenu = ref(false);
-const notifications = ref(['Notificación 1', 'Notificación 2', 'Notificación 3', 'Notificación 4', 'Notificación 4', 'Notificación 4', 'Notificación 4']); // Ejemplo de notificaciones
+const notifications = ref([
+    { text: 'Nueva actualización disponible', time: 'Hace 5 min', read: false },
+    { text: 'Juan comentó en tu publicación', time: 'Hace 10 min', read: false },
+    { text: 'Tienes un nuevo seguidor', time: 'Hace 15 min', read: true },
+    { text: 'Recordatorio: Reunión a las 15:00', time: 'Hace 30 min', read: false },
+    { text: 'Tu pedido ha sido enviado', time: 'Hace 1 hora', read: true },
+    { text: 'Nueva mensaje de soporte', time: 'Hace 2 horas', read: false },
+    { text: 'Actualización de seguridad', time: 'Hace 3 horas', read: true },
+]);
 
 const toggleMenu = () => {
     showMenu.value = !showMenu.value;
+};
+
+const markAsRead = (index) => {
+    notifications.value[index].read = true;
 };
 </script>
 
 <style scoped>
 .notification-container {
     position: fixed;
-    position: absolute;
     top: 48%;
     left: 80%;
     transform: translate(-50%, -50%);
-    z-index: 100;
-    background-color: var(--body-color);
+    width: 380px;
     height: 600px;
-    width: 400px;
-    border-radius: 20px;
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 999;
 }
 
 .notification-header {
@@ -120,7 +168,6 @@ const toggleMenu = () => {
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 150;
 }
 
 .menu-panel {
@@ -132,9 +179,18 @@ const toggleMenu = () => {
     border-radius: 16px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     z-index: 101;
-    width: 50%;
-    border-top-right-radius: 0px;
+    overflow: hidden;
+}
 
+.menu-header {
+    padding: 16px;
+    font-weight: 600;
+    color: #1a1a1a;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.menu-items {
+    padding: 8px;
 }
 
 .menu-item {
@@ -233,23 +289,86 @@ const toggleMenu = () => {
     opacity: 1;
 }
 
-.notification-list {
-    max-height: 300px; /* Ajusta la altura máxima para permitir el desplazamiento */
-    overflow-y: auto; /* Habilita el desplazamiento vertical */
+.notification-action:hover {
+    background: #eef2ff;
+    color: #4a7bff;
 }
 
-.notification-list li {
-    max-height: 200px;
-    overflow-y: auto;
-    padding: 10px;
-    margin: 10px;
-    height: 50px;
-    border-radius: 10px;
-    background: rgb(233,233,235);
-    background: linear-gradient(90deg, rgba(233,233,235,1) 0%, rgba(255,218,218,1) 35%, rgba(219,249,255,1) 100%);
+/* Animaciones */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -40%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
 }
-.notification-list li a {
-    text-decoration: none;
-    color: transparent;
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Transiciones */
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+
+.slide-enter-active,
+.slide-leave-active {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.slide-enter-from,
+.slide-leave-to {
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+.notification-enter-active,
+.notification-leave-active {
+    transition: all 0.5s ease;
+}
+
+.notification-enter-from {
+    opacity: 0;
+    transform: translateX(-30px);
+}
+
+.notification-leave-to {
+    opacity: 0;
+    transform: translateX(30px);
+}
+
+/* Scrollbar */
+.notifications-wrapper::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notifications-wrapper::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.notifications-wrapper::-webkit-scrollbar-thumb {
+    background: #e0e0e0;
+    border-radius: 3px;
+}
+
+.notifications-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #d0d0d0;
 }
 </style>
