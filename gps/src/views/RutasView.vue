@@ -64,12 +64,26 @@ onMounted(() => {
     if (waypoints.length > 1) {
       const route = waypoints.map(point => ({ lat: point.lat, lng: point.lng }));
       try {
-        const response = await axios.post('http://3.12.147.103/save-route', { name: 'Mi Ruta', waypoints: route });
+        const response = await axios.post('http://3.12.147.103/routes/save-route', { name: 'Mi Ruta', waypoints: route });
         console.log('Ruta guardada:', response.data);
         alert('Ruta guardada');
       } catch (error) {
         console.error('Error al guardar la ruta:', error.message);
-        alert('Error al guardar la ruta');
+        if (error.response) {
+          // El servidor respondió con un código de estado fuera del rango 2xx
+          console.error('Error data:', error.response.data);
+          console.error('Error status:', error.response.status);
+          console.error('Error headers:', error.response.headers);
+          alert(`Error al guardar la ruta: ${error.response.data.error}`);
+        } else if (error.request) {
+          // La solicitud fue hecha pero no se recibió respuesta
+          console.error('Error request:', error.request);
+          alert('Error al guardar la ruta: No se recibió respuesta del servidor.');
+        } else {
+          // Algo pasó al configurar la solicitud
+          console.error('Error message:', error.message);
+          alert(`Error al guardar la ruta: ${error.message}`);
+        }
       }
     } else {
       alert('Agrega al menos dos puntos para crear una ruta.');
@@ -92,7 +106,7 @@ onMounted(() => {
 
 const loadRoute = async () => {
   try {
-    const response = await axios.get('/api/get-route/ID_DE_LA_RUTA');
+    const response = await axios.get('http://3.12.147.103/routes/get-route/ID_DE_LA_RUTA');
     const route = response.data.waypoints;
     waypoints = route.map(point => L.latLng(point.lat, point.lng));
     if (routeControl) {
@@ -106,7 +120,18 @@ const loadRoute = async () => {
     }).addTo(map);
   } catch (error) {
     console.error('Error al cargar la ruta:', error.message);
-    alert('Error al cargar la ruta');
+    if (error.response) {
+      console.error('Error data:', error.response.data);
+      console.error('Error status:', error.response.status);
+      console.error('Error headers:', error.response.headers);
+      alert(`Error al cargar la ruta: ${error.response.data.error}`);
+    } else if (error.request) {
+      console.error('Error request:', error.request);
+      alert('Error al cargar la ruta: No se recibió respuesta del servidor.');
+    } else {
+      console.error('Error message:', error.message);
+      alert(`Error al cargar la ruta: ${error.message}`);
+    }
   }
 };
 </script>
@@ -129,18 +154,16 @@ const loadRoute = async () => {
   flex-direction: column;
   align-items: center;
   position: absolute;
-  top: 60px;
+  top: 10px;
   right: 10px;
   z-index: 1000;
-
+  background-color: white;
   border: 1px solid #ccc;
   padding: 10px;
   gap: 10px;
-
 }
 
 .boton {
-  
   background-color: #4CAF50;
   border: none;
   color: white;
