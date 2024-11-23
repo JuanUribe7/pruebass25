@@ -67,7 +67,6 @@
               <span class="text nav-text">Historial</span>
             </router-link>
           </li>
-
           <li class="nav-link" @click="toggleReportDropdown">
             <i class='bx bxs-user-account icon'></i>
             <span class="text nav-text">Reporte</span>
