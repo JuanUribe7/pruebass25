@@ -137,7 +137,6 @@ const toggleMenu = () => {
     background: rgb(233,233,235);
     background: linear-gradient(90deg, rgba(233,233,235,1) 0%, rgba(255,218,218,1) 35%, rgba(219,249,255,1) 100%);
 }
-
 .notification-list li a {
     text-decoration: none;
     color: transparent;
