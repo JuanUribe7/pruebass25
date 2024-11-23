@@ -64,11 +64,11 @@ onMounted(() => {
     if (waypoints.length > 1) {
       const route = waypoints.map(point => ({ lat: point.lat, lng: point.lng }));
       try {
-        const response = await axios.post('http://3.12.147.103/routes/save-route', { name: 'Mi Ruta', waypoints: route });
+        const response = await axios.post('http://3.12.147.103/devices/save-route', { name: 'Mi Ruta', waypoints: route });
         console.log('Ruta guardada:', response.data);
         alert('Ruta guardada');
       } catch (error) {
-        console.error('Error al guardar la ruta:', error.message);
+        alert('Error al guardar la ruta:', error.message);
         if (error.response) {
           // El servidor respondió con un código de estado fuera del rango 2xx
           console.error('Error data:', error.response.data);
