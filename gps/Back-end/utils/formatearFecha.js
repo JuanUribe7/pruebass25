@@ -1,22 +1,22 @@
 export function formatDate(dateString) {
-    // Crear un objeto Date desde el string ISO
-    const date = new Date(dateString);
+    // Expresión regular para extraer las partes de la fecha
+    const regex = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})\.\d{3}\+(\d{2}):(\d{2})$/;
+    const match = dateString.match(regex);
 
-    // Obtener los componentes de la fecha
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Meses empiezan en 0
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
+    if (match) {
+        const [_, year, month, day, hour, minute, second] = match;
 
-    // Determinar si es AM o PM
-    const ampm = date.getHours() >= 12 ? 'p. m.' : 'a. m.';
-    const hour12 = (date.getHours() % 12) || 12; // Convertir a formato de 12 horas
+        // Convertir a formato de 12 horas
+        let ampm = 'a. m.';
+        let hour12 = parseInt(hour, 10);
+        if (hour12 >= 12) {
+            ampm = 'p. m.';
+        }
+        hour12 = (hour12 % 12) || 12; // Si es 0 horas, convertir a 12
 
-    // Construir la fecha con el formato deseado
-    let formattedDate = `${day}/${month}/${year} ${hour12}:${minutes}:${seconds} ${ampm}`;
-
-    // Devuelve la fecha formateada
-    return formattedDate;
+        // Devolver la fecha en el formato que deseas
+        return `${day}/${month}/${year} ${hour12}:${minute}:${second} ${ampm}`;
+    } else {
+        return dateString; // Si no coincide con el formato, retorna la fecha original
+    }
 }
