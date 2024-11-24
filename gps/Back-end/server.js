@@ -195,7 +195,7 @@ async function SendCommand(commandNumber) {
         const notification = new Notification({
           imei: "863829070233398",
           notificationName: alertaName ,
-          notificationTime: formatearFecha(time),
+          notificationTime: time,
           notificationType: 'Control'
           
         });
