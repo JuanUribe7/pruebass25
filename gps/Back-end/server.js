@@ -54,6 +54,7 @@ app.use(express.static(path.join(__dirname, 'dist' )));
 
 // Servidor TCP
 let cliente = null;
+let imei = null;
 
 
 
@@ -88,7 +89,7 @@ var tcpServer = net.createServer((client) => {
             // Preparar los datos para enviar a la ruta /update-from-gps
             if (gt06.event.string === 'location') {
                 const gpsTime = new Date(gt06.fixTime);
-            
+            imei = gt06.imei;
                 // Convertir a la hora local
                 const localTime = new Date(gpsTime.toLocaleString('en-US', { timeZone: 'America/Bogota' }));
                 
