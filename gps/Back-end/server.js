@@ -194,7 +194,7 @@ async function SendCommand(commandNumber) {
         const notification = new Notification({
           imei: imei,
           alertName: 'Control',
-          alertTime: new Date().toISOString(),
+          alertTime: "fecha de hoy",
           notificationType: alertaName 
           
         });
