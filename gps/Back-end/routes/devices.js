@@ -198,7 +198,7 @@ router.get('/history/:imei', async (req, res) => {
 
         // Verificar que los parámetros de fecha estén presentes
         if (!startDate || !endDate) {
-            return res.status(400).json({ error: 'Los parámetros startDate y endDate son requeridos' });
+            return res.status(400).json({ error: 'Los parámetros startDate y endDate son requerido' });
         }
 
         // Convertir las fechas a objetos Date.
