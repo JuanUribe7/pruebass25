@@ -1,25 +1,22 @@
 export function formatDate(dateString) {
-    // Convertir la fecha recibida (ya ajustada a UTC-5) en un objeto Date
+    // Crear un objeto Date desde el string ISO
     const date = new Date(dateString);
 
-    // Verificamos si la fecha tiene el ajuste de zona horaria correcto
-    // Si ya está en UTC-5 no necesitas hacer más conversiones
+    // Obtener los componentes de la fecha
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Meses empiezan en 0
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
 
-    // Obtener los componentes de la fecha con formato en hora de Bogotá
-    const options = {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: true,
-        timeZone: 'America/Bogota', // Zona horaria de Bogotá (UTC-5)
-    };
+    // Determinar si es AM o PM
+    const ampm = date.getHours() >= 12 ? 'p. m.' : 'a. m.';
+    const hour12 = (date.getHours() % 12) || 12; // Convertir a formato de 12 horas
 
-    // Usamos Intl.DateTimeFormat para formatear la fecha en la zona horaria de Bogotá
-    const formatter = new Intl.DateTimeFormat('es-CO', options);
-    const formattedDate = formatter.format(date);
+    // Construir la fecha con el formato deseado
+    let formattedDate = `${day}/${month}/${year} ${hour12}:${minutes}:${seconds} ${ampm}`;
 
-    return formattedDate.replace(',', ''); // Eliminar la coma innecesaria
+    // Devuelve la fecha formateada
+    return formattedDate;
 }
