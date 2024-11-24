@@ -19,7 +19,6 @@
 
         <Transition name="slide">
             <div v-if="showMenu" class="menu-panel">
-                <div class="menu-header">Opciones</div>
                 <div class="menu-items">
                     <router-link @click="clearNotifications" class="menu-item">
                         <i class='bx bx-trash'></i>
