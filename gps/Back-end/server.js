@@ -166,9 +166,7 @@ app.use('/notificaciones', notificacionRoutes);
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
-app.get('/test', (req, res) => {
-    res.send('El servidor está recibiendo solicitudes correctamente.');
-  });
+
 
 function SendCommand(commandNumber) {
     let commandBuffer;
