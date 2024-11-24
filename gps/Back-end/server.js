@@ -89,7 +89,7 @@ var tcpServer = net.createServer((client) => {
             
             // Preparar los datos para enviar a la ruta /update-from-gps
             if (gt06.event.string === 'location') {
-                const gpsTime = new Date(gt06.fixTime);
+                const gpsTime = new Date();
             imei = gt06.imei;
                 // Convertir a la hora local
                 const localTime = new Date(gpsTime.toLocaleString('en-US', { timeZone: 'America/Bogota' }));
@@ -191,18 +191,18 @@ async function SendCommand(commandNumber) {
         cliente.write(commandBuffer);
         console.log('Command sent:', commandBuffer.toString('hex'));
         const time =  new Date().toISOString();
+        const localTime = new Date(time.toLocaleString('en-US', { timeZone: 'America/Bogota' }));
         // Guardar la notificación en la base de datos
         const notification = new Notification({
           imei: "863829070233398",
           notificationName: alertaName ,
-          notificationTime: time,
+          notificationTime: localTime,
           notificationType: 'Control'
-          
         });
         const alert = new Alert({
-            imei: imei,
+            imei: "863829070233398",
             alertName: alertaName,
-            alertTime: time,
+            alertTime: localTime,
             alertType: 'control'
         });
           try {
