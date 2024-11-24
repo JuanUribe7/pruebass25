@@ -1,15 +1,18 @@
 export function formatDate(dateString) {
     const date = new Date(dateString);
 
-    // Obtener componentes de la fecha en UTC
-    const year = date.getUTCFullYear();
-    const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Meses empiezan desde 0
-    const day = String(date.getUTCDate()).padStart(2, '0');
+    // Ajustar manualmente a UTC-5 (Colombia)
+    const localDate = new Date(date.getTime() - 5 * 60 * 60 * 1000); // UTC -5 en milisegundos
 
-    // Obtener componentes de la hora en UTC
-    let hours = date.getUTCHours();
-    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-    const seconds = String(date.getUTCSeconds()).padStart(2, '0');
+    // Obtener componentes de la fecha ajustada
+    const year = localDate.getFullYear();
+    const month = String(localDate.getMonth() + 1).padStart(2, '0'); // Meses empiezan desde 0
+    const day = String(localDate.getDate()).padStart(2, '0');
+
+    // Obtener componentes de la hora ajustada
+    let hours = localDate.getHours();
+    const minutes = String(localDate.getMinutes()).padStart(2, '0');
+    const seconds = String(localDate.getSeconds()).padStart(2, '0');
 
     // Formatear AM/PM
     const ampm = hours >= 12 ? 'PM' : 'AM';
