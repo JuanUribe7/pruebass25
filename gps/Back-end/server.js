@@ -15,6 +15,8 @@ const routes = require('./routes/routes');
 const notificacionRoutes = require('./routes/notificaciones');
 const { WebSocketServer } = require('ws');
 const iniciarWatcher = require('./utils/notificationWatcher');
+const Notification = require('./models/notification'); // Importa el modelo de notificación
+const formatearFecha = require('../utils/expresiones')
 
 const PORT = process.env.GT06_SERVER_PORT || 4000;
 const HTTP_PORT = process.env.HTTP_PORT || 80;
@@ -163,34 +165,52 @@ app.use('/devices', deviceRoutes);
 app.use('/routes', routes);
 app.use('/notificaciones', notificacionRoutes);
 
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
-});
 
 
-function SendCommand(commandNumber) {
+
+async function SendCommand(commandNumber) {
     let commandBuffer;
-    
+    let alertName;
     switch (commandNumber) {
         case 0: // Apagar el carro
-            commandBuffer = Buffer.from([0x78, 0x78, 0x15, 0x80, 0x0F, 0x00, 0x01, 0xA9, 0x61, 0x44, 0x59, 0x44, 0x2C, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x23, 0x00, 0xA0, 0x3E, 0x10, 0x0D, 0x0A]);
-            break;
+          commandBuffer = Buffer.from([0x78, 0x78, 0x15, 0x80, 0x0F, 0x00, 0x01, 0xA9, 0x61, 0x44, 0x59, 0x44, 0x2C, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x23, 0x00, 0xA0, 0x3E, 0x10, 0x0D, 0x0A]);
+          alertName = 'Apagar';
+          break;
         case 1: // Encender el carro
-            commandBuffer = Buffer.from([0x78, 0x78, 0x16, 0x80, 0x10, 0x00, 0x01, 0xA9, 0x63, 0x48, 0x46, 0x59, 0x44, 0x2C, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x23, 0x00, 0xA0, 0x7B, 0xDC, 0x0D, 0x0A]);
-            break;
+          commandBuffer = Buffer.from([0x78, 0x78, 0x16, 0x80, 0x10, 0x00, 0x01, 0xA9, 0x63, 0x48, 0x46, 0x59, 0x44, 0x2C, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x23, 0x00, 0xA0, 0x7B, 0xDC, 0x0D, 0x0A]);
+          alertName = 'Encender';
+          break;
         default:
-            console.error('Comando no reconocido');
-            return;
-    }
-
-    if (cliente) {
+          console.error('Comando no reconocido');
+          return;
+      }
+    
+      if (cliente) {
         cliente.write(commandBuffer);
         console.log('Command sent:', commandBuffer.toString('hex'));
+    
+        // Guardar la notificación en la base de datos
+        const notification = new Notification({
+          imei: imei,
+          alertName: alertName,
+          alertTime: new Date().toISOString(),
+          notificationType: alertName 
+          
+        });
+      
+          try {
+            await notification.save();
+            console.log('Notificación guardada en la base de datos');
+          } catch (error) {
+            console.error('Error al guardar la notificación en la base de datos:', error);
+          }
     } else {
         console.error('No GPS client connected');
     }
 }
-
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
 
 // Inicia el servidor HTTP en el puerto especificado
 const server=app.listen(HTTP_PORT, () => {
