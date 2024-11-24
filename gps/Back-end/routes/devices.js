@@ -94,17 +94,22 @@ router.post('/update-from-gps', async (req, res) => {
                 notificationTime: time,
                 notificationType: 'maxSpeed' // Tipo de notificación
             });
+
+            const alert = new Alert({
+                imei: imei,
+                alertName: `Exceso de velocidad: ${speed} km/h`,
+                alertTime: time,
+                alertType: 'maxSpeed' // Tipo de alerta
+            });
+        
             try {
                 await notificacion.save();
+                await alert.save();
                 console.log(`Notificación de exceso de velocidad guardada para IMEI: ${imei}`);
             } catch (error) {
                 console.error('Error al guardar la notificación:', error);
             }
-            const alert = new Alert({
-                imei: imei,
-                alertName: `Exceso de velocidad: ${speed} km/h`,
-                alertTime: time
-            });
+   
         
 
 

@@ -16,6 +16,7 @@ const notificacionRoutes = require('./routes/notificaciones');
 const { WebSocketServer } = require('ws');
 const iniciarWatcher = require('./utils/notificationWatcher');
 const Notification = require('./models/notification'); // Importa el modelo de notificación
+const Alert = require('./models/Alert'); // Importa el modelo de alerta
 const formatearFecha = require('./utils/expresiones');
 
 const PORT = process.env.GT06_SERVER_PORT || 4000;
@@ -194,14 +195,19 @@ async function SendCommand(commandNumber) {
         const notification = new Notification({
           imei: "863829070233398",
           notificationName: alertaName ,
-          
           notificationTime: formatearFecha(time),
           notificationType: 'Control'
           
         });
-      
+        const alert = new Alert({
+            imei: imei,
+            alertName: alertaName,
+            alertTime: time,
+            alertType: 'control'
+        });
           try {
             await notification.save();
+            await alert.save();
             console.log('Notificación guardada en la base de datos');
           } catch (error) {
             console.error('Error al guardar la notificación en la base de datos:', error);
