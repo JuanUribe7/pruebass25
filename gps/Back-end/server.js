@@ -88,20 +88,20 @@ var tcpServer = net.createServer((client) => {
             
             // Preparar los datos para enviar a la ruta /update-from-gps
             if (gt06.event.string === 'location') {
-            const time =  new Date().toISOString();
+                const gpsTime = new Date(gt06.fixTime);
             imei = gt06.imei;
                 // Convertir a la hora local
-              
+                const localTime = new Date(gpsTime.toLocaleString('en-US', { timeZone: 'America/Bogota' }));
                 
                 // Formatear la hora local en ISO 8601
-    
+                const localTimeISO = localTime.toISOString();
                 const deviceData = {
                     imei: gt06.imei,
                     Lat: gt06.lat,
                     Lon: gt06.lon,
                     speed: gt06.speed,
                     course: gt06.course,
-                    time: formatearFecha(time),
+                    time: localTimeISO,
                     ignition: gt06.terminalInfo ? Boolean(gt06.terminalInfo.ignition) : false,
                     charging: gt06.terminalInfo ? Boolean(gt06.terminalInfo.charging) : false,
                     gpsTracking: gt06.terminalInfo ? Boolean(gt06.terminalInfo.gpsTracking) : false,
@@ -113,7 +113,7 @@ var tcpServer = net.createServer((client) => {
                     lon: gt06.lon,
                     speed: gt06.speed,
                     course: gt06.course,
-                    fixTime: formatearFecha(time)
+                    fixTime: localTimeISO
                 };
             
                 console.log(
@@ -175,11 +175,11 @@ async function SendCommand(commandNumber) {
     switch (commandNumber) {
         case 0: // Apagar el carro
           commandBuffer = Buffer.from([0x78, 0x78, 0x15, 0x80, 0x0F, 0x00, 0x01, 0xA9, 0x61, 0x44, 0x59, 0x44, 0x2C, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x23, 0x00, 0xA0, 0x3E, 0x10, 0x0D, 0x0A]);
-          alertaName = 'Combustible cortado';
+          alertaName = 'Apagar';
           break;
         case 1: // Encender el carro
           commandBuffer = Buffer.from([0x78, 0x78, 0x16, 0x80, 0x10, 0x00, 0x01, 0xA9, 0x63, 0x48, 0x46, 0x59, 0x44, 0x2C, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x23, 0x00, 0xA0, 0x7B, 0xDC, 0x0D, 0x0A]);
-          alertaName = 'Combustible restablecido';
+          alertaName = 'Encender';
           break;
         default:
           console.error('Comando no reconocido');
@@ -189,14 +189,13 @@ async function SendCommand(commandNumber) {
       if (cliente) {
         cliente.write(commandBuffer);
         console.log('Command sent:', commandBuffer.toString('hex'));
-        const time =  new Date().toISOString();
+    
         // Guardar la notificación en la base de datos
         const notification = new Notification({
-          imei: "863829070233398",
-          notificationName: alertaName ,
-          
-          notificationTime: formatearFecha(time),
-          notificationType: 'Control'
+          imei: imei,
+          notificationName: 'Control',
+          notificationtTime: "fecha de hoy",
+          notificationType: alertaName 
           
         });
       

@@ -35,7 +35,7 @@ router.post('/save-history', async (req, res) => {
         // Crear un nuevo registro de historial
         const historyData = new HistoryData({
             imei,
-            fixTime: formatearFecha(fixTime),
+            fixTime: fixTime,
             lat,
             lon,
             speed
@@ -72,7 +72,7 @@ router.post('/update-from-gps', async (req, res) => {
             { imei },
             {
                 imei,
-                fixTime: formatearFecha(time),
+                fixTime: time,
                 lat: Lat,
                 lon: Lon,
                 speed,
@@ -91,7 +91,7 @@ router.post('/update-from-gps', async (req, res) => {
             const notificacion = new Notification({
                 imei: imei,
                 notificationName: `Exceso de velocidad: ${speed} km/h`,
-                notificationTime: formatearFecha(time),
+                notificationTime: time,
                 notificationType: 'maxSpeed' // Tipo de notificación
             });
             try {
@@ -103,7 +103,7 @@ router.post('/update-from-gps', async (req, res) => {
             const alert = new Alert({
                 imei: imei,
                 alertName: `Exceso de velocidad: ${speed} km/h`,
-                alertTime: formatearFecha(time)
+                alertTime: time
             });
         
 
