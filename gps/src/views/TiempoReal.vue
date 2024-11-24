@@ -30,6 +30,12 @@
 
       <div id="map" class="map-container"></div>
     </div>
+
+    <div class="cuadro">
+      <div class="control-container"> 
+
+      </div>
+    </div>
   </section>
 </template>
 
@@ -220,6 +226,8 @@ const showAlert = (item) => {
   }).then((result) => {
     if (result.isConfirmed) {
       startTracking(item); // Iniciar el seguimiento del dispositivo
+      const cuadro = document.querySelector('.cuadro');
+      cuadro.style.display = 'flex';
     } else {
       Swal.close(); // Cerrar el indicador de carga si se cancela
     }
@@ -520,6 +528,25 @@ onMounted(() => {
 .device-list-container::-webkit-scrollbar-thumb {
   background-color: var(--body-color);
   border-radius: 3px;
+}
+
+.cuadro {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  display: none;
+}
+
+.cuadro .control-container {
+  margin: 5rem 20px;
+  background-color: white;
+  z-index: 3;
+  height: 200px;
+  width: 200px;
 }
 </style>
 
