@@ -48,7 +48,7 @@
                     <tbody>
                         <tr v-for="alert in alerts" :key="alert._id">
                             <td>{{ alert.alertName }}</td>
-                            <td>{{formatDate(alert.alertTime) }}</td>
+                            <td>{{formatDate(utc(alert.alertTime)) }}</td>
                         </tr>
                         <tr v-if="alerts.length === 0">
                             <td colspan="2">No hay alertas disponibles</td>
@@ -70,7 +70,7 @@ import axios from 'axios'
 import imgPath from '../assets/LP.png'; // Importa la imagen aquí
 import iziToast from 'izitoast';
 import NavBar from '../components/NavBar.vue';
-import  { formatDate } from '../../Back-end/utils/formatearFecha';
+import  { formatDate, utc } from '../../Back-end/utils/formatearFecha';
 // Variables reactivas
 const devices = ref([]);
 const deviceDropdownOpen = ref(false);

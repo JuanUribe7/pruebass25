@@ -1,4 +1,4 @@
-function formatearFecha(fechaInicial) {
+export function formatDate(fechaInicial) {
     // Convertir a un objeto Date
     const fecha = new Date(fechaInicial);
 
@@ -14,7 +14,15 @@ function formatearFecha(fechaInicial) {
     // Combinar en el formato deseado
     return `${year}/${month}/${day} ${hours}:${minutes}:${seconds} ${ampm}`;
 }
+export function utc(fechaColombia) {
+    // Crear un objeto Date con la fecha en horario colombiano (UTC-5)
+    const fechaLocal = new Date(fechaColombia);
 
-// Ejemplo de uso
-const fechaInicial = "2024-11-24T12:27:21.000+00:00";
-console.log(formatearFecha(fechaInicial));
+    // Obtener la diferencia de la zona horaria local con UTC en minutos
+    const diferenciaUTC = 5 * 60; // Colombia está en UTC-5
+
+    // Ajustar la fecha al horario UTC
+    const fechaUTC = new Date(fechaLocal.getTime() + diferenciaUTC * 60 * 1000);
+
+    return fechaUTC.toISOString(); // Devuelve la fecha en formato ISO
+}
