@@ -48,7 +48,7 @@
                     <tbody>
                         <tr v-for="alert in alerts" :key="alert._id">
                             <td>{{ alert.alertName }}</td>
-                            <td>{{ formatearFecha(alert.alertTime) }}</td>
+                            <td>{{alert.alertTime }}</td>
                         </tr>
                         <tr v-if="alerts.length === 0">
                             <td colspan="2">No hay alertas disponibles</td>
