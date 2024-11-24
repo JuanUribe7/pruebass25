@@ -190,16 +190,38 @@ router.get('/status/:imei', async (req, res) => {
     }
 });
 
+// Endpoint para obtener el historial de un dispositivo por IMEI
 router.get('/history/:imei', async (req, res) => {
     try {
         const { imei } = req.params;
-        const historyData = await HistoryData.find({ imei }).sort({ fixTime: 1 });
+        const { startDate, endDate } = req.query;
+
+        // Verificar que los parámetros de fecha estén presentes
+        if (!startDate || !endDate) {
+            return res.status(400).json({ error: 'Los parámetros startDate y endDate son requeridos' });
+        }
+
+        // Convertir las fechas a objetos Date.
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+
+        // Buscar los datos de historial dentro del rango de fechas
+        const historyData = await HistoryData.find({
+            imei,
+            fixTime: {
+                $gte: start,
+                $lte: end
+            }
+        }).sort({ fixTime: 1 });
+
         res.json(historyData);
     } catch (error) {
         console.error('Error al obtener el historial:', error.message);
         res.status(500).json({ error: 'Error al obtener el historial: ' + error.message });
     }
 });
+
+
 router.get('/alerts/:imei', async (req, res) => {
     try {
         const { imei } = req.params;

@@ -143,21 +143,30 @@ const showAlert = (item) => {
     html:
       '<label for="start-date">Fecha inicial:</label>' +
       '<input type="date" id="start-date" class="swal2-input">' +
+      '<label for="start-time">Hora inicial:</label>' +
+      '<input type="time" id="start-time" class="swal2-input">' +
       '<label for="end-date">Fecha fin:</label>' +
-      '<input type="date" id="end-date" class="swal2-input">',
+      '<input type="date" id="end-date" class="swal2-input">' +
+      '<label for="end-time">Hora fin:</label>' +
+      '<input type="time" id="end-time" class="swal2-input">',
     width: '60%',
     confirmButtonText: 'Ver Historial',
     showCancelButton: true,
     cancelButtonText: 'Cancelar',
     preConfirm: () => {
       const startDate = document.getElementById('start-date').value;
+      const startTime = document.getElementById('start-time').value;
       const endDate = document.getElementById('end-date').value;
+      const endTime = document.getElementById('end-time').value;
 
-      if (!startDate || !endDate) {
-        Swal.showValidationMessage('Por favor ingrese todas las fechas');
+      if (!startDate || !startTime || !endDate || !endTime) {
+        Swal.showValidationMessage('Por favor ingrese todas las fechas y horas');
       }
-      return {  startDate: new Date(startDate).toISOString(),
-        endDate: new Date(endDate).toISOString()};
+
+      const startDateTime = new Date(`${startDate}T${startTime}:00.000Z`).toISOString();
+      const endDateTime = new Date(`${endDate}T${endTime}:00.000Z`).toISOString();
+
+      return { startDate: startDateTime, endDate: endDateTime };
     }
   }).then((result) => {
     if (result.isConfirmed) {
@@ -186,7 +195,7 @@ const showHistory = async (device, startDate, endDate) => {
       }
     });
     const historyData = response.data;
-   console.log('Datos de historial recibidos:', historyData);
+    console.log('Datos de historial recibidos:', historyData);
 
     if (!Array.isArray(historyData)) {
       throw new Error('La respuesta del servidor no es un array.');
@@ -223,7 +232,6 @@ const showHistory = async (device, startDate, endDate) => {
     });
   }
 };
-
 const playRecording = () => {
   if (!window.recordingCoords) {
     Swal.fire({
