@@ -190,8 +190,10 @@ async function SendCommand(commandNumber) {
       if (cliente) {
         cliente.write(commandBuffer);
         console.log('Command sent:', commandBuffer.toString('hex'));
-        const time =  new Date().toISOString();
-        const localTime = new Date(time.toLocaleString('en-US', { timeZone: 'America/Bogota' }));
+        const time = new Date();
+
+        const localTimeString = time.toLocaleString('en-US', { timeZone: 'America/Bogota' });
+        const localTime = new Date(localTimeString);
         // Guardar la notificación en la base de datos
         const notification = new Notification({
           imei: "863829070233398",
