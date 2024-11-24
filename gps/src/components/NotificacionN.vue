@@ -21,10 +21,10 @@
             <div v-if="showMenu" class="menu-panel">
                 <div class="menu-header">Opciones</div>
                 <div class="menu-items">
-                    <router-link to="#" @click="clearNotifications" class="menu-item">
+                    <a href="#" @click.prevent="clearNotifications" class="menu-item">
                         <i class='bx bx-trash'></i>
                         <span>Limpiar todo</span>
-                    </router-link>
+                    </a>
                     <router-link to="/reporte2" class="menu-item">
                         <i class='bx bx-folder-open'></i>
                         <span>Ver historial</span>
