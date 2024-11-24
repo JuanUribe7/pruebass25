@@ -112,14 +112,6 @@ router.post('/update-from-gps', async (req, res) => {
    
         
 
-
-        
-            try {
-                await alert.save();
-                console.log(`Alerta de exceso de velocidad guardada para IMEI: ${imei}`);
-            } catch (error) {
-                console.error('Error al guardar la alerta:', error);
-            }
         }
 
         console.log(`Ubicación actualizada para IMEI: ${imei} - Latitud: ${Lat}, Longitud: ${Lon}`);
