@@ -21,10 +21,10 @@
             <div v-if="showMenu" class="menu-panel">
                 <div class="menu-header">Opciones</div>
                 <div class="menu-items">
-                    <router-link to="#" class="menu-item">
-                        <i class='bx bx-trash'></i>
-                        <span>Limpiar todo</span>
-                    </router-link>
+                    <router-link @click="clearNotifications" class="menu-item">
+                <i class='bx bx-trash'></i>
+                <span>Limpiar todo</span>
+            </router-link>
                     <router-link to="/reporte2" class="menu-item">
                         <i class='bx bx-folder-open'></i>
                         <span>Ver historial</span>
@@ -42,14 +42,14 @@
                 <li v-for="(notification, index) in notifications" 
                     :key="index"
                     class="notification-item"
-                    :class="{ 'unread': !notification.read }"
+                    :class="{ 'unread': !alert.read }"
                 >
                     <div class="notification-icon">
                         <i class='bx bx-message-rounded-dots'></i>
                     </div>
                     <div class="notification-content">
-                        <div class="notification-text">{{ notification.text }}</div>
-                        <div class="notification-time">{{ notification.time }}</div>
+                        <div class="notification-text">{{ notification.alertName }}</div>
+                        <div class="notification-time">{{ notification.alertTime }}</div>
                     </div>
                     <button class="notification-action" @click="markAsRead(index)">
                         <i class='bx bx-check'></i>
@@ -61,18 +61,12 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted  } from 'vue';
+import iziToast from 'izitoast';
+const notifications = ref([]);
 
 const showMenu = ref(false);
-const notifications = ref([
-    { text: 'Nueva actualización disponible', time: 'Hace 5 min', read: false },
-    { text: 'Juan comentó en tu publicación', time: 'Hace 10 min', read: false },
-    { text: 'Tienes un nuevo seguidor', time: 'Hace 15 min', read: true },
-    { text: 'Recordatorio: Reunión a las 15:00', time: 'Hace 30 min', read: false },
-    { text: 'Tu pedido ha sido enviado', time: 'Hace 1 hora', read: true },
-    { text: 'Nueva mensaje de soporte', time: 'Hace 2 horas', read: false },
-    { text: 'Actualización de seguridad', time: 'Hace 3 horas', read: true },
-]);
+
 
 const toggleMenu = () => {
     showMenu.value = !showMenu.value;
@@ -81,6 +75,86 @@ const toggleMenu = () => {
 const markAsRead = (index) => {
     notifications.value[index].read = true;
 };
+
+
+const cargarAlertas = async () => {
+    try {
+        // Hacer la solicitud para obtener alertas por IMEI
+        const response = await fetch(`http://3.12.147.103/notificaciones`);
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Error del servidor:', errorText);
+            return;
+        }
+        const data = await response.json();
+        console.log(data); // Verifica los datos recibidos
+        // Filtrar las nuevas alertas que no están en el estado actual
+        const nuevasAlertas = data.filter(alerta => !notifications.value.some(a => a._id === alerta._id));
+        if (nuevasAlertas.length > 0) {
+            notifications.value = [...notifications.value, ...nuevasAlertas];
+        }
+        // Mostrar alerta si hay una alerta en la respuesta
+        if (data.alert) {
+            iziToast.warning({
+                title: 'Alerta',
+                message: data.alert.alertName,
+                position: 'topRight',
+                timeout: 5000 // Mostrar la alerta durante 5 segundos
+            });
+        }
+    } catch (error) {
+        console.error('Error al cargar alertas:', error);
+    }
+};
+const cargarNotificaciones = async () => {
+    try {
+        const response = await fetch('http://3.12.147.103/notificaciones');
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Error del servidor:', errorText);
+            return;
+        }
+        const data = await response.json();
+        notifications.value = data;
+    } catch (error) {
+        console.error('Error al cargar notificaciones:', error);
+    }
+};
+const clearNotifications = async () => {
+    try {
+        await fetch('http://3.12.147.103/notificaciones', {
+            method: 'DELETE'
+        });
+        notifications.value = [];
+    } catch (error) {
+        console.error('Error al eliminar notificaciones:', error);
+    }
+};
+onMounted(() => {
+    cargarNotificaciones();
+    cargarAlertas();
+    // Configurar WebSocket para recibir notificaciones en tiempo real
+    let ws = new WebSocket('ws://3.12.147.103');
+    ws.onmessage = (event) => {
+    const notificacion = JSON.parse(event.data);
+    // Verifica si la notificación ya existe antes de agregarla
+    if (!notifications.value.some(alert => alert._id === notificacion._id)) {
+        notifications.value.push(notificacion);
+    }
+};
+ws.onclose = () => {
+    console.log('WebSocket cerrado. Reintentando...');
+    setTimeout(() => {
+        // Reintentar conexión
+        const newWs = new WebSocket('ws://3.12.147.103');
+        ws = newWs;
+    }, 5000);
+};
+    ws.onerror = (error) => {
+        console.error('Error en WebSocket:', error);
+    };
+});
+
 </script>
 
 <style scoped>
