@@ -116,33 +116,8 @@ var tcpServer = net.createServer((client) => {
             }
            
         }); 
-        function SendCommand(commandNumber) {
-            let commandBuffer;
-            
-            switch (commandNumber) {
-                case 0: // Apagar el carro
-                    commandBuffer = Buffer.from([0x78, 0x78, 0x15, 0x80, 0x0F, 0x00, 0x01, 0xA9, 0x61, 0x44, 0x59, 0x44, 0x2C, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x23, 0x00, 0xA0, 0x3E, 0x10, 0x0D, 0x0A]);
-                    break;
-                case 1: // Encender el carro
-                    commandBuffer = Buffer.from([0x78, 0x78, 0x16, 0x80, 0x10, 0x00, 0x01, 0xA9, 0x63, 0x48, 0x46, 0x59, 0x44, 0x2C, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x23, 0x00, 0xA0, 0x7B, 0xDC, 0x0D, 0x0A]);
-                    break;
-                default:
-                    console.error('Comando no reconocido');
-                    return;
-            }
-        
-            if (gpsClient) {
-                gpsClient.write(commandBuffer);
-                console.log('Command sent:', commandBuffer.toString('hex'));
-            } else {
-                console.error('No GPS client connected');
-            }
-        }
-        app.get('/send-command/:commandNumber', (req, res) => {
-            const commandNumber = parseInt(req.params.commandNumber, 10);
-            SendCommand(commandNumber);
-            res.send(`Command ${commandNumber} sent to GPS`);
-        });        
+       
+               
         
         gt06.clearMsgBuffer();
     });
@@ -175,6 +150,33 @@ app.use('/notificaciones', notificacionRoutes);
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
+app.get('/send-command/:commandNumber', (req, res) => {
+    const commandNumber = parseInt(req.params.commandNumber, 10);
+    SendCommand(commandNumber);
+    res.send(`Command ${commandNumber} sent to GPS`);
+}); 
+function SendCommand(commandNumber) {
+    let commandBuffer;
+    
+    switch (commandNumber) {
+        case 0: // Apagar el carro
+            commandBuffer = Buffer.from([0x78, 0x78, 0x15, 0x80, 0x0F, 0x00, 0x01, 0xA9, 0x61, 0x44, 0x59, 0x44, 0x2C, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x23, 0x00, 0xA0, 0x3E, 0x10, 0x0D, 0x0A]);
+            break;
+        case 1: // Encender el carro
+            commandBuffer = Buffer.from([0x78, 0x78, 0x16, 0x80, 0x10, 0x00, 0x01, 0xA9, 0x63, 0x48, 0x46, 0x59, 0x44, 0x2C, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x23, 0x00, 0xA0, 0x7B, 0xDC, 0x0D, 0x0A]);
+            break;
+        default:
+            console.error('Comando no reconocido');
+            return;
+    }
+
+    if (client) {
+        client.write(commandBuffer);
+        console.log('Command sent:', commandBuffer.toString('hex'));
+    } else {
+        console.error('No GPS client connected');
+    }
+}
 
 
 // Inicia el servidor HTTP en el puerto especificado
