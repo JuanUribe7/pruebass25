@@ -49,7 +49,7 @@
                     </div>
                     <div class="notification-content">
                         <div class="notification-text">{{ notification.notificationName }}</div>
-                        <div class="notification-time">{{ notification.notificationTime }}</div>
+                        <div class="notification-time">{{ formatearFecha(notification.notificationTime) }}</div>
                     </div>
                     <button class="notification-action" @click="markAsRead(index)">
                         <i class='bx bx-check'></i>
@@ -63,6 +63,7 @@
 <script setup>
 import { ref, onMounted  } from 'vue';
 import iziToast from 'izitoast';
+import formatearFecha from '../../Back-end/utils/expresiones';
 const notifications = ref([]);
 
 const showMenu = ref(false);
