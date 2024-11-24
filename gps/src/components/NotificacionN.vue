@@ -48,8 +48,8 @@
                         <i class='bx bx-message-rounded-dots'></i>
                     </div>
                     <div class="notification-content">
-                        <div class="notification-text">{{ notification.alertName }}</div>
-                        <div class="notification-time">{{ notification.alertTime }}</div>
+                        <div class="notification-text">{{ notification.notificacionName }}</div>
+                        <div class="notification-time">{{ notification.notificationTime }}</div>
                     </div>
                     <button class="notification-action" @click="markAsRead(index)">
                         <i class='bx bx-check'></i>
