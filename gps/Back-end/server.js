@@ -175,11 +175,11 @@ async function SendCommand(commandNumber) {
     switch (commandNumber) {
         case 0: // Apagar el carro
           commandBuffer = Buffer.from([0x78, 0x78, 0x15, 0x80, 0x0F, 0x00, 0x01, 0xA9, 0x61, 0x44, 0x59, 0x44, 0x2C, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x23, 0x00, 0xA0, 0x3E, 0x10, 0x0D, 0x0A]);
-          alertaName = 'Apagar';
+          alertaName = 'Combustible cortado';
           break;
         case 1: // Encender el carro
           commandBuffer = Buffer.from([0x78, 0x78, 0x16, 0x80, 0x10, 0x00, 0x01, 0xA9, 0x63, 0x48, 0x46, 0x59, 0x44, 0x2C, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x23, 0x00, 0xA0, 0x7B, 0xDC, 0x0D, 0x0A]);
-          alertaName = 'Encender';
+          alertaName = 'Combustible restablecido';
           break;
         default:
           console.error('Comando no reconocido');
@@ -189,13 +189,14 @@ async function SendCommand(commandNumber) {
       if (cliente) {
         cliente.write(commandBuffer);
         console.log('Command sent:', commandBuffer.toString('hex'));
-    
+        const time =  new Date().toISOString();
         // Guardar la notificación en la base de datos
         const notification = new Notification({
           imei: "863829070233398",
-          notificationName: 'Control',
-          notificationTime: "fecha de hoy",
-          notificationType: alertaName 
+          notificationName: alertaName ,
+          
+          notificationTime: formatearFecha(time),
+          notificationType: 'Control'
           
         });
       
