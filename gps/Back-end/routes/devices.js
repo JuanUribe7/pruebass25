@@ -90,8 +90,8 @@ router.post('/update-from-gps', async (req, res) => {
             console.log(`Velocidad de ${speed} km/h detectada, creando alerta...`);
             const notificacion = new Notification({
                 imei: imei,
-                alertName: `Exceso de velocidad: ${speed} km/h`,
-                alertTime: formatearFecha(time),
+                notificationName: `Exceso de velocidad: ${speed} km/h`,
+                notificationTime: formatearFecha(time),
                 notificationType: 'maxSpeed' // Tipo de notificación
             });
             try {
