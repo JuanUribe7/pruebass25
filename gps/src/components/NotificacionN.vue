@@ -22,9 +22,9 @@
                 <div class="menu-header">Opciones</div>
                 <div class="menu-items">
                     <router-link @click="clearNotifications" class="menu-item">
-                <i class='bx bx-trash'></i>
-                <span>Limpiar todo</span>
-            </router-link>
+                        <i class='bx bx-trash'></i>
+                        <span>Limpiar todo</span>
+                    </router-link>
                     <router-link to="/reporte2" class="menu-item">
                         <i class='bx bx-folder-open'></i>
                         <span>Ver historial</span>
@@ -34,16 +34,9 @@
         </Transition>
 
         <div class="notifications-wrapper">
-            <TransitionGroup 
-                name="notification"
-                tag="ul"
-                class="notifications-list"
-            >
-                <li v-for="(notification, index) in notifications" 
-                    :key="index"
-                    class="notification-item"
-                    :class="{ 'unread': !notification.read }"
-                >
+            <TransitionGroup name="notification" tag="ul" class="notifications-list">
+                <li v-for="(notification, index) in notifications" :key="index" class="notification-item"
+                    :class="{ 'unread': !notification.read }">
                     <div class="notification-icon">
                         <i class='bx bx-message-rounded-dots'></i>
                     </div>
@@ -61,7 +54,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted  } from 'vue';
+import { ref, onMounted } from 'vue';
 import iziToast from 'izitoast';
 import formatearFecha from '../../Back-end/utils/expresiones';
 const notifications = ref([]);
@@ -137,20 +130,20 @@ onMounted(() => {
     // Configurar WebSocket para recibir notificaciones en tiempo real
     let ws = new WebSocket('ws://3.12.147.103');
     ws.onmessage = (event) => {
-    const notificacion = JSON.parse(event.data);
-    // Verifica si la notificación ya existe antes de agregarla
-    if (!notifications.value.some(alert => alert._id === notificacion._id)) {
-        notifications.value.push(notificacion);
-    }
-};
-ws.onclose = () => {
-    console.log('WebSocket cerrado. Reintentando...');
-    setTimeout(() => {
-        // Reintentar conexión
-        const newWs = new WebSocket('ws://3.12.147.103');
-        ws = newWs;
-    }, 5000);
-};
+        const notificacion = JSON.parse(event.data);
+        // Verifica si la notificación ya existe antes de agregarla
+        if (!notifications.value.some(alert => alert._id === notificacion._id)) {
+            notifications.value.push(notificacion);
+        }
+    };
+    ws.onclose = () => {
+        console.log('WebSocket cerrado. Reintentando...');
+        setTimeout(() => {
+            // Reintentar conexión
+            const newWs = new WebSocket('ws://3.12.147.103');
+            ws = newWs;
+        }, 5000);
+    };
     ws.onerror = (error) => {
         console.error('Error en WebSocket:', error);
     };
@@ -375,6 +368,7 @@ ws.onclose = () => {
         opacity: 0;
         transform: translate(-50%, -40%);
     }
+
     to {
         opacity: 1;
         transform: translate(-50%, -50%);
@@ -386,6 +380,7 @@ ws.onclose = () => {
         opacity: 0;
         transform: translateX(-20px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
