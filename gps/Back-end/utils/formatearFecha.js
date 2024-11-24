@@ -1,22 +1,20 @@
-export function formatDate(dateString) {
-    // Expresión regular para extraer las partes de la fecha
-    const regex = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})\.\d{3}\+(\d{2}):(\d{2})$/;
-    const match = dateString.match(regex);
+function formatearFecha(fechaInicial) {
+    // Convertir a un objeto Date
+    const fecha = new Date(fechaInicial);
 
-    if (match) {
-        const [_, year, month, day, hour, minute, second] = match;
+    // Obtener componentes de la fecha
+    const year = fecha.getFullYear();
+    const month = String(fecha.getMonth() + 1).padStart(2, '0'); // Mes comienza en 0
+    const day = String(fecha.getDate()).padStart(2, '0');
+    const hours = String(fecha.getHours() % 12 || 12).padStart(2, '0'); // Formato de 12 horas
+    const minutes = String(fecha.getMinutes()).padStart(2, '0');
+    const seconds = String(fecha.getSeconds()).padStart(2, '0');
+    const ampm = fecha.getHours() >= 12 ? 'PM' : 'AM';
 
-        // Convertir a formato de 12 horas
-        let ampm = 'a. m.';
-        let hour12 = parseInt(hour, 10);
-        if (hour12 >= 12) {
-            ampm = 'p. m.';
-        }
-        hour12 = (hour12 % 12) || 12; // Si es 0 horas, convertir a 12
-
-        // Devolver la fecha en el formato que deseas
-        return `${day}/${month}/${year} ${hour12}:${minute}:${second} ${ampm}`;
-    } else {
-        return dateString; // Si no coincide con el formato, retorna la fecha original
-    }
+    // Combinar en el formato deseado
+    return `${year}/${month}/${day} ${hours}:${minutes}:${seconds} ${ampm}`;
 }
+
+// Ejemplo de uso
+const fechaInicial = "2024-11-24T12:27:21.000+00:00";
+console.log(formatearFecha(fechaInicial));
