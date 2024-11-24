@@ -17,8 +17,13 @@
             <div v-if="showMenu" class="menu-overlay" @click="toggleMenu"></div>
         </Transition>
 
+        <Transition name="fade">
+            <div v-if="showMenu" class="menu-overlay" @click="toggleMenu"></div>
+        </Transition>
+
         <Transition name="slide">
             <div v-if="showMenu" class="menu-panel">
+                <div class="menu-header">Opciones</div>
                 <div class="menu-items">
                     <router-link @click="clearNotifications" class="menu-item">
                         <i class='bx bx-trash'></i>
