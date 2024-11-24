@@ -5,7 +5,7 @@
     <div id="map" class="map-container"></div>
     <div class="btns">
       <button id="saveRoute" class="boton">Guardar Ruta</button>
-      <button id="clearRoute" class="boton">Volver a Crear</button>
+      <button id="clearRoute" class="boton">Limpiar</button>
     </div>
     <div class="hone2">
       <h1>Rutas</h1>

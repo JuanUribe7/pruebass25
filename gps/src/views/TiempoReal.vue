@@ -32,8 +32,14 @@
     </div>
 
     <div class="cuadro">
-      <div class="control-container"> 
-
+      <div class="control-container">
+        <p>Dispositivo: {{ deviceName }}</p><br>
+        <p>Tiempo: {{ fixTimeDOM }}</p><br>
+        <p>Velocidad: {{ speedDOM }} km/h</p><br>
+        <p>Encendido: {{ ignitionDOM }}</p><br>
+        <p>Cargando: {{ chargingDOM }}</p><br>
+        <button @click="sendCommand(0)">Apagar Carro</button>
+        <button @click="sendCommand(1)">Encender Carro</button>
       </div>
     </div>
   </section>
@@ -64,7 +70,11 @@ const displayedText = ref("");
 let currentIndex = 0;
 let isDeleting = false;
 let typingInterval;
-
+const deviceName = ref('');
+const fixTimeDOM = ref('');
+const speedDOM = ref(0);
+const ignitionDOM = ref('');
+const chargingDOM = ref('');
 const dropdownOpen = ref(false);
 const searchQuery = ref('');
 const devices = ref([]);
@@ -155,6 +165,11 @@ async function showDeviceOnMap(device) {
       }
     });
 
+    deviceName.value = device.deviceName;
+    fixTimeDOM.value = fixTime;
+    speedDOM.value = speed;
+    ignitionDOM.value = ignition ? 'Sí' : 'No';
+    chargingDOM.value = charging ? 'Sí' : 'No';
     // Centrar el mapa en la ubicación del dispositivo
     map.setView([lat, lon], 18);
 
@@ -191,7 +206,15 @@ async function showDeviceOnMap(device) {
   }
 }
 
+function sendCommand(command) {
+  fetch(`http://3.12.147.103/server/send-command/${command}`)
+    .then(response => response.text())
+    .then(data => alert(data))
+    .catch(error => console.error('Error:', error));
+}
 
+// Hacer la función globalmente accesible
+window.sendCommand = sendCommand;
 
 function startTracking(device) {
   // Mostrar la ubicación inmediatamente
@@ -264,6 +287,7 @@ onMounted(() => {
   cargarDispositivos();
 });
 </script>
+
 
 <style scoped>
 /* Estilos del mapa */
@@ -441,7 +465,7 @@ onMounted(() => {
 .hone2 h1 {
   text-align: center;
   margin-top: 10px;
-  font-size: 15px;
+  font-size: px;
   color: var(--text-color);
 }
 
@@ -539,14 +563,17 @@ onMounted(() => {
   justify-content: flex-end;
   align-items: flex-start;
   display: none;
+  
 }
 
 .cuadro .control-container {
   margin: 5rem 20px;
   background-color: white;
   z-index: 3;
-  height: 200px;
-  width: 200px;
+  height: 300px;
+  width: 280px;
+  border: 3px solid;
+  border-radius: 10px;
 }
 </style>
 

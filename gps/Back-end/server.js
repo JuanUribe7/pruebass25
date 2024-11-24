@@ -24,9 +24,7 @@ const brokerPort = process.env.MQTT_BROKER_PORT || 1883;
 const mqttProtocol = process.env.MQTT_BROKER_PROTO || 'mqtt';
 const brokerUser = process.env.MQTT_BROKER_USER || 'DiegoGPS';
 const brokerPasswd = process.env.MQTT_BROKER_PASSWD || 'Dl1042248136!';
-const commandDWXX = createStaticCommand('DWXX#');
-const commandDYD = createStaticCommand('DYD#');
-const commandHFYD = createStaticCommand('HFYD#');
+
 // Configuración del cliente MQTT
 const mqttClient = mqtt.connect({
     protocol: mqttProtocol,
@@ -39,43 +37,13 @@ const mqttClient = mqtt.connect({
 app.use(express.static(path.join(__dirname, 'dist' )));
 
 // Servidor TCP
-function createStaticCommand(commandString) {
-    let command = Buffer.from('7878', 'hex'); // Inicio del mensaje
-    let protocolNumber = Buffer.from('80', 'hex'); // Número de protocolo (ejemplo)
-    let dataBuffer = Buffer.from(commandString, 'ascii'); // Datos del comando en ASCII
-    let length = Buffer.from([(dataBuffer.length + 5)]); // Longitud del mensaje
 
-    // Construir el mensaje completo
-    let message = Buffer.concat([command, length, protocolNumber, dataBuffer]);
 
-    // Calcular y añadir CRC16
-    let crc = getCrc16(message);
-    message = Buffer.concat([message, crc, Buffer.from('0d0a', 'hex')]); // Añadir CRC y terminador
 
-    return message;
-}
-
-app.get('/send-command', (req, res) => {
-    const param = req.query.param;
-  
-
-    switch (param) {
-        case '1':
-            client.write(commandDWXX);
-            break;
-        case '2':
-            client.write(commandDYD);
-            break;
-        case '3':
-            client.write(commandHFYD);
-            break;
-        default:
-            return res.status(400).json({ error: 'Invalid parameter' });
-    }    }); 
 var tcpServer = net.createServer((client) => {
     var gt06 = new Gt06();
     console.log('client connected');
-    client.write(commandDYD);
+    
 
     client.on('error', (err) => {
         console.error('client error', err);
@@ -148,6 +116,33 @@ var tcpServer = net.createServer((client) => {
             }
            
         }); 
+        function SendCommand(commandNumber) {
+            let commandBuffer;
+            
+            switch (commandNumber) {
+                case 0: // Apagar el carro
+                    commandBuffer = Buffer.from([0x78, 0x78, 0x15, 0x80, 0x0F, 0x00, 0x01, 0xA9, 0x61, 0x44, 0x59, 0x44, 0x2C, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x23, 0x00, 0xA0, 0x3E, 0x10, 0x0D, 0x0A]);
+                    break;
+                case 1: // Encender el carro
+                    commandBuffer = Buffer.from([0x78, 0x78, 0x16, 0x80, 0x10, 0x00, 0x01, 0xA9, 0x63, 0x48, 0x46, 0x59, 0x44, 0x2C, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x23, 0x00, 0xA0, 0x7B, 0xDC, 0x0D, 0x0A]);
+                    break;
+                default:
+                    console.error('Comando no reconocido');
+                    return;
+            }
+        
+            if (gpsClient) {
+                gpsClient.write(commandBuffer);
+                console.log('Command sent:', commandBuffer.toString('hex'));
+            } else {
+                console.error('No GPS client connected');
+            }
+        }
+        app.get('/send-command/:commandNumber', (req, res) => {
+            const commandNumber = parseInt(req.params.commandNumber, 10);
+            SendCommand(commandNumber);
+            res.send(`Command ${commandNumber} sent to GPS`);
+        });        
         
         gt06.clearMsgBuffer();
     });
