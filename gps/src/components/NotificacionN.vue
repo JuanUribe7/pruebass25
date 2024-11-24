@@ -56,7 +56,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import iziToast from 'izitoast';
-import formatDate from '../../Back-end/utils/formatearFecha';
+import  { formatDate } from '../../Back-end/utils/formatearFecha';
 const notifications = ref([]);
 
 const showMenu = ref(false);

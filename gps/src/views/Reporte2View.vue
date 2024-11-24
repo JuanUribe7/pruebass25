@@ -70,7 +70,7 @@ import axios from 'axios'
 import imgPath from '../assets/LP.png'; // Importa la imagen aquí
 import iziToast from 'izitoast';
 import NavBar from '../components/NavBar.vue';
-import formatDate from '../../Back-end/utils/formatearFecha';
+import  { formatDate } from '../../Back-end/utils/formatearFecha';
 // Variables reactivas
 const devices = ref([]);
 const deviceDropdownOpen = ref(false);
