@@ -193,7 +193,7 @@ async function SendCommand(commandNumber) {
     
         // Guardar la notificación en la base de datos
         const notification = new Notification({
-            imei: { type: String, required: true },
+            imei: "863829070233398",
             notificationName: alertaName ,
             notificationTime: new Date(time.toLocaleString('en-US', { timeZone: 'America/Bogota' })),
             notificationType: 'Control'
