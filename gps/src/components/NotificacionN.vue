@@ -69,33 +69,6 @@ const markAsRead = (index) => {
     notifications.value[index].read = true;
 };
 
-const cargarAlertas = async () => {
-    try {
-        const response = await fetch(`http://3.12.147.103/notificaciones`);
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Error del servidor:', errorText);
-            return;
-        }
-        const data = await response.json();
-        console.log(data); // Verifica los datos recibidos
-        const nuevasAlertas = data.filter(alerta => !notifications.value.some(a => a._id === alerta._id));
-        if (nuevasAlertas.length > 0) {
-            notifications.value = [...notifications.value, ...nuevasAlertas];
-        }
-        if (data.alert) {
-            iziToast.warning({
-                title: 'Alerta',
-                message: data.alert.alertName,
-                position: 'topRight',
-                timeout: 5000 // Mostrar la alerta durante 5 segundos
-            });
-        }
-    } catch (error) {
-        console.error('Error al cargar alertas:', error);
-    }
-};
-
 const cargarNotificaciones = async () => {
     try {
         const response = await fetch('http://3.12.147.103/notificaciones');
@@ -105,7 +78,26 @@ const cargarNotificaciones = async () => {
             return;
         }
         const data = await response.json();
-        notifications.value = data;
+        console.log(data); // Verifica los datos recibidos
+
+        // Filtrar nuevas alertas
+        const nuevasAlertas = data.filter(alerta => !notifications.value.some(a => a._id === alerta._id));
+        if (nuevasAlertas.length > 0) {
+            notifications.value = [...notifications.value, ...nuevasAlertas];
+        }
+
+        // Ordenar las notificaciones por fecha en orden descendente
+        notifications.value.sort((a, b) => new Date(b.notificationTime) - new Date(a.notificationTime));
+
+        // Mostrar alerta si hay una alerta en la respuesta
+        if (data.alert) {
+            iziToast.warning({
+                title: 'Alerta',
+                message: data.alert.alertName,
+                position: 'topRight',
+                timeout: 5000 // Mostrar la alerta durante 5 segundos
+            });
+        }
     } catch (error) {
         console.error('Error al cargar notificaciones:', error);
     }
@@ -124,7 +116,6 @@ const clearNotifications = async () => {
 
 onMounted(() => {
     cargarNotificaciones();
-    cargarAlertas();
     let ws = new WebSocket('ws://3.12.147.103');
     ws.onmessage = (event) => {
         const notificacion = JSON.parse(event.data);
