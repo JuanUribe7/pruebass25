@@ -6,7 +6,7 @@ const HistoryData = require('../models/HistoryData'); // Importa HistoryData des
 const formatearFecha = require('../utils/expresiones')
 const Notification = require('../models/notification');
 const Route = require('../models/Route');
-
+const app = express();
 // Endpoint para obtener todos los dispositivos
 router.get('/', async (req, res) => {
     try {
