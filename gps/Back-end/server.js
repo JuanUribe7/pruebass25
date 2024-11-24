@@ -189,13 +189,14 @@ async function SendCommand(commandNumber) {
       if (cliente) {
         cliente.write(commandBuffer);
         console.log('Command sent:', commandBuffer.toString('hex'));
+        const time =  new Date().toISOString();
     
         // Guardar la notificación en la base de datos
         const notification = new Notification({
-          imei: imei,
-          notificationName: 'Control',
-          notificationtTime: "fecha de hoy",
-          notificationType: alertaName 
+            notificationName: alertaName ,
+          
+            notificationTime: new Date(time.toLocaleString('en-US', { timeZone: 'America/Bogota' })),
+            notificationType: 'Control'
           
         });
       
