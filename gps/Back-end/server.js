@@ -172,8 +172,7 @@ app.use('/devices', deviceRoutes);
 app.use('/routes', routes);
 app.use('/notificaciones', notificacionRoutes);
 
-
-t('*', (req, res) => {
+app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
