@@ -205,7 +205,12 @@ async function showDeviceOnMap(device) {
     Swal.close(); // Cerrar el indicador de carga en caso de error
   }
 }
-
+function sendCommand(command) {
+  fetch(`http://3.12.147.103/send-command/${command}`)
+    .then(response => response.text())
+    .then(data => alert(data))
+    .catch(error => console.error('Error:', error));
+}
 
 function startTracking(device) {
   // Mostrar la ubicación inmediatamente
