@@ -16,7 +16,7 @@ const notificacionRoutes = require('./routes/notificaciones');
 const { WebSocketServer } = require('ws');
 const iniciarWatcher = require('./utils/notificationWatcher');
 const Notification = require('./models/notification'); // Importa el modelo de notificación
-const formatearFecha = require('../utils/expresiones')
+const formatearFecha = require('./utils/expresiones');
 
 const PORT = process.env.GT06_SERVER_PORT || 4000;
 const HTTP_PORT = process.env.HTTP_PORT || 80;
