@@ -216,10 +216,7 @@ router.get('/alerts/', async (req, res) => {
         res.status(500).json({ message: 'Error al obtener alertas', error: error.message });
     }
 });
-app.get('/send-command/:commandNumber', (req, res) => {
-    
-    res.send(`Command Hola sent to GPS`);
-}); 
+
 
 // Endpoint para eliminar un dispositivo
 router.delete('/:id', async (req, res) => {
