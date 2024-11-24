@@ -227,6 +227,9 @@ const cargarAlertas = async (imei) => {
         console.log(data); // Verifica los datos recibidos
         alerts.value = data;
 
+        // Ordenar las alertas por fecha en orden descendente
+        alerts.value.sort((a, b) => new Date(b.alertTime) - new Date(a.alertTime));
+
         // Mostrar alerta si hay una alerta en la respuesta
         if (data.alert) {
             iziToast.warning({
