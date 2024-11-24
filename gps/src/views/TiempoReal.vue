@@ -206,7 +206,7 @@ async function showDeviceOnMap(device) {
   }
 }
 function sendCommand(command) {
-  fetch(`http://3.12.147.103/send-command/${command}`)
+  fetch(`http://3.12.147.103/devices/send-command/${command}`)
     .then(response => response.text())
     .then(data => alert(data))
     .catch(error => console.error('Error:', error));
