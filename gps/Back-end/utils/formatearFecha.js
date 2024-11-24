@@ -1,23 +1,21 @@
 export function formatDate(dateString) {
     const date = new Date(dateString);
 
-    // Ajustar manualmente a UTC-5 (Colombia)
-    const localDate = new Date(date.getTime() - 5 * 60 * 60 * 1000); // UTC -5 en milisegundos
+    // Convertir la fecha a la zona horaria de Colombia (UTC-5)
+    const options = {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true,
+        timeZone: 'America/Bogota', // Asegurando la zona horaria de Colombia (UTC-5)
+    };
 
-    // Obtener componentes de la fecha ajustada
-    const year = localDate.getUTCFullYear();
-    const month = String(localDate.getUTCMonth() + 1).padStart(2, '0'); // Meses empiezan desde 0
-    const day = String(localDate.getUTCDate()).padStart(2, '0');
+    // Usamos Intl.DateTimeFormat para formatear la fecha de acuerdo a la zona horaria local
+    const formatter = new Intl.DateTimeFormat('es-CO', options);
+    const formattedDate = formatter.format(date);
 
-    // Obtener componentes de la hora ajustada
-    let hours = localDate.getUTCHours();
-    const minutes = String(localDate.getUTCMinutes()).padStart(2, '0');
-    const seconds = String(localDate.getUTCSeconds()).padStart(2, '0');
-
-    // AM/PM y conversión de formato de 24 horas a 12 horas
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12 || 12; // Asegurar que las 12 AM/PM sean correctas
-
-    // Formatear la fecha completa
-    return `${year}/${month}/${day} - ${hours}:${minutes}:${seconds} ${ampm}`;
+    return formattedDate.replace(',', ''); // Eliminar la coma que se agrega por defecto
 }
