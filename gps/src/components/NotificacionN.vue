@@ -42,7 +42,7 @@
                 <li v-for="(notification, index) in notifications" 
                     :key="index"
                     class="notification-item"
-                    :class="{ 'unread': !alert.read }"
+                    :class="{ 'unread': !notification.read }"
                 >
                     <div class="notification-icon">
                         <i class='bx bx-message-rounded-dots'></i>
