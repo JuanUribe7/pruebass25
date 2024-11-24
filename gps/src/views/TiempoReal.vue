@@ -205,11 +205,18 @@ async function showDeviceOnMap(device) {
     Swal.close(); // Cerrar el indicador de carga en caso de error
   }
 }
-function sendCommand(command) {
-  fetch(`http://3.12.147.103/devices/send-command/${command}`)
-    .then(response => response.text())
-    .then(data => alert(data))
-    .catch(error => console.error('Error:', error));
+async function sendCommand(command) {
+  try {
+    const response = await fetch(`http://3.12.147.103/devices/send-command/${command}`);
+    if (!response.ok) {
+      throw new Error(`Error en la respuesta de la API: ${response.statusText}`);
+    }
+    const data = await response.text();
+    alert(data);
+  } catch (error) {
+    console.error('Error al enviar el comando:', error);
+    alert(`Error al enviar el comando: ${error.message}`);
+  }
 }
 
 function startTracking(device) {
