@@ -17,18 +17,14 @@
             <div v-if="showMenu" class="menu-overlay" @click="toggleMenu"></div>
         </Transition>
 
-        <Transition name="fade">
-            <div v-if="showMenu" class="menu-overlay" @click="toggleMenu"></div>
-        </Transition>
-
         <Transition name="slide">
             <div v-if="showMenu" class="menu-panel">
                 <div class="menu-header">Opciones</div>
                 <div class="menu-items">
-                    <router-link @click="clearNotifications" class="menu-item">
+                    <div @click="clearNotifications" class="menu-item">
                         <i class='bx bx-trash'></i>
                         <span>Limpiar todo</span>
-                    </router-link>
+                    </div>
                     <router-link to="/reporte2" class="menu-item">
                         <i class='bx bx-folder-open'></i>
                         <span>Ver historial</span>
@@ -65,7 +61,6 @@ const notifications = ref([]);
 
 const showMenu = ref(false);
 
-
 const toggleMenu = () => {
     showMenu.value = !showMenu.value;
 };
@@ -74,10 +69,8 @@ const markAsRead = (index) => {
     notifications.value[index].read = true;
 };
 
-
 const cargarAlertas = async () => {
     try {
-        // Hacer la solicitud para obtener alertas por IMEI
         const response = await fetch(`http://3.12.147.103/notificaciones`);
         if (!response.ok) {
             const errorText = await response.text();
@@ -86,12 +79,10 @@ const cargarAlertas = async () => {
         }
         const data = await response.json();
         console.log(data); // Verifica los datos recibidos
-        // Filtrar las nuevas alertas que no están en el estado actual
         const nuevasAlertas = data.filter(alerta => !notifications.value.some(a => a._id === alerta._id));
         if (nuevasAlertas.length > 0) {
             notifications.value = [...notifications.value, ...nuevasAlertas];
         }
-        // Mostrar alerta si hay una alerta en la respuesta
         if (data.alert) {
             iziToast.warning({
                 title: 'Alerta',
@@ -104,6 +95,7 @@ const cargarAlertas = async () => {
         console.error('Error al cargar alertas:', error);
     }
 };
+
 const cargarNotificaciones = async () => {
     try {
         const response = await fetch('http://3.12.147.103/notificaciones');
@@ -118,6 +110,7 @@ const cargarNotificaciones = async () => {
         console.error('Error al cargar notificaciones:', error);
     }
 };
+
 const clearNotifications = async () => {
     try {
         await fetch('http://3.12.147.103/notificaciones', {
@@ -128,14 +121,13 @@ const clearNotifications = async () => {
         console.error('Error al eliminar notificaciones:', error);
     }
 };
+
 onMounted(() => {
     cargarNotificaciones();
     cargarAlertas();
-    // Configurar WebSocket para recibir notificaciones en tiempo real
     let ws = new WebSocket('ws://3.12.147.103');
     ws.onmessage = (event) => {
         const notificacion = JSON.parse(event.data);
-        // Verifica si la notificación ya existe antes de agregarla
         if (!notifications.value.some(alert => alert._id === notificacion._id)) {
             notifications.value.push(notificacion);
         }
@@ -143,7 +135,6 @@ onMounted(() => {
     ws.onclose = () => {
         console.log('WebSocket cerrado. Reintentando...');
         setTimeout(() => {
-            // Reintentar conexión
             const newWs = new WebSocket('ws://3.12.147.103');
             ws = newWs;
         }, 5000);
@@ -152,7 +143,6 @@ onMounted(() => {
         console.error('Error en WebSocket:', error);
     };
 });
-
 </script>
 
 <style scoped>
