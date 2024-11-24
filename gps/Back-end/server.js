@@ -34,14 +34,24 @@ const mqttClient = mqtt.connect({
     password: brokerPasswd
 });
 
+mqttClient.on('connect', () => {
+    console.log('Cliente MQTT conectado');
+});
+
+mqttClient.on('error', (err) => {
+    console.error('Error en la conexión MQTT:', err);
+});
+
 app.use(express.static(path.join(__dirname, 'dist' )));
 
 // Servidor TCP
+let cliente = null;
 
 
 
 var tcpServer = net.createServer((client) => {
     var gt06 = new Gt06();
+    cliente=client;
     console.log('client connected');
     
 
@@ -173,8 +183,8 @@ function SendCommand(commandNumber) {
             return;
     }
 
-    if (client) {
-        client.write(commandBuffer);
+    if (cliente) {
+        cliente.write(commandBuffer);
         console.log('Command sent:', commandBuffer.toString('hex'));
     } else {
         console.error('No GPS client connected');

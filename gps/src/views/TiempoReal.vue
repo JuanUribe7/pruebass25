@@ -207,7 +207,7 @@ async function showDeviceOnMap(device) {
 }
 async function sendCommand(command) {
   try {
-    const response = await fetch(`/send-command/${command}`);
+    const response = await fetch(`http://3.12.147.103/send-command/${command}`);
     if (!response.ok) {
       throw new Error(`Error en la respuesta de la API: ${response.statusText}`);
     }
