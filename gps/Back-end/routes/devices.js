@@ -109,9 +109,6 @@ router.post('/update-from-gps', async (req, res) => {
             } catch (error) {
                 console.error('Error al guardar la notificación:', error);
             }
-   
-        
-
         }
 
         console.log(`Ubicación actualizada para IMEI: ${imei} - Latitud: ${Lat}, Longitud: ${Lon}`);
