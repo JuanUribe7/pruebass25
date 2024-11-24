@@ -20,3 +20,13 @@ module.exports = defineConfig({
       .merge(['.ts', '.js', '.vue', '.json']);
   }
 });
+module.exports = {
+  devServer: {
+    proxy: {
+      '/send-command': {
+        target: 'http://3.12.147.103', // Cambia esto al puerto de tu servidor backend
+        changeOrigin: true
+      }
+    }
+  }
+};

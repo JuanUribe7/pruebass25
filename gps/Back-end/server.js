@@ -150,6 +150,9 @@ app.use('/notificaciones', notificacionRoutes);
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
+app.get('/test', (req, res) => {
+    res.send('El servidor está recibiendo solicitudes correctamente.');
+  });
 app.get('/send-command/:commandNumber', (req, res) => {
     const commandNumber = parseInt(req.params.commandNumber, 10);
     SendCommand(commandNumber);
