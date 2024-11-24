@@ -25,6 +25,12 @@ const mqttProtocol = process.env.MQTT_BROKER_PROTO || 'mqtt';
 const brokerUser = process.env.MQTT_BROKER_USER || 'DiegoGPS';
 const brokerPasswd = process.env.MQTT_BROKER_PASSWD || 'Dl1042248136!';
 
+
+app.get('/send-command/:commandNumber', (req, res) => {
+    const commandNumber = parseInt(req.params.commandNumber, 10);
+    SendCommand(commandNumber);
+    res.send(`Command ${commandNumber} sent to GPS`);
+}); 
 // Configuración del cliente MQTT
 const mqttClient = mqtt.connect({
     protocol: mqttProtocol,
@@ -163,11 +169,7 @@ app.get('*', (req, res) => {
 app.get('/test', (req, res) => {
     res.send('El servidor está recibiendo solicitudes correctamente.');
   });
-app.get('/send-command/:commandNumber', (req, res) => {
-    const commandNumber = parseInt(req.params.commandNumber, 10);
-    SendCommand(commandNumber);
-    res.send(`Command ${commandNumber} sent to GPS`);
-}); 
+
 function SendCommand(commandNumber) {
     let commandBuffer;
     
